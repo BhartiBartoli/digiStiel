@@ -1,0 +1,25 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://raw.githubusercontent.com https://api.anthropic.com https://sporza.be https://www.voetbalkrant.com https://www.hln.be https://www.hbvl.be https://www.nieuwsblad.be https://feeds.bbci.co.uk https://www.skysports.com https://www.goal.com https://www.football365.com https://www.theguardian.com https://www.vi.nl https://www.telegraaf.nl https://www.ad.nl"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    Access-Control-Allow-Origin = "*"

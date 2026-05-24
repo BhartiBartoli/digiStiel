@@ -1,0 +1,13 @@
+{
+  "name": "Beringen WK Kampioenschap 2026",
+  "short_name": "WK Beringen",
+  "description": "Voorspel de Rode Duivels-uitslagen en win fietsacties bij Bike Center Beringen.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060a0f",
+  "theme_color": "#e8281e",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/og-image.png", "sizes": "1200x630", "type": "image/png" }
+  ]
+}

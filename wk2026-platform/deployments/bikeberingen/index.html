@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title id="pageTitle">WK 2026 — Beringen Kampioenschap</title>
+<meta name="description" id="pageDesc" content="Doe mee aan het Beringen WK 2026 Kampioenschap. Voorspel de Rode Duivels-uitslagen en win fietsacties!">
+<meta name="theme-color" id="themeColor" content="#e8281e">
+<link rel="manifest" href="/manifest.json">
+
+<meta property="og:type" content="website">
+<meta property="og:title" id="ogTitle" content="Beringen WK Kampioenschap 2026">
+<meta property="og:description" id="ogDesc" content="Voorspel de Rode Duivels-uitslagen en win!">
+<meta property="og:image" content="/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/og-image.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
+
+<style>
+/* ══ CSS CUSTOM PROPERTIES — injected from TENANT config at runtime ══════════ */
+:root {
+  --t-primary:   #e8281e;
+  --t-secondary: #1a1a2e;
+  --t-accent:    #f5a623;
+  --bg:#060a0f; --surface:#0d1520; --surface2:#111d2e; --border:#1a2d45;
+  --accent:#e8a020; --gold:#f6c700; --text:#e8eef5; --dim:#7a98b5;
+  --green:#22c55e; --blue:#3b82f6; --red:#ff3d3d;
+  --topbar:#000; --shadow:none;
+  --hero-grad:linear-gradient(135deg,#0d0a00,#1a1200 50%,#060f1a);
+  --radius:8px; --radius-sm:5px;
+}
+body.light {
+  --bg:#f0f4f8; --surface:#fff; --surface2:#e8eef5; --border:#cbd5e1;
+  --text:#0f172a; --dim:#64748b; --topbar:#1e293b; --shadow:0 1px 3px rgba(0,0,0,.1);
+  --hero-grad:linear-gradient(135deg,#1e3a5f,#2d5a8e 50%,#1a3a5c);
+}
+
+/* ══ RESET ══ */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh;transition:background .25s,color .25s;overscroll-behavior:none;}
+
+/* ══ TENANT BAR ══════════════════════════════════════════════════════════════ */
+.t-bar{
+  background:var(--t-secondary);
+  border-bottom:3px solid var(--t-primary);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;height:52px;
+  position:sticky;top:0;z-index:1100;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+.t-logo{display:flex;align-items:center;gap:10px;}
+.t-icon{
+  width:34px;height:34px;background:var(--t-primary);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.t-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1.5px;color:#fff;line-height:1;}
+.t-sub{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.3px;}
+.t-cta{
+  background:var(--t-primary);color:#fff;border:none;border-radius:6px;
+  padding:8px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
+  cursor:pointer;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap;
+  text-decoration:none;display:inline-flex;align-items:center;gap:5px;
+  transition:opacity .18s;-webkit-tap-highlight-color:transparent;
+}
+.t-cta:hover,.t-cta:active{opacity:.85;}
+@media(max-width:400px){.t-sub,.t-cta span{display:none;}.t-cta{padding:8px 10px;}}
+
+/* ══ TOPBAR ══════════════════════════════════════════════════════════════════ */
+.topbar{
+  background:var(--topbar);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;height:40px;position:sticky;top:52px;z-index:1000;gap:10px;
+}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent);white-space:nowrap;}
+.logo span{color:#fff;}
+.ticker{font-size:11px;color:rgba(255,255,255,.4);white-space:nowrap;overflow:hidden;flex:1;min-width:0;}
+.ticker-inner{display:inline-block;animation:ticker 50s linear infinite;}
+@keyframes ticker{0%{transform:translateX(100%);}100%{transform:translateX(-150%);}}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.ts-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);white-space:nowrap;}
+.mode-btn{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:16px;padding:3px 9px;cursor:pointer;font-size:11px;color:#fff;
+  display:flex;align-items:center;gap:4px;transition:.18s;white-space:nowrap;
+}
+.mode-btn:hover{background:rgba(255,255,255,.15);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.dot.loading{background:var(--accent);animation:blink 1s step-end infinite;}
+.dot.err{background:var(--red);}
+@keyframes blink{50%{opacity:.3;}}
+@media(max-width:520px){.ticker{display:none;}.ts-label{display:none;}}
+
+/* ══ NAV — 4 primary tabs ════════════════════════════════════════════════════ */
+nav{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;}
+nav::-webkit-scrollbar{display:none;}
+.nb{
+  padding:11px 16px;border:none;background:none;color:var(--dim);
+  font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.7px;text-transform:uppercase;cursor:pointer;
+  white-space:nowrap;border-bottom:2px solid transparent;
+  transition:.18s;-webkit-tap-highlight-color:transparent;flex:1;text-align:center;
+}
+.nb:hover{color:var(--text);}
+.nb.active{color:var(--accent);border-bottom-color:var(--accent);}
+.nb.nb-game{color:var(--t-accent);}
+.nb.nb-game.active{color:var(--t-accent);border-bottom-color:var(--t-accent);}
+.nb.nb-shop{color:var(--t-accent);}
+.nb.nb-shop.active{color:var(--t-accent);border-bottom-color:var(--t-accent);}
+
+/* ══ VIEWS ════════════════════════════════════════════════════════════════════ */
+.view{display:none;padding:16px;max-width:700px;margin:0 auto;}
+.view.active{display:block;}
+
+/* ══ CARDS ════════════════════════════════════════════════════════════════════ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+.ch{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ct{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1.5px;color:var(--accent);}
+.ct.gold{color:var(--gold);}
+.ct.tenant{color:var(--t-accent);}
+.cb{padding:14px;}
+
+/* ══ HERO CAMPAIGN CARD — the first thing seen ═══════════════════════════════ */
+.hero-campaign{
+  background:linear-gradient(135deg,#0d0000,#1a0000 50%,#0d0a00);
+  border:1px solid var(--t-primary);border-radius:var(--radius);
+  padding:20px;margin-bottom:14px;position:relative;overflow:hidden;
+}
+.hero-campaign::before{
+  content:'🏆';position:absolute;right:10px;top:10px;
+  font-size:80px;opacity:.06;line-height:1;pointer-events:none;
+}
+.camp-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--t-primary);color:#fff;
+  font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;
+  letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;
+}
+.camp-title{
+  font-family:'Bebas Neue',sans-serif;font-size:28px;
+  letter-spacing:1px;color:#fff;line-height:1.1;margin-bottom:6px;
+}
+.camp-sub{font-size:13px;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:14px;}
+.cta-row{display:flex;flex-wrap:wrap;gap:8px;}
+.btn{
+  display:inline-flex;align-items:center;gap:5px;border:none;border-radius:6px;
+  padding:10px 18px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;text-decoration:none;transition:opacity .18s;
+  -webkit-tap-highlight-color:transparent;white-space:nowrap;
+}
+.btn-primary{background:var(--t-primary);color:#fff;}
+.btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);}
+.btn-whatsapp{background:#25d366;color:#fff;}
+.btn-accent{background:var(--t-accent);color:#000;}
+.btn:hover,.btn:active{opacity:.85;}
+
+/* ══ COUNTDOWN + PREDICTION STATUS STRIP ═════════════════════════════════════ */
+.countdown-hero{
+  background:linear-gradient(90deg,var(--t-primary),#c0201a);
+  border-radius:var(--radius);padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;gap:10px;flex-wrap:wrap;
+}
+.cd-left{flex:1;}
+.cd-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.6px;}
+.cd-match{font-size:13px;color:#fff;font-weight:600;margin-top:2px;}
+.cd-status{font-size:11px;color:rgba(255,255,255,.65);margin-top:2px;}
+.cd-timer{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fff;letter-spacing:2px;white-space:nowrap;}
+.cd-predict-btn{
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+  color:#fff;border-radius:5px;padding:8px 14px;font-weight:700;font-size:12px;
+  cursor:pointer;white-space:nowrap;transition:.18s;
+}
+.cd-predict-btn:hover{background:rgba(255,255,255,.25);}
+.cd-locked{font-size:11px;color:rgba(255,255,255,.65);font-style:italic;margin-top:4px;}
+
+/* ══ MY SCORE CARD ════════════════════════════════════════════════════════════ */
+.score-card{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:14px;
+}
+.score-avatar{font-size:32px;line-height:1;}
+.score-info{flex:1;}
+.score-name{font-weight:700;font-size:14px;}
+.score-pts{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--t-accent);line-height:1;}
+.score-pts-label{font-size:11px;color:var(--dim);}
+.score-rank{text-align:right;}
+.score-rank-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text);}
+.score-rank-label{font-size:11px;color:var(--dim);}
+.score-history{font-size:11px;color:var(--dim);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;}
+.score-badge{
+  padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;
+}
+.sb-exact{background:rgba(34,197,94,.15);color:var(--green);}
+.sb-winner{background:rgba(232,160,32,.15);color:var(--accent);}
+.sb-miss{background:rgba(100,116,139,.15);color:var(--dim);}
+.sb-pending{background:rgba(59,130,246,.15);color:var(--blue);}
+
+/* ══ LEADERBOARD ══════════════════════════════════════════════════════════════ */
+.lb-row{
+  display:flex;align-items:center;gap:10px;padding:10px 0;
+  border-bottom:1px solid rgba(100,116,139,.15);
+}
+.lb-row:last-child{border-bottom:none;}
+.lb-rank{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--dim);min-width:28px;}
+.lb-rank.r1{color:#ffd700;}
+.lb-rank.r2{color:#c0c0c0;}
+.lb-rank.r3{color:#cd7f32;}
+.lb-avatar{font-size:20px;}
+.lb-info{flex:1;}
+.lb-name{font-weight:600;font-size:13px;}
+.lb-city{font-size:11px;color:var(--dim);}
+.lb-pts{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--t-accent);}
+.lb-you{background:rgba(245,166,35,.08);border-radius:5px;padding:1px 6px;}
+
+/* ══ PREDICTION HISTORY (post-match reveal) ══════════════════════════════════ */
+.pred-result{
+  border:1px solid var(--border);border-radius:6px;padding:12px;
+  margin-bottom:8px;display:flex;align-items:center;gap:12px;
+}
+.pred-result.exact{border-color:var(--green);background:rgba(34,197,94,.05);}
+.pred-result.winner{border-color:var(--accent);background:rgba(232,160,32,.05);}
+.pred-result.miss{opacity:.6;}
+.pred-flag{font-size:22px;}
+.pred-info{flex:1;}
+.pred-match{font-weight:600;font-size:13px;}
+.pred-scores{font-size:12px;color:var(--dim);margin-top:2px;}
+.pred-pts{font-family:'Bebas Neue',sans-serif;font-size:22px;}
+
+/* ══ MATCH CARDS ══════════════════════════════════════════════════════════════ */
+.mc{
+  background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:12px;
+  transition:border-color .18s;
+}
+.mc:hover{border-color:#2a4060;}
+.mc.bel{border-left:3px solid var(--gold);}
+.mc.live{border-left:3px solid var(--red);animation:livePulse 2s ease-in-out infinite;}
+@keyframes livePulse{0%,100%{border-left-color:var(--red);}50%{border-left-color:#ff8080;}}
+.mc-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);min-width:62px;text-align:center;}
+.live-pill{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;display:block;text-align:center;animation:blink 1s step-end infinite;}
+.mc-teams{flex:1;display:flex;align-items:center;gap:7px;}
+.mc-score{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--accent);min-width:60px;text-align:center;}
+.t-name-sm{font-weight:600;font-size:13px;}
+.mc-meta{font-size:10px;color:var(--dim);}
+
+/* ══ STAT ROW ═════════════════════════════════════════════════════════════════ */
+.sr{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(100,116,139,.15);}
+.sr:last-child{border-bottom:none;}
+.sr-l{color:var(--dim);font-size:12px;}
+.sr-v{font-family:'JetBrains Mono',monospace;font-weight:600;}
+.sr-v.gold{color:var(--accent);}
+.sr-v.green{color:var(--green);}
+
+/* ══ STANDINGS ════════════════════════════════════════════════════════════════ */
+.stbl{width:100%;border-collapse:collapse;font-size:12px;}
+.stbl th{padding:6px 7px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--border);}
+.stbl th:first-child{text-align:left;}
+.stbl td{padding:8px 7px;text-align:center;border-bottom:1px solid rgba(100,116,139,.15);}
+.stbl td:first-child{text-align:left;}
+.stbl tr.q td{background:rgba(34,197,94,.05);}
+.stbl tr.bel td{background:rgba(246,199,0,.06);}
+.pb{width:19px;height:19px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:3px;background:var(--border);color:var(--dim);}
+.pb.q{background:rgba(34,197,94,.2);color:var(--green);}
+
+/* ══ GROUPS GRID ══════════════════════════════════════════════════════════════ */
+.gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+
+/* ══ BRACKET ══════════════════════════════════════════════════════════════════ */
+.bs-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--accent);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.bm{background:var(--surface2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:7px;}
+.bt{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px;font-weight:500;}
+.bt:last-child{border-bottom:none;}
+.bt.winner{background:rgba(34,197,94,.07);}
+.bt.tbd{color:var(--dim);font-style:italic;}
+
+/* ══ PLAYER STAT ══════════════════════════════════════════════════════════════ */
+.ps{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid rgba(100,116,139,.15);gap:10px;}
+.ps:last-child{border-bottom:none;}
+.ps-info{flex:1;}
+.ps-name{font-weight:600;font-size:13px;}
+.ps-team{font-size:11px;color:var(--dim);}
+
+/* ══ SERVICE CARD ═════════════════════════════════════════════════════════════ */
+.svc{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:13px;display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;}
+.svc-icon{font-size:24px;width:40px;height:40px;background:rgba(232,40,30,.1);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.svc-name{font-weight:700;font-size:13px;margin-bottom:3px;}
+.svc-desc{font-size:12px;color:var(--dim);line-height:1.4;}
+.svc-price{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--t-accent);margin-top:4px;}
+.opening-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(100,116,139,.15);font-size:13px;}
+.opening-row:last-child{border-bottom:none;}
+.oh-day{color:var(--dim);}
+.oh-closed{color:var(--red);}
+
+/* ══ WHATSAPP BUTTON ══════════════════════════════════════════════════════════ */
+.wa-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:13px;background:#25d366;color:#fff;border:none;
+  border-radius:7px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;text-decoration:none;transition:opacity .18s;margin-top:10px;
+}
+.wa-btn:hover{opacity:.88;}
+
+/* ══ FEED TABLE ═══════════════════════════════════════════════════════════════ */
+.feed-tbl{width:100%;border-collapse:collapse;}
+.feed-tbl th{padding:7px 10px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);border-bottom:2px solid var(--border);text-align:left;}
+.feed-tbl td{padding:9px 10px;border-bottom:1px solid rgba(100,116,139,.12);vertical-align:top;}
+.feed-tbl tr:last-child td{border-bottom:none;}
+.feed-tbl tr:hover td{background:rgba(100,116,139,.04);}
+.fs{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;padding:2px 6px;border-radius:3px;white-space:nowrap;}
+.ft a{color:var(--text);text-decoration:none;font-weight:600;font-size:13px;line-height:1.4;}
+.ft a:hover{color:var(--accent);}
+.fd{font-size:11px;color:var(--dim);margin-top:2px;line-height:1.4;}
+.fd-date{font-size:10px;color:var(--dim);white-space:nowrap;font-family:'JetBrains Mono',monospace;}
+
+/* ══ MODAL ════════════════════════════════════════════════════════════════════ */
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
+  z-index:2000;align-items:flex-end;justify-content:center;padding:0;
+}
+.overlay.open{display:flex;}
+@media(min-width:500px){.overlay{align-items:center;padding:16px;}}
+.modal{
+  background:var(--surface);border-radius:12px 12px 0 0;
+  padding:22px 20px 32px;width:100%;max-width:440px;position:relative;
+  max-height:92vh;overflow-y:auto;
+}
+@media(min-width:500px){.modal{border-radius:12px;padding:24px;max-height:85vh;}}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;color:var(--dim);cursor:pointer;line-height:1;padding:4px;}
+.modal h2{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:var(--gold);margin-bottom:3px;}
+.modal p{font-size:13px;color:var(--dim);margin-bottom:14px;line-height:1.5;}
+.form-g{margin-bottom:11px;}
+.form-g label{display:block;font-size:11px;font-weight:700;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.fi{width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .18s;}
+.fi:focus{border-color:var(--blue);}
+.fi-check{display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12px;color:var(--dim);line-height:1.4;}
+.fi-check input{width:auto;margin-top:1px;flex-shrink:0;}
+.form-sub{
+  width:100%;padding:13px;background:var(--t-primary);color:#fff;border:none;
+  border-radius:7px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:opacity .18s;margin-top:6px;
+}
+.form-sub:hover{opacity:.88;}
+.success-state{text-align:center;padding:16px 0;}
+.success-icon{font-size:48px;margin-bottom:12px;}
+.success-state h3{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green);margin-bottom:6px;}
+.success-state p{font-size:13px;color:var(--dim);line-height:1.5;}
+.share-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px;}
+.share-btn{padding:8px 14px;border-radius:6px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:.18s;}
+.share-wa{background:#25d366;color:#fff;}
+.share-copy{background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+
+/* ══ SCORE PICKER ═════════════════════════════════════════════════════════════ */
+.score-picker{display:flex;align-items:center;gap:10px;justify-content:center;margin:14px 0;}
+.sp-team{text-align:center;flex:1;}
+.sp-flag{font-size:32px;margin-bottom:5px;}
+.sp-name{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.sp-input{
+  width:64px;height:56px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:32px;
+  text-align:center;outline:none;transition:border-color .18s;
+  -moz-appearance:textfield;
+}
+.sp-input:focus{border-color:var(--gold);}
+.sp-input::-webkit-inner-spin-button,.sp-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.sp-vs{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--dim);}
+.reward-box{
+  background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);
+  border-radius:6px;padding:10px 12px;font-size:12px;color:var(--dim);
+  line-height:1.5;margin-bottom:12px;
+}
+.reward-box strong{color:var(--green);}
+
+/* ══ SECTION HEADING ══════════════════════════════════════════════════════════ */
+.sh{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.sh .line{flex:1;height:1px;background:var(--border);}
+
+/* ══ TABS ═════════════════════════════════════════════════════════════════════ */
+.tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;}
+.tab{padding:5px 11px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;border:1px solid var(--border);background:none;color:var(--dim);cursor:pointer;transition:.18s;border-radius:4px;}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+
+/* ══ PUSH NOTIFICATION BANNER ═════════════════════════════════════════════════ */
+.push-banner{
+  background:linear-gradient(90deg,rgba(59,130,246,.12),rgba(139,92,246,.12));
+  border:1px solid rgba(59,130,246,.25);border-radius:var(--radius);
+  padding:12px 14px;margin-bottom:14px;
+  display:flex;align-items:center;gap:12px;
+}
+.push-banner.hidden{display:none;}
+.push-info{flex:1;}
+.push-title{font-weight:700;font-size:13px;margin-bottom:2px;}
+.push-sub{font-size:11px;color:var(--dim);}
+.push-btn{background:var(--blue);color:#fff;border:none;border-radius:5px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.18s;}
+.push-btn:hover{opacity:.85;}
+.push-dismiss{background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:2px;}
+
+/* ══ HBOX ═════════════════════════════════════════════════════════════════════ */
+.hbox{background:rgba(232,160,32,.07);border:1px solid rgba(232,160,32,.2);border-radius:6px;padding:11px 13px;margin:10px 0;}
+
+/* ══ SCROLL / UTILITY ═════════════════════════════════════════════════════════ */
+.sx{overflow-x:auto;}
+.mt{margin-top:14px;}
+.mb{margin-bottom:14px;}
+.spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+footer{margin-top:28px;padding:16px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:500px){.grid-2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ══ TENANT BAR ════════════════════════════════════════════════════════════ -->
+<div class="t-bar" id="tenantBar">
+  <div class="t-logo">
+    <div class="t-icon" id="tIcon">🚴</div>
+    <div>
+      <div class="t-name" id="tName">…</div>
+      <div class="t-sub" id="tSub">…</div>
+    </div>
+  </div>
+  <button class="t-cta" onclick="openBooking()" id="tCta">🔧 <span>Afspraak</span></button>
+</div>
+
+<!-- ══ TOPBAR ════════════════════════════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="logo">FIFA <span>WK</span> 2026</div>
+  <div class="ticker"><span class="ticker-inner" id="tickerText">⚽ Laden…</span></div>
+  <div class="topbar-right">
+    <div class="ts-label" style="display:flex;align-items:center;gap:5px;">
+      <span class="dot loading" id="statusDot"></span>
+      <span id="liveTime">–</span>
+    </div>
+    <button class="mode-btn" onclick="toggleMode()"><span id="modeIcon">☀️</span><span id="modeLbl">Licht</span></button>
+  </div>
+</div>
+
+<!-- ══ NAV — 4 tabs max ══════════════════════════════════════════════════════ -->
+<nav>
+  <button class="nb active"    onclick="showView('home',this)">🏠 Home</button>
+  <button class="nb nb-game"   onclick="showView('game',this)">🏆 Kampioenschap</button>
+  <button class="nb"           onclick="showView('scores',this)">⚽ WK Live</button>
+  <button class="nb nb-shop"   onclick="showView('shop',this)" id="shopNavBtn">🚴 Winkel</button>
+</nav>
+
+<!-- ══ PREDICTOR MODAL ═══════════════════════════════════════════════════════ -->
+<div class="overlay" id="predictorModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('predictorModal')">✕</button>
+    <div id="predictorContent">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+        <span style="font-size:22px">🇧🇪</span>
+        <h2>WK Predictor</h2>
+        <span style="font-size:22px">⚽</span>
+      </div>
+      <p id="predictorSubtitle">Voorspel de score en win jouw persoonlijke fietsactie!</p>
+
+      <div class="score-picker">
+        <div class="sp-team">
+          <div class="sp-flag">🇧🇪</div>
+          <div class="sp-name">België</div>
+          <input class="sp-input" type="number" id="scoreHome" min="0" max="20" value="2" inputmode="numeric">
+        </div>
+        <div class="sp-vs">–</div>
+        <div class="sp-team">
+          <div class="sp-flag" id="opponentFlag">🇪🇬</div>
+          <div class="sp-name" id="opponentName">Egypte</div>
+          <input class="sp-input" type="number" id="scoreAway" min="0" max="20" value="0" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="reward-box" id="rewardBox">
+        ⚽ <strong>Exact juist = €15 korting</strong> · Winnaar correct = €5 korting<br>
+        <span id="rewardExpiry">Geldig t.e.m. 19 juli 2026</span>
+      </div>
+
+      <form name="wk-predictor" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handlePredictorSubmit(event)">
+        <input type="hidden" name="form-name" value="wk-predictor">
+        <input type="hidden" name="score-belgie" id="hScoreHome" value="2">
+        <input type="hidden" name="score-tegenstander" id="hScoreAway" value="0">
+        <input type="hidden" name="wedstrijd" id="hMatch" value="">
+        <input type="hidden" name="tenant" id="hTenant" value="">
+        <p style="display:none"><label>Bot: <input name="bot-field"></label></p>
+
+        <div class="form-g">
+          <label>Voornaam</label>
+          <input class="fi" type="text" name="voornaam" id="fName" placeholder="Jan" required>
+        </div>
+        <div class="form-g">
+          <label>E-mailadres</label>
+          <input class="fi" type="email" name="email" id="fEmail" placeholder="jan@voorbeeld.be" required>
+        </div>
+        <div class="form-g">
+          <label class="fi-check">
+            <input type="checkbox" name="nieuwsbrief" value="ja" checked>
+            <span>Ja, stuur mij mijn voucher en WK-tips van <span id="fTenantName">Bike Center</span></span>
+          </label>
+        </div>
+        <button type="submit" class="form-sub" id="predictorSubmitBtn">🎯 Voorspelling insturen</button>
+      </form>
+    </div>
+
+    <div id="predictorSuccess" style="display:none">
+      <div class="success-state">
+        <div class="success-icon">🎉</div>
+        <h3>Voorspelling geregistreerd!</h3>
+        <p id="successMsg">Je ontvangt jouw voucher per mail na de wedstrijd. Kom terug voor je score!</p>
+        <div class="share-row">
+          <button class="share-btn share-wa" onclick="shareWhatsApp()">💬 Deel via WhatsApp</button>
+          <button class="share-btn share-copy" onclick="copyLink()">🔗 Kopieer link</button>
+        </div>
+        <p style="margin-top:10px;font-size:11px;color:var(--dim)">Vertel vrienden mee te doen — hoe meer deelnemers, hoe spannender het klassement!</p>
+        <button onclick="closeModal('predictorModal')" class="form-sub" style="margin-top:14px;">Sluiten & klassement bekijken</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOOKING MODAL ═════════════════════════════════════════════════════════ -->
+<div class="overlay" id="bookingModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('bookingModal')">✕</button>
+    <div id="bookingContent">
+      <h2 style="color:var(--t-accent)">🔧 Afspraak Aanvragen</h2>
+      <p>Wij contacteren je binnen 24 uur!</p>
+      <form name="onderhoudsafspraak" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleBookingSubmit(event)">
+        <input type="hidden" name="form-name" value="onderhoudsafspraak">
+        <input type="hidden" name="tenant" id="bTenant" value="">
+        <p style="display:none"><label>Bot: <input name="bot-field"></label></p>
+        <div class="form-g"><label>Naam</label><input class="fi" type="text" name="naam" placeholder="Jan Janssen" required></div>
+        <div class="form-g"><label>Telefoon</label><input class="fi" type="tel" name="telefoon" placeholder="+32 470 000 000" required inputmode="tel"></div>
+        <div class="form-g">
+          <label>Service</label>
+          <select class="fi" name="service-type" id="bookingServiceSelect"></select>
+        </div>
+        <button type="submit" class="form-sub">📅 Afspraak aanvragen</button>
+      </form>
+    </div>
+    <div id="bookingSuccess" style="display:none">
+      <div class="success-state">
+        <div class="success-icon">🚴</div>
+        <h3>Aanvraag ontvangen!</h3>
+        <p id="bookingSuccessMsg">We bellen je zo snel mogelijk. Bedankt voor je vertrouwen!</p>
+        <button onclick="closeModal('bookingModal')" class="form-sub" style="margin-top:14px;">Sluiten</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     VIEW: HOME
+══════════════════════════════════════════════════════════════════════════════ -->
+<div id="view-home" class="view active">
+
+  <!-- Push notification opt-in (shown once, dismissed = hidden forever) -->
+  <div class="push-banner" id="pushBanner">
+    <div style="font-size:22px">🔔</div>
+    <div class="push-info">
+      <div class="push-title">Mis geen wedstrijd!</div>
+      <div class="push-sub">Ontvang een melding 1 uur voor België speelt</div>
+    </div>
+    <button class="push-btn" onclick="requestPush()">Aan</button>
+    <button class="push-dismiss" onclick="dismissPush()">✕</button>
+  </div>
+
+  <!-- COUNTDOWN + PREDICT CTA — first thing above the fold -->
+  <div class="countdown-hero" id="countdownHero">
+    <div class="cd-left">
+      <div class="cd-label">🇧🇪 Volgende wedstrijd</div>
+      <div class="cd-match" id="cdMatch">België vs Egypte — 15 jun 21:00 CEST</div>
+      <div class="cd-status" id="cdPredStatus">Jouw voorspelling: nog niet ingediend</div>
+      <div class="cd-locked" id="cdLocked" style="display:none">🔒 Voorspelling gesloten</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+      <div class="cd-timer" id="cdTimer">–</div>
+      <button class="cd-predict-btn" id="cdPredictBtn" onclick="openPredictor()">🎯 Voorspel</button>
+    </div>
+  </div>
+
+  <!-- My score snapshot (hidden until user has played) -->
+  <div id="myScoreCard" style="display:none" class="mb"></div>
+
+  <!-- Campaign hero -->
+  <div class="hero-campaign mb">
+    <div class="camp-badge">🚴 <span id="campName">Beringen WK Kampioenschap 2026</span></div>
+    <div class="camp-title" id="campTitle">Doe mee & win jouw fietsactie!</div>
+    <div class="camp-sub" id="campSub">Voorspel de Rode Duivels-uitslagen, klim in het lokale klassement en win exclusieve fietsacties bij Bike Center Beringen.</div>
+    <div class="cta-row">
+      <button class="btn btn-primary" onclick="openPredictor()">🎯 Voorspel nu</button>
+      <button class="btn btn-secondary" onclick="showView('game', document.querySelector('.nb-game'))">📊 Klassement</button>
+      <a class="btn btn-whatsapp" id="waQuickBtn" href="#" onclick="openWhatsApp(); return false;">💬 WhatsApp</a>
+    </div>
+  </div>
+
+  <!-- Today's matches -->
+  <div class="card mb">
+    <div class="ch"><span class="ct">Wedstrijden Vandaag</span><span id="todayDateLabel" style="font-size:10px;color:var(--dim)"></span></div>
+    <div class="cb" id="todayMatches"><div class="spinner"></div></div>
+  </div>
+
+  <!-- Belgium spotlight -->
+  <div class="card mb" style="border-color:rgba(246,199,0,.3)">
+    <div class="ch"><span class="ct gold">🇧🇪 Rode Duivels</span><span class="tab" style="font-size:10px" onclick="showView('game',document.querySelector('.nb-game'))">→ Voorspel</span></div>
+    <div class="cb" id="belgiumSpotlight"><div class="spinner"></div></div>
+  </div>
+
+  <!-- Latest results -->
+  <div class="card">
+    <div class="ch"><span class="ct">Laatste Uitslagen</span></div>
+    <div class="cb" id="latestResults"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     VIEW: GAME (Kampioenschap — the engagement core)
+══════════════════════════════════════════════════════════════════════════════ -->
+<div id="view-game" class="view">
+  <div class="sh"><span id="gameTitle">Beringen WK Kampioenschap</span><div class="line"></div></div>
+
+  <!-- My prediction history + score -->
+  <div id="gameMyScore" class="mb"></div>
+
+  <!-- Prediction input for next match -->
+  <div id="gamePredictorCard" class="mb"></div>
+
+  <!-- Leaderboard -->
+  <div class="card mb">
+    <div class="ch">
+      <span class="ct" style="color:var(--t-accent)">🏆 Klassement</span>
+      <span style="font-size:10px;color:var(--dim)" id="lbLastUpdate"></span>
+    </div>
+    <div class="cb" id="leaderboardContainer"><div class="spinner"></div></div>
+  </div>
+
+  <!-- How it works -->
+  <div class="card">
+    <div class="ch"><span class="ct">Hoe werkt het?</span></div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--dim);line-height:1.5">
+        <div>⚽ <strong style="color:var(--text)">Voorspel de score</strong> van elk Rode Duivels-duel vóór de aftrap</div>
+        <div>🎯 <strong style="color:var(--green)">3 punten</strong> voor een exacte score · <strong style="color:var(--accent)">1 punt</strong> voor de juiste winnaar</div>
+        <div>🔒 <strong style="color:var(--text)">Vergrendeling</strong> 60 min. vóór aftrap — wees op tijd!</div>
+        <div>🏆 <strong style="color:var(--t-accent)" id="howRewardText">Top 3 wint €15 korting bij Bike Center Beringen</strong></div>
+        <div>📊 <strong style="color:var(--text)">Klassement</strong> werkt bij na elke wedstrijd</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     VIEW: WK LIVE (scores, groups, bracket)
+══════════════════════════════════════════════════════════════════════════════ -->
+<div id="view-scores" class="view">
+  <div class="tabs">
+    <button class="tab active" onclick="switchScoreTab('today',this)">Vandaag</button>
+    <button class="tab" onclick="switchScoreTab('belgium',this)">🇧🇪 België</button>
+    <button class="tab" onclick="switchScoreTab('all',this)">Alle</button>
+    <button class="tab" onclick="switchScoreTab('groups',this)">Groepen</button>
+    <button class="tab" onclick="switchScoreTab('bracket',this)">Schema</button>
+    <button class="tab" onclick="switchScoreTab('scorers',this)">Topscorers</button>
+    <button class="tab" onclick="switchScoreTab('news',this)">Nieuws</button>
+  </div>
+  <div id="scoreTabContent"><div class="spinner"></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     VIEW: SHOP (Bike Center)
+══════════════════════════════════════════════════════════════════════════════ -->
+<div id="view-shop" class="view">
+  <div class="sh"><span id="shopTitle">🚴 Bike Center</span><div class="line"></div></div>
+
+  <!-- WK actie banner -->
+  <div class="hero-campaign mb" style="border-color:var(--t-accent)">
+    <div class="camp-badge" id="shopBadge">🏆 WK 2026 Actie</div>
+    <div class="camp-title" id="shopPromoTitle">WK Zomercheck</div>
+    <div class="camp-sub" id="shopPromoText">Maak jouw fiets klaar voor de zomer.</div>
+    <div class="cta-row">
+      <button class="btn btn-primary" onclick="openBooking()">📅 Afspraak maken</button>
+      <button class="btn btn-secondary" onclick="openPredictor()">⚽ Voorspel & win</button>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="card mb">
+        <div class="ch"><span class="ct tenant">Services</span></div>
+        <div class="cb" id="servicesContainer"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card mb">
+        <div class="ch"><span class="ct tenant">Openingsuren</span></div>
+        <div class="cb" id="hoursContainer"></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct tenant">Contact</span></div>
+        <div class="cb" id="contactContainer"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════════════ -->
+<footer id="siteFooter">
+  WK 2026 · <span id="footerTime">–</span> CEST · Live data via openfootball/worldcup.json<br>
+  <span style="color:rgba(128,128,128,.25)" id="footerTenant">© 2026 Bike Center Beringen</span>
+</footer>
+
+<!-- Tenant config loads first -->
+<script src="/tenant.js"></script>
+<script>
+'use strict';
+
+// ════════════════════════════════════════════════════════════════════════════
+//  INJECT TENANT CONFIG INTO DOM & CSS
+// ════════════════════════════════════════════════════════════════════════════
+(function injectTenant() {
+  const T = window.TENANT;
+  // CSS custom properties
+  document.documentElement.style.setProperty('--t-primary',   T.primaryColor);
+  document.documentElement.style.setProperty('--t-secondary', T.secondaryColor);
+  document.documentElement.style.setProperty('--t-accent',    T.accentColor);
+
+  // Meta tags
+  document.getElementById('pageTitle').textContent    = `${T.campaignName} — ${T.name}`;
+  document.getElementById('pageDesc').content         = `${T.shareText}`;
+  document.getElementById('themeColor').content       = T.primaryColor;
+  document.getElementById('ogTitle').content          = T.campaignName;
+  document.getElementById('ogDesc').content           = T.shareText;
+
+  // Tenant bar
+  document.getElementById('tIcon').textContent = T.logoEmoji || '🏪';
+  document.getElementById('tName').textContent = T.name;
+  document.getElementById('tSub').textContent  = T.tagline;
+
+  // Ticker
+  document.getElementById('tickerText').textContent =
+    `🏆 ${T.campaignName} &nbsp;|&nbsp; 🇧🇪 Rode Duivels Groep G &nbsp;|&nbsp; ` +
+    `🚴 WK Actie bij ${T.name} &nbsp;|&nbsp; Voorspel & win ${T.rewardExact} ${T.rewardText} &nbsp;|&nbsp; ` +
+    `Automatisch bijgewerkt ⚡`;
+
+  // Campaign copy
+  document.getElementById('campName').textContent   = T.campaignName;
+  document.getElementById('campTitle').textContent  = `Doe mee & win jouw fietsactie!`;
+  document.getElementById('campSub').textContent    = `Voorspel de Rode Duivels-uitslagen, klim in het ${T.city}-klassement en win exclusieve fietsacties bij ${T.name}.`;
+  document.getElementById('gameTitle').textContent  = T.campaignName;
+  document.getElementById('shopTitle').textContent  = `🚴 ${T.shortName}`;
+  document.getElementById('shopNavBtn').textContent = `🚴 ${T.city}`;
+
+  // Reward text in predictor
+  document.getElementById('rewardBox').innerHTML =
+    `⚽ <strong>Exact juist = ${T.rewardExact}</strong> · Winnaar correct = ${T.rewardWinner}<br>` +
+    `<span>${T.rewardText} · Geldig t.e.m. ${T.rewardExpiry}</span>`;
+  document.getElementById('rewardExpiry').textContent = `Geldig t.e.m. ${T.rewardExpiry}`;
+  document.getElementById('howRewardText').textContent = `Top voorspellers winnen ${T.rewardExact} ${T.rewardText}`;
+  document.getElementById('fTenantName').textContent  = T.shortName;
+  document.getElementById('hTenant').value   = T.id;
+  document.getElementById('bTenant').value   = T.id;
+
+  // Shop promo
+  document.getElementById('shopPromoTitle').textContent = T.promoTitle;
+  document.getElementById('shopPromoText').textContent  = T.promoText;
+
+  // WA button
+  document.getElementById('waQuickBtn').href = `https://wa.me/${T.whatsapp}?text=${encodeURIComponent(T.whatsappMsg)}`;
+
+  // Footer
+  document.getElementById('footerTenant').textContent = `© 2026 ${T.name} · ${T.address}`;
+
+  // Booking service select
+  const sel = document.getElementById('bookingServiceSelect');
+  T.services.forEach(s => { const o = document.createElement('option'); o.textContent = `${s.name} — ${s.price}`; sel.appendChild(o); });
+
+  // Services list
+  document.getElementById('servicesContainer').innerHTML = T.services.map(s =>
+    `<div class="svc"><div class="svc-icon">${s.icon}</div><div><div class="svc-name">${s.name}</div><div class="svc-desc">${s.desc}</div><div class="svc-price">${s.price}</div></div></div>`
+  ).join('');
+
+  // Hours
+  document.getElementById('hoursContainer').innerHTML = T.hours.map(h =>
+    `<div class="opening-row"><span class="oh-day">${h.day}</span><span class="${h.open ? '' : 'oh-closed'}">${h.open || 'Gesloten'}</span></div>`
+  ).join('');
+
+  // Contact
+  document.getElementById('contactContainer').innerHTML = `
+    <p style="font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:10px">
+      📍 <strong style="color:var(--text)">${T.name}</strong><br>${T.address}<br>
+      📞 ${T.phone}<br>✉️ ${T.email}
+    </p>
+    <a href="${T.mapsUrl}" target="_blank" style="color:var(--blue);font-size:13px;text-decoration:none;display:block;margin-bottom:10px">🗺️ Open in Google Maps →</a>
+    <a href="https://wa.me/${T.whatsapp}?text=${encodeURIComponent(T.whatsappMsg)}" target="_blank" class="wa-btn">💬 WhatsApp — Direct contact</a>
+    <button onclick="openBooking()" class="form-sub" style="margin-top:8px;display:block;width:100%">📅 Afspraak aanvragen</button>
+  `;
+})();
+
+// ════════════════════════════════════════════════════════════════════════════
+//  DARK / LIGHT MODE
+// ════════════════════════════════════════════════════════════════════════════
+const savedMode = localStorage.getItem('wc-mode') || 'dark';
+if (savedMode === 'light') document.body.classList.add('light');
+updateModeBtn();
+function toggleMode() {
+  const l = document.body.classList.toggle('light');
+  localStorage.setItem('wc-mode', l ? 'light' : 'dark');
+  updateModeBtn();
+}
+function updateModeBtn() {
+  const l = document.body.classList.contains('light');
+  const i = document.getElementById('modeIcon');   if(i) i.textContent = l ? '🌙' : '☀️';
+  const b = document.getElementById('modeLbl');    if(b) b.textContent = l ? 'Donker' : 'Licht';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  CLOCK
+// ════════════════════════════════════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  const tz  = { timeZone: 'Europe/Brussels' };
+  const t   = now.toLocaleTimeString('nl-BE', { ...tz, hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+  const d   = now.toLocaleDateString('nl-BE',  { ...tz, weekday:'short', day:'2-digit', month:'short' });
+  const lt  = document.getElementById('liveTime');  if(lt)  lt.textContent  = d+' '+t;
+  const ft  = document.getElementById('footerTime');if(ft)  ft.textContent  = t;
+  const tl  = document.getElementById('todayDateLabel');if(tl) tl.textContent = d;
+}
+updateClock(); setInterval(updateClock, 1000);
+
+// ════════════════════════════════════════════════════════════════════════════
+//  localStorage DATA STRUCTURE
+// ════════════════════════════════════════════════════════════════════════════
+// Keys are prefixed with tenant.id to avoid cross-tenant collision
+// {tenant}.user  = { name, email, avatar }
+// {tenant}.preds = [ { matchId, home, away, submittedAt, pts, locked } ]
+// {tenant}.lb    = [ { name, city, pts, avatar, you:bool } ]   ← merged seeded + real
+// wc-mode        = 'dark' | 'light'
+// wc2026-data    = { ts, data }
+// push-dismissed = '1'
+
+const PFX = () => window.TENANT.id + '.';
+
+function lsGet(key) {
+  try { return JSON.parse(localStorage.getItem(PFX() + key)); } catch { return null; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(PFX() + key, JSON.stringify(val)); } catch {}
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  PREDICTION SCORING ENGINE
+// ════════════════════════════════════════════════════════════════════════════
+// 3 pts = exact score | 1 pt = correct winner | 0 pts = miss
+function calcPts(predH, predA, realH, realA) {
+  if (predH === realH && predA === realA) return 3;
+  const predWin = Math.sign(predH - predA);
+  const realWin = Math.sign(realH - realA);
+  if (predWin === realWin) return 1;
+  return 0;
+}
+
+function getPredictions()    { return lsGet('preds') || []; }
+function savePredictions(p)  { lsSet('preds', p); }
+function getUser()           { return lsGet('user'); }
+function saveUser(u)         { lsSet('user', u); }
+
+// Score all predictions against live WC data once available
+function scorePredictions(matches) {
+  const preds = getPredictions();
+  let changed = false;
+  preds.forEach(p => {
+    if (p.pts !== undefined) return; // already scored
+    const T = window.TENANT;
+    const def = T.belgiumMatches.find(m => m.id === p.matchId);
+    if (!def) return;
+    // Find match in live data
+    const m = matches.find(m2 =>
+      m2.date === def.date &&
+      (m2.team1 === 'Belgium' || m2.team2 === 'Belgium')
+    );
+    if (!m) return;
+    const sc = getScore(m); if (!sc) return;
+    const belHome = m.team1 === 'Belgium';
+    const realBelG  = belHome ? sc.h : sc.a;
+    const realOppG  = belHome ? sc.a : sc.h;
+    p.pts = calcPts(p.home, p.away, realBelG, realOppG);
+    p.realHome = realBelG;
+    p.realAway = realOppG;
+    changed = true;
+  });
+  if (changed) savePredictions(preds);
+  return preds;
+}
+
+function totalPoints(preds) {
+  return preds.reduce((s, p) => s + (p.pts || 0), 0);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  LEADERBOARD (localStorage-backed, seeded + merged)
+// ════════════════════════════════════════════════════════════════════════════
+function getLeaderboard() {
+  const stored = lsGet('lb') || [];
+  const seeds  = window.TENANT.leaderboardSeeds;
+  // Merge: if stored has entries not in seeds, keep them; seeds fill the gaps
+  const entries = [...stored];
+  seeds.forEach(s => {
+    if (!entries.find(e => e.name === s.name && e.city === s.city)) {
+      entries.push({ ...s, you: false });
+    }
+  });
+  return entries.sort((a, b) => b.pts - a.pts);
+}
+
+function mergeUserIntoLeaderboard(user, pts) {
+  const lb = getLeaderboard().filter(e => !e.you); // remove old self entry
+  lb.push({ name: user.name, city: window.TENANT.city, pts, avatar: '🇧🇪', you: true });
+  lb.sort((a, b) => b.pts - a.pts);
+  lsSet('lb', lb);
+  return lb;
+}
+
+function renderLeaderboard() {
+  const preds = getPredictions();
+  const user  = getUser();
+  const pts   = totalPoints(preds);
+  const lb    = user ? mergeUserIntoLeaderboard(user, pts) : getLeaderboard();
+  const el    = document.getElementById('leaderboardContainer');
+  if (!el) return;
+
+  if (!lb.length) { el.innerHTML = '<div style="color:var(--dim);padding:12px">Nog geen deelnemers. Wees de eerste!</div>'; return; }
+
+  const rankClass = ['r1','r2','r3'];
+  el.innerHTML = lb.slice(0, 10).map((e, i) => {
+    const you = e.you ? ' lb-you' : '';
+    return `<div class="lb-row${you}">
+      <div class="lb-rank ${rankClass[i] || ''}">${i + 1}</div>
+      <div class="lb-avatar">${e.avatar || '⚽'}</div>
+      <div class="lb-info">
+        <div class="lb-name">${e.name}${e.you ? ' <span style="font-size:10px;color:var(--t-accent)">(jij)</span>' : ''}</div>
+        <div class="lb-city">${e.city}</div>
+      </div>
+      <div class="lb-pts">${e.pts}</div>
+    </div>`;
+  }).join('');
+
+  const lu = document.getElementById('lbLastUpdate');
+  if (lu) lu.textContent = 'na ' + new Date().toLocaleTimeString('nl-BE', { hour:'2-digit', minute:'2-digit' });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MY SCORE CARD (homepage + game view)
+// ════════════════════════════════════════════════════════════════════════════
+function renderMyScoreCard() {
+  const user  = getUser();
+  const preds = getPredictions();
+  if (!user || !preds.length) return;
+
+  const pts   = totalPoints(preds);
+  const lb    = getLeaderboard();
+  const rank  = lb.findIndex(e => e.you) + 1;
+
+  const history = preds.map(p => {
+    const T   = window.TENANT;
+    const def = T.belgiumMatches.find(m => m.id === p.matchId);
+    const opp = def ? `${def.flag} ${def.opponent}` : 'Wedstrijd';
+    if (p.pts === undefined) return `<span class="score-badge sb-pending">${opp}: ${p.home}-${p.away} ⏳</span>`;
+    if (p.pts === 3)         return `<span class="score-badge sb-exact">${opp}: ${p.home}-${p.away} ✅ +3</span>`;
+    if (p.pts === 1)         return `<span class="score-badge sb-winner">${opp}: ${p.home}-${p.away} 👍 +1</span>`;
+    return `<span class="score-badge sb-miss">${opp}: ${p.home}-${p.away} ❌</span>`;
+  }).join('');
+
+  const html = `<div class="score-card">
+    <div class="score-avatar">🇧🇪</div>
+    <div class="score-info">
+      <div class="score-name">${user.name}</div>
+      <div class="score-history">${history}</div>
+    </div>
+    <div class="score-rank">
+      <div class="score-pts">${pts}</div>
+      <div class="score-pts-label">punten</div>
+      ${rank ? `<div class="score-rank-num">#${rank}</div><div class="score-rank-label">klassement</div>` : ''}
+    </div>
+  </div>`;
+
+  const card1 = document.getElementById('myScoreCard');
+  if (card1) { card1.style.display = 'block'; card1.innerHTML = html; }
+  const card2 = document.getElementById('gameMyScore');
+  if (card2) card2.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  COUNTDOWN + PREDICTION LOCK ENGINE
+// ════════════════════════════════════════════════════════════════════════════
+const LOCK_BEFORE_MS = 60 * 60 * 1000; // 60 min before kickoff
+
+function getMatchTimestamp(m) {
+  const d = new Date(m.date + 'T00:00:00Z');
+  d.setUTCHours(m.utcH, 0, 0, 0);
+  return d.getTime();
+}
+
+function getNextMatch() {
+  const now = Date.now();
+  return window.TENANT.belgiumMatches
+    .map(m => ({ ...m, ts: getMatchTimestamp(m) }))
+    .filter(m => m.ts + 120 * 60000 > now) // still within 2h after kickoff
+    .sort((a, b) => a.ts - b.ts)[0] || null;
+}
+
+function isPredictionLocked(match) {
+  return match ? Date.now() > match.ts - LOCK_BEFORE_MS : false;
+}
+
+function hasPrediction(matchId) {
+  return getPredictions().some(p => p.matchId === matchId);
+}
+
+function updateCountdown() {
+  const next = getNextMatch();
+  const cdTimer    = document.getElementById('cdTimer');
+  const cdMatch    = document.getElementById('cdMatch');
+  const cdStatus   = document.getElementById('cdPredStatus');
+  const cdLocked   = document.getElementById('cdLocked');
+  const cdBtn      = document.getElementById('cdPredictBtn');
+  const hero       = document.getElementById('countdownHero');
+
+  if (!next) {
+    if (cdTimer) cdTimer.textContent = 'Groepsfase voorbij!';
+    if (cdMatch) cdMatch.textContent = 'Knockout fase begint';
+    if (cdBtn)   cdBtn.style.display = 'none';
+    return;
+  }
+
+  const now  = Date.now();
+  const dt   = next.ts - now;
+  const days = Math.floor(dt / 86400000);
+  const hrs  = Math.floor((dt % 86400000) / 3600000);
+  const mins = Math.floor((dt % 3600000) / 60000);
+  const secs = Math.floor((dt % 60000) / 1000);
+
+  const matchDt = new Date(next.ts);
+  const dateStr = matchDt.toLocaleDateString('nl-BE', { timeZone:'Europe/Brussels', day:'numeric', month:'short' });
+  const timeStr = matchDt.toLocaleTimeString('nl-BE', { timeZone:'Europe/Brussels', hour:'2-digit', minute:'2-digit', hour12:false });
+
+  if (cdMatch) cdMatch.textContent = `🇧🇪 België vs ${next.flag} ${next.opponent} — ${dateStr} ${timeStr} CEST`;
+
+  const locked = isPredictionLocked(next);
+  const played = hasPrediction(next.id);
+
+  if (dt > 0) {
+    const t = days > 0 ? `${days}d ${hrs}u ${mins}m` : dt < 3600000 ? `${hrs}u ${mins}m ${secs}s` : `${hrs}u ${mins}m`;
+    if (cdTimer) cdTimer.textContent = t;
+  } else {
+    if (cdTimer) cdTimer.textContent = 'LIVE 🔴';
+  }
+
+  // Predictor button state
+  if (locked) {
+    if (cdBtn)    { cdBtn.style.display = 'none'; }
+    if (cdLocked) { cdLocked.style.display = 'block'; cdLocked.textContent = '🔒 Voorspelling gesloten 60 min. voor aftrap'; }
+  } else {
+    if (cdBtn)    { cdBtn.style.display = 'block'; cdBtn.textContent = played ? '✏️ Aanpassen' : '🎯 Voorspel'; }
+    if (cdLocked) { cdLocked.style.display = 'none'; }
+  }
+
+  // Status
+  if (cdStatus) {
+    const user = getUser();
+    if (!user) {
+      cdStatus.textContent = 'Jouw voorspelling: nog niet ingediend';
+    } else if (played) {
+      const p = getPredictions().find(p2 => p2.matchId === next.id);
+      cdStatus.textContent = `Jouw voorspelling: ${p.home}–${p.away} ✅`;
+    } else {
+      cdStatus.textContent = locked ? 'Te laat voor deze wedstrijd.' : 'Voorspel nog vóór de aftrap!';
+    }
+  }
+
+  // Update predictor modal opponent
+  const of = document.getElementById('opponentFlag');
+  const on = document.getElementById('opponentName');
+  const hm = document.getElementById('hMatch');
+  if (of) of.textContent = next.flag;
+  if (on) on.textContent = next.opponent;
+  if (hm) hm.value = `België vs ${next.opponent}`;
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// Render predictor card in game view
+function renderGamePredictorCard() {
+  const el   = document.getElementById('gamePredictorCard');
+  const next = getNextMatch();
+  if (!el) return;
+
+  if (!next) { el.innerHTML = ''; return; }
+
+  const locked = isPredictionLocked(next);
+  const played = hasPrediction(next.id);
+
+  if (locked) {
+    el.innerHTML = `<div class="hbox">🔒 Voorspelling voor <strong>België vs ${next.opponent}</strong> is gesloten. Kom na de wedstrijd terug voor je score!</div>`;
+    return;
+  }
+
+  el.innerHTML = `<div class="card mb">
+    <div class="ch"><span class="ct gold">🎯 Voorspel: België vs ${next.flag} ${next.opponent}</span></div>
+    <div class="cb" style="text-align:center">
+      <p style="font-size:13px;color:var(--dim);margin-bottom:12px">${played ? 'Je hebt al een voorspelling ingediend. Je kan aanpassen tot 60 min. voor aftrap.' : 'Nog niet voorspeld! Wees er op tijd bij.'}</p>
+      <button class="btn btn-primary" style="font-size:14px;padding:11px 24px" onclick="openPredictor()">${played ? '✏️ Aanpassen' : '🎯 Voorspel nu'}</button>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  LIVE DATA (WC)
+// ════════════════════════════════════════════════════════════════════════════
+const DATA_URL  = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
+const CACHE_KEY = 'wc2026-data';
+const CACHE_TTL = 4 * 60 * 1000;
+let WC = null;
+let currentScoreTab = 'today';
+
+const FLAGS = {
+  'Mexico':'🇲🇽','South Africa':'🇿🇦','South Korea':'🇰🇷','Czech Republic':'🇨🇿','Czechia':'🇨🇿',
+  'Canada':'🇨🇦','Bosnia-Herzegovina':'🇧🇦','Qatar':'🇶🇦','Switzerland':'🇨🇭',
+  'Brazil':'🇧🇷','Morocco':'🇲🇦','Haiti':'🇭🇹','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'United States':'🇺🇸','Paraguay':'🇵🇾','Australia':'🇦🇺','Türkiye':'🇹🇷',
+  'Germany':'🇩🇪','Curaçao':'🇨🇼','Ivory Coast':'🇨🇮','Ecuador':'🇪🇨',
+  'Netherlands':'🇳🇱','Japan':'🇯🇵','Sweden':'🇸🇪','Tunisia':'🇹🇳',
+  'Belgium':'🇧🇪','Egypt':'🇪🇬','Iran':'🇮🇷','New Zealand':'🇳🇿',
+  'Spain':'🇪🇸','Cape Verde':'🇨🇻','Saudi Arabia':'🇸🇦','Uruguay':'🇺🇾',
+  'France':'🇫🇷','Senegal':'🇸🇳','Iraq':'🇮🇶','Norway':'🇳🇴',
+  'Argentina':'🇦🇷','Algeria':'🇩🇿','Austria':'🇦🇹','Jordan':'🇯🇴',
+  'Portugal':'🇵🇹','Congo DR':'🇨🇩','Uzbekistan':'🇺🇿','Colombia':'🇨🇴',
+  'England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Croatia':'🇭🇷','Ghana':'🇬🇭',
+};
+function flag(n) { return FLAGS[n] || '🏳️'; }
+
+function todayBrussels()   { return new Date().toLocaleDateString('en-CA', { timeZone:'Europe/Brussels' }); }
+function matchUTCDate(m)   {
+  if (!m.date) return null;
+  try {
+    const tz  = m.time ? (m.time.match(/UTC([+-]\d+)/)||[])[1] : '0';
+    const off = parseInt(tz||'0');
+    const [h,min] = (m.time||'00:00').split(' ')[0].split(':').map(Number);
+    const d = new Date(m.date+'T00:00:00Z'); d.setUTCHours(h-off, min||0,0,0); return d;
+  } catch { return new Date(m.date+'T12:00:00Z'); }
+}
+function toCEST(d) { return d?d.toLocaleString('nl-BE',{timeZone:'Europe/Brussels',hour:'2-digit',minute:'2-digit',hour12:false}):'—'; }
+function toDateStr(d) { return d?d.toLocaleDateString('nl-BE',{timeZone:'Europe/Brussels',day:'2-digit',month:'short'}):'—'; }
+function isToday(m)    { const d=matchUTCDate(m); return d&&d.toLocaleDateString('en-CA',{timeZone:'Europe/Brussels'})===todayBrussels(); }
+function isFinished(m) { return m.score&&(m.score.ft||m.score.p); }
+function isLive(m)     { if(isFinished(m))return false; const d=matchUTCDate(m); if(!d)return false; const n=Date.now(); return n>d.getTime()-5*60000&&n<d.getTime()+120*60000; }
+function isBelgium(m)  { return m.team1==='Belgium'||m.team2==='Belgium'; }
+function getScore(m)   { if(!m.score)return null; const s=m.score.ft||m.score.p; if(!s)return null; return {h:s[0],a:s[1],pen:m.score.p?`(${m.score.p[0]}-${m.score.p[1]} pen)`:''}; }
+
+async function fetchData() {
+  setStatus('loading');
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const {ts,data} = JSON.parse(cached);
+      if (Date.now()-ts < CACHE_TTL) { WC=data; setStatus('ok'); renderAll(); return; }
+      WC=data; renderAll();
+    }
+  } catch {}
+  try {
+    const r = await fetch(DATA_URL+'?_='+Date.now());
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    WC = await r.json();
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ts:Date.now(),data:WC})); } catch {}
+    setStatus('ok'); renderAll();
+  } catch(e) { setStatus('err'); if(WC) renderAll(); }
+}
+
+function setStatus(s) {
+  const d = document.getElementById('statusDot');
+  if (d) d.className = 'dot'+(s==='loading'?' loading':s==='err'?' err':'');
+}
+
+function renderAll() {
+  if (!WC||!WC.matches) return;
+  const m = WC.matches;
+  scorePredictions(m);
+  renderMyScoreCard();
+  renderLeaderboard();
+  renderGamePredictorCard();
+  renderHomeCards(m);
+  renderScoreTab(currentScoreTab, m);
+}
+
+// ── HOME CARDS ──────────────────────────────────────────────────────────────
+function mcHTML(m) {
+  const d=matchUTCDate(m), sc=getScore(m), fin=isFinished(m), live=isLive(m), bel=isBelgium(m);
+  const cls = bel?'bel':live?'live':'';
+  const time = live
+    ? `<div class="mc-time"><span class="live-pill">LIVE</span></div>`
+    : `<div class="mc-time"><div style="font-weight:700;color:var(--accent)">${toDateStr(d)}</div><div>${toCEST(d)}</div></div>`;
+  const score = fin
+    ? `<div class="mc-score">${sc.h} – ${sc.a}${sc.pen?`<div style="font-size:9px;color:var(--dim)">${sc.pen}</div>`:''}</div>`
+    : `<div class="mc-score" style="font-size:14px;color:var(--dim)">vs</div>`;
+  const g1=(m.goals1||[]).map(g=>`${g.name} ${g.minute}'`).join(', ');
+  const g2=(m.goals2||[]).map(g=>`${g.name} ${g.minute}'`).join(', ');
+  const gd=(g1||g2)?`<div style="font-size:10px;color:var(--dim);margin-top:3px;display:flex;justify-content:space-between"><span>${g1}</span><span>${g2}</span></div>`:'';
+  return `<div class="mc ${cls}">
+    ${time}
+    <div style="flex:1">
+      <div class="mc-teams" style="margin-bottom:2px">
+        <span>${flag(m.team1)}</span><span class="t-name-sm">${m.team1}</span>
+        ${score}
+        <span class="t-name-sm" style="text-align:right">${m.team2}</span><span>${flag(m.team2)}</span>
+      </div>
+      ${gd}
+      <div class="mc-meta">${m.group||m.round||''} · ${m.ground||''}</div>
+    </div>
+    <div style="font-size:11px;color:var(--dim)">${fin?'✅':live?'🔴':'⏳'}</div>
+  </div>`;
+}
+
+function renderHomeCards(matches) {
+  const today  = matches.filter(isToday);
+  const elT    = document.getElementById('todayMatches');
+  if (elT) {
+    if (!today.length) {
+      const up = matches.filter(m=>!isFinished(m)).sort((a,b)=>matchUTCDate(a)-matchUTCDate(b)).slice(0,3);
+      elT.innerHTML = up.length ? '<div style="font-size:11px;color:var(--dim);margin-bottom:8px">Geen wedstrijden vandaag — eerstvolgende:</div>'+up.map(mcHTML).join('') : '<div style="color:var(--dim);padding:8px">Geen wedstrijden gevonden.</div>';
+    } else { elT.innerHTML = today.map(mcHTML).join(''); }
+  }
+  const elB = document.getElementById('belgiumSpotlight');
+  if (elB) elB.innerHTML = matches.filter(isBelgium).map(mcHTML).join('') || '<div style="color:var(--dim);padding:8px">Geen wedstrijden gevonden.</div>';
+  const elR = document.getElementById('latestResults');
+  if (elR) { const done = matches.filter(isFinished).slice(-5).reverse(); elR.innerHTML = done.length ? done.map(mcHTML).join('') : '<div style="color:var(--dim);padding:8px">Nog geen uitslagen.</div>'; }
+}
+
+// ── SCORE TAB CONTENT ───────────────────────────────────────────────────────
+function switchScoreTab(tab, btn) {
+  currentScoreTab = tab;
+  document.querySelectorAll('#view-scores .tab').forEach(t=>t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (WC) renderScoreTab(tab, WC.matches);
+}
+
+function renderScoreTab(tab, matches) {
+  const el = document.getElementById('scoreTabContent'); if(!el) return;
+  if (tab==='today')   { const t=matches.filter(isToday); el.innerHTML = t.length?t.map(mcHTML).join(''):'<div style="color:var(--dim);padding:16px">Geen wedstrijden vandaag.</div>'; }
+  else if (tab==='belgium')  { el.innerHTML = matches.filter(isBelgium).map(mcHTML).join('') || '<div style="color:var(--dim);padding:16px">Geen wedstrijden gevonden.</div>'; }
+  else if (tab==='all')      { el.innerHTML = matches.map(mcHTML).join(''); }
+  else if (tab==='groups')   { el.innerHTML = renderGroupsHTML(matches); }
+  else if (tab==='bracket')  { el.innerHTML = renderBracketHTML(matches); }
+  else if (tab==='scorers')  { el.innerHTML = renderScorersHTML(matches); }
+  else if (tab==='news')     { el.innerHTML = '<div style="color:var(--dim);padding:12px">Nieuws laden…</div>'; loadIntlNews(); }
+}
+
+function renderGroupsHTML(matches) {
+  const groups = {};
+  matches.forEach(m => {
+    if(!m.group) return;
+    const g = m.group;
+    if(!groups[g]) groups[g]={};
+    [m.team1,m.team2].forEach(t=>{ if(!groups[g][t])groups[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}; });
+    const sc=getScore(m); if(!sc) return;
+    const t1=groups[g][m.team1],t2=groups[g][m.team2];
+    t1.p++;t2.p++;t1.gf+=sc.h;t1.ga+=sc.a;t2.gf+=sc.a;t2.ga+=sc.h;
+    if(sc.h>sc.a){t1.w++;t1.pts+=3;t2.l++;}else if(sc.h<sc.a){t2.w++;t2.pts+=3;t1.l++;}else{t1.d++;t2.d++;t1.pts++;t2.pts++;}
+  });
+  const sorted = Object.keys(groups).sort();
+  if (!sorted.length) return renderStaticGroupsHTML();
+  return `<div class="gg">${sorted.map(gn => {
+    const teams=Object.entries(groups[gn]).map(([n,s])=>({n,...s,gd:s.gf-s.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
+    const isBG=teams.some(t=>t.n==='Belgium');
+    return `<div class="card" style="${isBG?'border-color:rgba(246,199,0,.4)':''}">
+      <div class="ch"><span class="ct${isBG?' gold':''}">${gn}${isBG?' 🇧🇪':''}</span></div>
+      <div class="sx"><table class="stbl">
+        <thead><tr><th style="text-align:left">Land</th><th>G</th><th>W</th><th>D</th><th>V</th><th>DS</th><th>Pt</th></tr></thead>
+        <tbody>${teams.map((t,i)=>`<tr class="${i<2?'q':t.n==='Belgium'?'bel':''}">
+          <td><span class="pb${i<2?' q':''}">${i+1}</span>${flag(t.n)} ${t.n}</td>
+          <td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
+          <td>${t.gd>0?'+'+t.gd:t.gd}</td><td style="font-weight:700">${t.pts}</td></tr>`).join('')}
+        </tbody></table></div></div>`;
+  }).join('')}</div>`;
+}
+
+function renderStaticGroupsHTML() {
+  const sg={'Groep A':['Mexico','South Africa','South Korea','Czech Republic'],'Groep B':['Canada','Bosnia-Herzegovina','Qatar','Switzerland'],'Groep C':['Brazil','Morocco','Haiti','Scotland'],'Groep D':['United States','Paraguay','Australia','Türkiye'],'Groep E':['Germany','Curaçao','Ivory Coast','Ecuador'],'Groep F':['Netherlands','Japan','Sweden','Tunisia'],'Groep G':['Belgium','Egypt','Iran','New Zealand'],'Groep H':['Spain','Cape Verde','Saudi Arabia','Uruguay'],'Groep I':['France','Senegal','Iraq','Norway'],'Groep J':['Argentina','Algeria','Austria','Jordan'],'Groep K':['Portugal','Congo DR','Uzbekistan','Colombia'],'Groep L':['England','Croatia','Ghana','Curaçao']};
+  return `<div class="gg">${Object.entries(sg).map(([gn,teams])=>{const isBG=teams.includes('Belgium');return`<div class="card" style="${isBG?'border-color:rgba(246,199,0,.4)':''}"><div class="ch"><span class="ct${isBG?' gold':''}">${gn}${isBG?' 🇧🇪':''}</span></div><div class="sx"><table class="stbl"><thead><tr><th style="text-align:left">Land</th><th>G</th><th>W</th><th>D</th><th>V</th><th>DS</th><th>Pt</th></tr></thead><tbody>${teams.map((t,i)=>`<tr class="${t==='Belgium'?'bel':''}"><td><span class="pb">${i+1}</span>${flag(t)} ${t}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td style="font-weight:700">0</td></tr>`).join('')}</tbody></table></div></div>`;}).join('')}</div>`;
+}
+
+function renderBracketHTML(matches) {
+  const ko=matches.filter(m=>m.round&&(m.round.includes('Round of')||m.round.includes('Quarter')||m.round.includes('Semi')||m.round==='Final'));
+  if(!ko.length) return `<div class="hbox">Schema vult automatisch na de groepsfase (28 juni).</div>`;
+  const render=(arr)=>arr.map(m=>{const sc=getScore(m);return`<div class="bm"><div class="bt${sc&&sc.h>sc.a?' winner':''}">${flag(m.team1)} ${m.team1}${sc?' <strong>'+sc.h+'</strong>':''}</div><div class="bt${sc&&sc.a>sc.h?' winner':''}">${flag(m.team2)} ${m.team2}${sc?' <strong>'+sc.a+'</strong>':''}</div></div>`;}).join('');
+  const sections=[['Round of 32','Ronde van 32'],['Round of 16','Ronde van 16'],['Quarter','Kwartfinales'],['Semi','Halve finales'],['Final','Finale']];
+  return sections.map(([key,label])=>{const ms=ko.filter(m=>m.round.includes(key));if(!ms.length)return'';return`<div class="bs-title">${label}</div>${render(ms)}`;}).join('');
+}
+
+function renderScorersHTML(matches) {
+  const sc={};
+  matches.forEach(m=>{[...(m.goals1||[]),...(m.goals2||[])].forEach(g=>{if(g.own_goal)return;if(!sc[g.name])sc[g.name]={name:g.name,goals:0,team:m.goals1?.includes(g)?m.team1:m.team2};sc[g.name].goals++;});});
+  const sorted=Object.values(sc).sort((a,b)=>b.goals-a.goals).slice(0,15);
+  if(!sorted.length) return '<div style="color:var(--dim);padding:16px">⚽ Nog geen doelpunten — start 11 juni.</div>';
+  return sorted.map((s,i)=>`<div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid rgba(100,116,139,.15);gap:10px"><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${i===0?'var(--accent)':'var(--dim)'};min-width:24px">${i+1}</div><div style="flex:1"><div style="font-weight:600;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--dim)">${flag(s.team)} ${s.team}</div></div><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent)">${s.goals}</div></div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  NAV
+// ════════════════════════════════════════════════════════════════════════════
+function showView(id, btn) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const el = document.getElementById('view-'+id); if(el) el.classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0,0);
+  if (id==='game')   { renderLeaderboard(); renderGamePredictorCard(); }
+  if (id==='scores') { renderScoreTab(currentScoreTab, WC?.matches||[]); }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MODALS
+// ════════════════════════════════════════════════════════════════════════════
+function openPredictor() {
+  const next   = getNextMatch();
+  const locked = isPredictionLocked(next);
+  if (locked) { alert('Voorspelling is gesloten 60 min. voor de aftrap.'); return; }
+  // Pre-fill if already has prediction
+  if (next) {
+    const existing = getPredictions().find(p=>p.matchId===next.id);
+    if (existing) {
+      document.getElementById('scoreHome').value = existing.home;
+      document.getElementById('scoreAway').value = existing.away;
+    } else {
+      document.getElementById('scoreHome').value = 2;
+      document.getElementById('scoreAway').value = 0;
+    }
+  }
+  document.getElementById('predictorContent').style.display = '';
+  document.getElementById('predictorSuccess').style.display = 'none';
+  document.getElementById('predictorModal').classList.add('open');
+}
+function openBooking() {
+  const T = window.TENANT;
+  if (T.bookingUrl) { window.open(T.bookingUrl,'_blank'); return; }
+  document.getElementById('bookingContent').style.display = '';
+  document.getElementById('bookingSuccess').style.display = 'none';
+  document.getElementById('bookingModal').classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ════════════════════════════════════════════════════════════════════════════
+//  FORM HANDLERS
+// ════════════════════════════════════════════════════════════════════════════
+function handlePredictorSubmit(e) {
+  e.preventDefault();
+  const next = getNextMatch();
+  if (!next || isPredictionLocked(next)) return;
+
+  const home  = parseInt(document.getElementById('scoreHome').value) || 0;
+  const away  = parseInt(document.getElementById('scoreAway').value) || 0;
+  const name  = document.getElementById('fName').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+
+  // Sync hidden fields
+  document.getElementById('hScoreHome').value = home;
+  document.getElementById('hScoreAway').value = away;
+
+  // Save to localStorage
+  saveUser({ name, email, avatar: '🇧🇪' });
+  const preds = getPredictions().filter(p=>p.matchId!==next.id); // remove old for same match
+  preds.push({ matchId: next.id, opponent: next.opponent, flag: next.flag, home, away, submittedAt: Date.now() });
+  savePredictions(preds);
+  renderMyScoreCard();
+  renderLeaderboard();
+
+  // Submit to Netlify Forms
+  const data = new FormData(e.target);
+  fetch('/', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:new URLSearchParams(data).toString() })
+    .catch(()=>{});
+
+  document.getElementById('predictorContent').style.display = 'none';
+  document.getElementById('predictorSuccess').style.display = 'block';
+}
+
+function handleBookingSubmit(e) {
+  e.preventDefault();
+  const data = new FormData(e.target);
+  fetch('/', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:new URLSearchParams(data).toString() })
+    .catch(()=>{});
+  document.getElementById('bookingContent').style.display = 'none';
+  document.getElementById('bookingSuccess').style.display = 'block';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  WHATSAPP VIRAL LOOP
+// ════════════════════════════════════════════════════════════════════════════
+function openWhatsApp() {
+  const T = window.TENANT;
+  window.open(`https://wa.me/${T.whatsapp}?text=${encodeURIComponent(T.whatsappMsg)}`, '_blank');
+}
+function shareWhatsApp() {
+  const T    = window.TENANT;
+  const user = getUser();
+  const preds= getPredictions();
+  const pts  = totalPoints(preds);
+  const next = getNextMatch();
+  const pred = next ? preds.find(p=>p.matchId===next.id) : null;
+  let msg = `🏆 ${T.campaignName}\n\n`;
+  if (pred) msg += `🎯 Mijn voorspelling voor België vs ${next.flag} ${next.opponent}: ${pred.home}–${pred.away}\n`;
+  if (pts)  msg += `📊 Ik sta op ${pts} punt${pts!==1?'en':''} in het klassement!\n\n`;
+  msg += `Doe ook mee en win fietsacties bij ${T.name}:\n${T.siteUrl}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+function copyLink() {
+  const T   = window.TENANT;
+  const txt = `${T.shareTitle}\n${T.shareText}\n${T.siteUrl}`;
+  navigator.clipboard.writeText(T.siteUrl).catch(()=>{});
+  const btn = document.querySelector('.share-copy');
+  if (btn) { btn.textContent = '✅ Gekopieerd!'; setTimeout(()=>btn.textContent='🔗 Kopieer link', 2000); }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  PUSH NOTIFICATIONS
+// ════════════════════════════════════════════════════════════════════════════
+function initPushBanner() {
+  const banner = document.getElementById('pushBanner');
+  if (!banner) return;
+  // Hide if already dismissed or already granted
+  if (localStorage.getItem('push-dismissed') === '1') { banner.classList.add('hidden'); return; }
+  if ('Notification' in window && Notification.permission === 'granted') { banner.classList.add('hidden'); schedulePushReminders(); return; }
+  if (!('Notification' in window)) { banner.classList.add('hidden'); return; }
+}
+
+function dismissPush() {
+  localStorage.setItem('push-dismissed','1');
+  document.getElementById('pushBanner').classList.add('hidden');
+}
+
+function requestPush() {
+  if (!('Notification' in window)) { alert('Meldingen worden niet ondersteund in deze browser.'); return; }
+  Notification.requestPermission().then(perm => {
+    document.getElementById('pushBanner').classList.add('hidden');
+    if (perm === 'granted') {
+      schedulePushReminders();
+      new Notification('🇧🇪 WK Meldingen Actief!', {
+        body: `Je ontvangt een herinnering vóór elk Rode Duivels-duel. Veel plezier!`,
+        icon: '/og-image.png'
+      });
+    } else {
+      localStorage.setItem('push-dismissed','1');
+    }
+  });
+}
+
+function schedulePushReminders() {
+  // Schedule a reminder for each upcoming Belgium match (60 min before kickoff)
+  window.TENANT.belgiumMatches.forEach(m => {
+    const ts      = getMatchTimestamp(m);
+    const remind  = ts - LOCK_BEFORE_MS; // 60 min before = same as lock
+    const delay   = remind - Date.now();
+    if (delay > 0 && delay < 7 * 24 * 3600 * 1000) { // only schedule within 7 days
+      setTimeout(() => {
+        if (Notification.permission === 'granted') {
+          new Notification(`🇧🇪 België vs ${m.flag} ${m.opponent} — over 1 uur!`, {
+            body: `Heb je al voorspeld? Doe het nu vóór de aftrap! ${window.TENANT.siteUrl}`,
+            icon: '/og-image.png',
+            tag:  m.id
+          });
+        }
+      }, delay);
+    }
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  NEWS (international tab, lazy loaded)
+// ════════════════════════════════════════════════════════════════════════════
+let intlLoaded=false, intlItems=[], intlFilter='all';
+async function loadIntlNews(force=false) {
+  if (intlLoaded&&!force) { renderIntlNews(); return; }
+  const el=document.getElementById('scoreTabContent'); if(!el) return;
+  el.innerHTML='<div style="text-align:center;padding:24px;color:var(--dim)"><div class="spinner"></div><div style="margin-top:8px;font-size:12px">BBC, Sky Sports, Goal.com, VI.nl laden…</div></div>';
+  try {
+    const r=await fetch('/api/intlnews'); if(!r.ok) throw new Error();
+    const d=await r.json(); intlItems=d.items||[]; intlLoaded=true; renderIntlNews();
+  } catch { el.innerHTML='<div style="color:var(--dim);padding:12px">Feed niet beschikbaar. <a href="https://www.bbc.co.uk/sport/football" target="_blank" style="color:var(--blue)">BBC Sport →</a></div>'; }
+}
+function renderIntlNews() {
+  const el=document.getElementById('scoreTabContent'); if(!el) return;
+  const f=intlFilter==='all'?intlItems:intlItems.filter(i=>i.source===intlFilter);
+  if(!f.length){el.innerHTML='<div style="color:var(--dim);padding:12px">Geen nieuws gevonden.</div>';return;}
+  el.innerHTML=`<div class="tabs" style="margin-bottom:10px">
+    ${['all','BBC Sport','Sky Sports','Goal.com','Voetbal Intl','Football365'].map(s=>`<button class="tab${intlFilter===s?' active':''}" onclick="intlFilter='${s}';renderIntlNews()">${s==='all'?'Alles':s}</button>`).join('')}
+  </div>
+  <div class="sx"><table class="feed-tbl">
+    <thead><tr><th style="width:80px">Bron</th><th>Artikel</th><th>Datum</th></tr></thead>
+    <tbody>${f.map(i=>`<tr><td><span class="fs" style="background:${i.bg};color:${i.color}">${i.source}</span></td><td><div class="ft">${i.link?`<a href="${i.link}" target="_blank" rel="noopener">${i.title}</a>`:i.title}</div>${i.description?`<div class="fd">${i.description}</div>`:''}</td><td class="fd-date">${i.date}</td></tr>`).join('')}
+    </tbody></table></div>
+  <div style="padding:6px 10px;font-size:10px;color:var(--dim);border-top:1px solid var(--border)">${f.length} artikelen · Elke 5 min. bijgewerkt</div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════════════════════════════
+initPushBanner();
+renderMyScoreCard();
+renderLeaderboard();
+renderGamePredictorCard();
+fetchData();
+setInterval(fetchData, 5*60*1000);
+</script>
+</body>
+</html>
