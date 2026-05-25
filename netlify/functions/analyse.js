@@ -73,10 +73,10 @@ export default async (request, context) => {
     const data = await anthropicResponse.json();
 
     if (!anthropicResponse.ok) {
-      return new Response(
-        JSON.stringify({
-          error: data?.error || 'Anthropic API error'
-        }),
+return new Response(
+  JSON.stringify({
+    error: JSON.stringify(data)
+  }),
         {
           status: 500,
           headers: { 'Content-Type': 'application/json' }
