@@ -1,50 +1,59 @@
-exports.handler = async (event, context) => {
-  if (request.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      {
-        status: 405,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+exports.handler = async (event) => {
+  // Alleen POST toelaten
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        error: 'Method not allowed'
+      })
+    };
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   if (!apiKey) {
-    return new Response(
-      JSON.stringify({ error: 'API key not configured' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        error: 'API key missing'
+      })
+    };
   }
 
   let body;
 
   try {
-    body = await request.json();
-  } catch {
-    return new Response(
-      JSON.stringify({ error: 'Invalid JSON' }),
-      {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    body = JSON.parse(event.body);
+  } catch (e) {
+    return {
+      statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        error: 'Invalid JSON'
+      })
+    };
   }
 
-  const { prompt } = body;
+  const prompt = body.prompt;
 
-  if (!prompt || typeof prompt !== 'string') {
-    return new Response(
-      JSON.stringify({ error: 'Invalid prompt' }),
-      {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+  if (!prompt) {
+    return {
+      statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        error: 'No prompt'
+      })
+    };
   }
 
   try {
@@ -73,43 +82,39 @@ exports.handler = async (event, context) => {
     const data = await anthropicResponse.json();
 
     if (!anthropicResponse.ok) {
-return new Response(
-  JSON.stringify({
-    error: JSON.stringify(data)
-  }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+      return {
+        statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          error: data
+        })
+      };
     }
 
     const text =
       data.content?.find((c) => c.type === 'text')?.text || '';
 
-    return new Response(
-      JSON.stringify({ text }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      }
-    );
-  } catch (error) {
-  return new Response(
-    JSON.stringify({
-      text: 'DEBUG: ' + error.message + ' | ' + JSON.stringify(error)
-    }),
-    {
-      status: 200,
+    return {
+      statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
-      }
-    }
-  );
-}
-
-
+      },
+      body: JSON.stringify({
+        reply: text
+      })
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        error: error.message
+      })
+    };
+  }
+};
