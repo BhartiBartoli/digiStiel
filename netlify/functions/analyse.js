@@ -98,17 +98,19 @@ return new Response(
       }
     );
   } catch (error) {
-    return new Response(
-      JSON.stringify({
-        error: error.message || 'Internal server error'
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
+  return new Response(
+    JSON.stringify({
+      text: 'DEBUG: ' + error.message + ' | ' + JSON.stringify(error)
+    }),
+    {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
       }
-    );
-  }
-};
+    }
+  );
+}
 
 export const config = {
   path: '/api/analyse'
