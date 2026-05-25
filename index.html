@@ -933,7 +933,7 @@ async function sendMessage() {
 
   } catch(err) {
     setTyping(false);
-    appendMessage('Verbindingsprobleem. Probeer opnieuw, of stuur ons een berichtje via WhatsApp.', 'ai');
+    appendMessage('ERROR: ' + err.message, 'ai');
   }
 
   isLoading = false;
