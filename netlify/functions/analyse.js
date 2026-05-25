@@ -1,4 +1,4 @@
-export default async (request, context) => {
+exports.handler = async (event, context) => {
   if (request.method !== 'POST') {
     return new Response(
       JSON.stringify({ error: 'Method not allowed' }),
@@ -112,6 +112,4 @@ return new Response(
   );
 }
 
-export const config = {
-  path: '/api/analyse'
-};
+
