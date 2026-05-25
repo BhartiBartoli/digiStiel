@@ -901,7 +901,7 @@ async function sendMessage() {
 
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    let reply = (data.text || 'Er ging iets mis. Probeer opnieuw.').trim();
+    let reply = (data.reply || data.text || 'Er ging iets mis. Probeer opnieuw.').trim();
 
     // Check for nudge trigger — only AI-initiated, never automatic
     let showNudge = false;
@@ -933,7 +933,7 @@ async function sendMessage() {
 
   } catch(err) {
     setTyping(false);
-    appendMessage('Verbindingsprobleem. Probeer opnieuw, of stuur ons een berichtje via WhatsApp.', 'ai');
+    appendMessage('ERROR: ' + err.message, 'ai');
   }
 
   isLoading = false;
