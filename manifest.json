@@ -1,0 +1,16 @@
+{
+  "name": "digiStiel",
+  "short_name": "digiStiel",
+  "description": "Operationele helderheid voor lokale KMO's",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#050507",
+  "theme_color": "#050507",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
