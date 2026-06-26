@@ -527,7 +527,10 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
       <div class="sparring-header">
         <div class="sparring-header-left">
           <div class="sparring-ai-dot" aria-hidden="true"></div>
-          <div class="sparring-ai-label"><strong>digiStiel</strong> · operationele sparring</div>
+          <div>
+            <div class="sparring-ai-label"><strong>digiStiel</strong> · operationele sparring</div>
+            <div style="font-family:var(--mono);font-size:9.5px;color:var(--subtle);margin-top:2px;">Dit gesprek wordt gevoerd door een AI-assistent (EU AI Act art.&nbsp;50).</div>
+          </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <button class="sparring-reset" id="sparringReset" aria-label="Gesprek herstarten">↺ Opnieuw</button>
@@ -890,10 +893,9 @@ async function sendMessage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        // Pass system prompt + full conversation history
-        prompt: buildPrompt(text),
         _system: SYSTEM_PROMPT,
-        _history: conversationHistory.slice(0,-1) // history before current message
+        _history: conversationHistory.slice(0, -1),
+        _message: text
       })
     });
 
@@ -942,20 +944,6 @@ async function sendMessage() {
   input.focus();
 }
 
-function buildPrompt(latestUserMessage) {
-  // Trim to last 6 exchanges (12 messages) to stay within the 8000-char prompt cap
-  const recentHistory = conversationHistory.slice(-13, -1); // exclude current user message
-  const historyText = recentHistory
-    .map(m => `${m.role === 'user' ? 'Ondernemer' : 'digiStiel'}: ${m.content}`)
-    .join('\n\n');
-
-  return [
-    SYSTEM_PROMPT,
-    historyText ? `\n\n--- Gesprekshistoriek ---\n${historyText}` : '',
-    `\n\n--- Nieuw bericht ---\nOndernemer: ${latestUserMessage}`,
-    '\n\ndigiStiel:'
-  ].join('');
-}
 </script>
 </body>
 </html>
