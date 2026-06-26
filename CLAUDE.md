@@ -148,6 +148,25 @@ Brands — render through the Presentation Layer, never in the core).
 The discovery/sparring chat MUST disclose it is AI (EU AI Act art. 50, applies
 from 2 Aug 2026). digiStiel is a deployer, not a provider.
 
+## Brand principle: Problem-in, Value-through, Goal-out (validated by founder)
+
+Cold acquisition (commercial brand, 1–50 FTE) enters at the FELT PROBLEM —
+recognition, plain local language, no agency-speak. The conversation converts
+pain into insight and value. The destination is a concrete goal with measurable
+value.
+
+- **Pain** = entry doorway. Never the message.
+- **Value / Goal** = destination message. Never the doorway.
+- Resolves the apparent tension with tagline "From Goals to Measurable Value":
+  the tagline describes the platform ARC (where the conversation arrives), not
+  the DOORWAY (where the entrepreneur enters).
+- Pain-entry must read as **recognition**, not alarm.
+- Value/goal destination must be **visibly present on the page**.
+- Scope: full RevOps chain (instroom → opvolging → conversie → founder-afhankelijkheid
+  → retentie → klantkennis → inzicht → schaalbaarheid). Backed by Platform input.
+- Value Indicator anchors and Flow/Boost classification = Platform decisions.
+  Brand may not shift these.
+
 ## Working agreements for sessions
 
 - One phase = one session. Do not attempt "build the whole MVP" in one go.
