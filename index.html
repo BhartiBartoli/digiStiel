@@ -416,11 +416,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 <nav id="nav" role="navigation" aria-label="Hoofdnavigatie">
   <div class="nav-inner">
     <a href="#" class="nav-logo" aria-label="digiStiel — naar boven">digi<span class="s">S</span>tiel</a>
-    <ul class="nav-links" role="list">
-      <li><a href="#where">Waar het vastloopt</a></li>
-      <li><a href="#sparring">Herken je dit?</a></li>
-      <li><a href="#contact" class="nav-cta">Praat mee</a></li>
-    </ul>
+    <a href="#contact" class="nav-cta btn btn-blue" style="font-size:.85rem;padding:7px 16px;">Praat mee</a>
     <button class="theme-toggle" id="themeToggle" aria-label="Wissel thema" title="Licht / donker">
       <!-- Sun icon (shown in dark mode) -->
       <svg id="iconSun" viewBox="0 0 24 24" aria-hidden="true">
@@ -454,13 +450,6 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
       </p>
       <div class="hero-actions">
         <a href="#sparring" class="btn btn-blue">Herken jij dit? →</a>
-      </div>
-      <div class="hero-trust" aria-hidden="true">
-        <span class="trust-item">📍 Limburg, België</span>
-        <span class="trust-dot"></span>
-        <span class="trust-item">Gewone taal, geen bureau-praat</span>
-        <span class="trust-dot"></span>
-        <span class="trust-item">Geen groot project, wel echt resultaat</span>
       </div>
     </div>
   </div>
@@ -652,7 +641,7 @@ function applyTheme(light) {
 
 // Restore saved preference, fall back to dark
 const savedTheme = (() => { try { return localStorage.getItem('ds-theme'); } catch { return null; } })();
-applyTheme(savedTheme === 'light');
+applyTheme(savedTheme !== 'dark');
 
 themeToggle.addEventListener('click', () => {
   applyTheme(!document.body.classList.contains('light'));
