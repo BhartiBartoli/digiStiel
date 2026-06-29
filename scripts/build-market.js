@@ -23,8 +23,9 @@ const getMarket = require('../netlify/functions/market.js');
 // automatically); fall back to the MARKET-keyed map for local runs/tests.
 // Domain is not a config axis — it is resolved here, not stored in the tuple.
 const DOMAINS = {
-  be: 'https://digistiel.be',
-  nl: 'https://digistiel.nl',
+  be:  'https://digistiel.be',
+  nl:  'https://digistiel.nl',
+  com: 'https://digistiel.com',
 };
 
 function resolve() {
@@ -64,11 +65,29 @@ function main() {
   // Always print a resolved summary so the build log (and the test) is legible.
   const m = ctx.market;
   console.log(`[build-market] MARKET=${ctx.key}`);
+  console.log(`[build-market]   legalStatus    : ${m.legalStatus}`);
   console.log(`[build-market]   html lang      : ${m.lang}`);
   console.log(`[build-market]   og:locale      : ${m.locale}`);
   console.log(`[build-market]   canonical base : ${ctx.base}`);
+  console.log(`[build-market]   jurisdiction   : ${m.jurisdiction}`);
+  console.log(`[build-market]   annexSet       : ${m.annexSet}`);
   console.log(`[build-market]   retention      : ${m.legal.retention}`);
+  console.log(`[build-market]   liabilityRegime: ${m.legal.liabilityRegime}`);
+  console.log(`[build-market]   promotionRegime: ${m.legal.promotionRegime}`);
   console.log(`[build-market]   tuple          : ${JSON.stringify(m)}`);
+
+  // ── Dwingende legalStatus-gate ──────────────────────────────────────────────
+  // HOE de gate afdwingt: dit script is het Netlify build-command. process.exit(1)
+  // bij 'blocked' geeft de build een non-zero exit, waardoor Netlify de deploy
+  // AFBREEKT — er wordt niets gepubliceerd. Een geblokkeerde markt kan dus niet
+  // live, ook niet per ongeluk. Dit is een build-time hard fail, geen runtime-warn.
+  if (m.legalStatus === 'blocked') {
+    console.error(
+      `[build-market] BLOCKED: markt '${ctx.key}' heeft legalStatus 'blocked'. ` +
+      `Deploy geweigerd — geen publicatie tot juridische vrijgave.`
+    );
+    process.exit(1);
+  }
 
   if (print) return;
 
