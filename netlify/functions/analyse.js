@@ -174,13 +174,20 @@ exports.handler = async (event) => {
 
     const text = data.content?.find((c) => c.type === 'text')?.text || '';
 
-    // Fire-and-forget: never await, never let it break the chat.
-    logTurn({
-      sessionId,
-      userMessage: _message,
-      assistantReply: text,
-      history: _history
-    }).catch((err) => console.error('[airtable] logTurn error:', err));
+    // Await the Airtable writes so they actually complete (and log) before
+    // the serverless function returns and is frozen. Wrapped in try/catch so
+    // a logging failure can never block the chat response — the user always
+    // gets their reply; only the logging fails, and it fails loudly.
+    try {
+      await logTurn({
+        sessionId,
+        userMessage: _message,
+        assistantReply: text,
+        history: _history
+      });
+    } catch (err) {
+      console.error('[airtable] logTurn error:', err);
+    }
 
     return {
       statusCode: 200,
