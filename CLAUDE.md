@@ -167,6 +167,24 @@ value.
 - Value Indicator anchors and Flow/Boost classification = Platform decisions.
   Brand may not shift these.
 
+## Eén AI-call-punt
+Alle AI-calls lopen door één punt (de proxy-Function). Model-keuze komt uit een env var,
+nooit hardcoded; prompt-assemblage gebeurt server-side op dat ene punt; de response komt
+daar terug. Introduceer NOOIT een tweede call-pad of een tweede plek waar een model gekozen
+wordt. Reden: een latere AI-gateway (model routing, context-optimalisatie) moet dan maar op
+één plek ingrijpen — een uitbreiding van de proxy, geen verbouwing van de codebase. Een
+tweede call-pad maakt die gateway nodeloos duur.
+
+## Engine vs propositie-laag
+De gedeelde Value Creation Engine (canonieke objecten: Strategic Intent→Goal→Value Plans→
+Operational Goals→Value Indicators, Governance, Memory, Agents) staat los van de
+propositie-specifieke laag (connectors, domein-playbooks, Customer Language, market-config,
+Presentation Layer). Houd die grens expliciet in mapstructuur/naamgeving: engine-code en
+propositie-code mengen niet in dezelfde module. Reden: een tweede commerciële propositie
+(House of Brands, V2+) hergebruikt de engine en bouwt alleen de propositie-laag nieuw — die
+hergebruik-grens moet af te lezen zijn uit de structuur, niet later uitgevochten worden.
+Dit is een conventie, geen aparte packages — niet over-engineeren in V1.
+
 ## Working agreements for sessions
 
 - One phase = one session. Do not attempt "build the whole MVP" in one go.

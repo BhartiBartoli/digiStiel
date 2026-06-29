@@ -123,8 +123,17 @@ function logMessage({ sessionId, role, message, turnNumber }) {
 // Upsert the "Conversations" row for this session_id (text-keyed, no
 // linked records). Create on first turn, otherwise update updated_at +
 // message_count.
-async function upsertConversation({ sessionId, messageCount }) {
+//
+// Cost-per-Discovery: token counts are aggregated PER SESSION (= one discovery,
+// many turns), not per message. We keep a running total on the Conversations row:
+// read the existing totals, add this turn's usage, and write the new totals back.
+// So input_tokens_total / output_tokens_total / tokens_total always hold the
+// whole-discovery total for that session_id.
+async function upsertConversation({ sessionId, messageCount, usage }) {
   const nowIso = new Date().toISOString();
+  const inTok  = (usage && usage.inputTokens)  || 0;
+  const outTok = (usage && usage.outputTokens) || 0;
+
   const formula = encodeURIComponent(`{session_id}='${sessionId}'`);
   const found = await airtableRequest(
     'GET',
@@ -133,11 +142,17 @@ async function upsertConversation({ sessionId, messageCount }) {
 
   const existing = found && found.records && found.records[0];
   if (existing) {
+    const f = existing.fields || {};
+    const newIn  = (f.input_tokens_total  || 0) + inTok;
+    const newOut = (f.output_tokens_total || 0) + outTok;
     return airtableRequest('PATCH', `Conversations/${existing.id}`, {
       fields: {
         updated_at: nowIso,
         message_count: messageCount,
-        status: 'active'
+        status: 'active',
+        input_tokens_total:  newIn,
+        output_tokens_total: newOut,
+        tokens_total:        newIn + newOut
       }
     });
   }
@@ -148,13 +163,16 @@ async function upsertConversation({ sessionId, messageCount }) {
       started_at: nowIso,
       updated_at: nowIso,
       message_count: messageCount,
-      status: 'active'
+      status: 'active',
+      input_tokens_total:  inTok,
+      output_tokens_total: outTok,
+      tokens_total:        inTok + outTok
     }
   });
 }
 
 // Orchestrates all Airtable writes for one turn. Fully guarded.
-async function logTurn({ sessionId, userMessage, assistantReply, history }) {
+async function logTurn({ sessionId, userMessage, assistantReply, history, usage }) {
   const priorUserTurns = (history || []).filter((m) => m.role === 'user').length;
   const turnNumber = priorUserTurns + 1;
   // Two new messages added this turn → total after this turn.
@@ -162,7 +180,8 @@ async function logTurn({ sessionId, userMessage, assistantReply, history }) {
 
   await logMessage({ sessionId, role: 'user', message: userMessage, turnNumber });
   await logMessage({ sessionId, role: 'assistant', message: assistantReply, turnNumber });
-  await upsertConversation({ sessionId, messageCount });
+  // usage is added to the running per-session token total on Conversations.
+  await upsertConversation({ sessionId, messageCount, usage });
 }
 
 exports.handler = async (event) => {
@@ -254,6 +273,14 @@ exports.handler = async (event) => {
 
     const text = data.content?.find((c) => c.type === 'text')?.text || '';
 
+    // Cost-per-Discovery: raw token counts from the Anthropic usage object.
+    // Aggregated per session in Airtable; no euro conversion here (done outside
+    // the codebase), no model prices hardcoded.
+    const usage = {
+      inputTokens:  data.usage?.input_tokens  || 0,
+      outputTokens: data.usage?.output_tokens || 0
+    };
+
     // Await the Airtable writes so they actually complete (and log) before
     // the serverless function returns and is frozen. Wrapped in try/catch so
     // a logging failure can never block the chat response — the user always
@@ -263,7 +290,8 @@ exports.handler = async (event) => {
         sessionId,
         userMessage: _message,
         assistantReply: text,
-        history: _history
+        history: _history,
+        usage
       });
     } catch (err) {
       console.error('[airtable] logTurn error:', err);
