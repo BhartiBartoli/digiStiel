@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="__HTML_LANG__">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -8,23 +8,22 @@
 <title>digiStiel — Meer klanten, vlottere verkoop, minder gedoe voor lokale KMO's</title>
 <meta name="description" content="Loopt het stroef — te weinig klanten, verkoop die blijft liggen, klanten die niet terugkomen? digiStiel helpt lokale ondernemers uitvissen waar het knelt en wat er écht aan te doen valt.">
 <meta name="robots" content="index, follow">
-<!-- SESSION 2 (market-driven): absolute canonical/og:url + og:image + og:locale
-     must be rendered per MARKET (be/nl). Relative paths used now to avoid baking
-     a .be domain into static content. -->
-<link rel="canonical" href="/">
+<!-- Category A (build-time, per MARKET): __SITE_BASE__/__HTML_LANG__/__OG_LOCALE__
+     are injected by scripts/build-market.js from process.env.MARKET. -->
+<link rel="canonical" href="__SITE_BASE__/">
 
 <meta property="og:type"        content="website">
-<meta property="og:url"         content="/">
+<meta property="og:url"         content="__SITE_BASE__/">
 <meta property="og:title"       content="digiStiel — Meer klanten, vlottere verkoop, minder gedoe voor lokale KMO's">
 <meta property="og:description" content="Loopt het stroef — te weinig klanten, verkoop die blijft liggen, klanten die niet terugkomen? digiStiel helpt lokale ondernemers uitvissen waar het knelt en wat er écht aan te doen valt.">
-<meta property="og:image"       content="/og.svg">
-<meta property="og:locale"      content="nl_BE"><!-- SESSION 2: market-driven (be=nl_BE, nl=nl_NL) -->
+<meta property="og:image"       content="__SITE_BASE__/og.svg">
+<meta property="og:locale"      content="__OG_LOCALE__">
 <meta property="og:site_name"   content="digiStiel">
 
 <meta name="twitter:card"        content="summary_large_image">
 <meta name="twitter:title"       content="digiStiel — Meer klanten, vlottere verkoop, minder gedoe voor lokale KMO's">
 <meta name="twitter:description" content="Loopt het stroef — te weinig klanten, verkoop die blijft liggen, klanten die niet terugkomen? digiStiel helpt lokale ondernemers uitvissen waar het knelt en wat er écht aan te doen valt.">
-<meta name="twitter:image"       content="/og.svg">
+<meta name="twitter:image"       content="__SITE_BASE__/og.svg">
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231A2230'/><text x='16' y='23' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='22' fill='%232C7DFF'>S</text></svg>">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%231A2230'/><text x='90' y='130' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='120' fill='%232C7DFF'>S</text></svg>">
@@ -465,6 +464,8 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
           <div>
             <div class="sparring-ai-label"><strong>digiStiel</strong> · Hoe kan ik je helpen meer omzet te draaien</div>
             <div style="font-family:var(--mono);font-size:9.5px;color:var(--subtle);margin-top:2px;">Dit gesprek wordt gevoerd door een AI-assistent (EU AI Act art.&nbsp;50).</div>
+            <!-- Category B: retention disclosure, populated at runtime from data.marketConfig (be=10 / nl=7). -->
+            <div id="retentionDisclosure" style="font-family:var(--mono);font-size:9.5px;color:var(--subtle);margin-top:2px;display:none;"></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
@@ -647,9 +648,10 @@ let messageCount = 0;
 let nudgeShown = false;
 let isLoading = false;
 let sessionId = null; // Held across turns; set by the server on the first reply.
-// Market locale the Function reports (e.g. nl_BE / nl_NL). SESSION 2 will apply
-// this to rendering; for now we only capture and expose that it arrives.
+// Market surface the Function reports (Category B, runtime). marketLocale is the
+// locale string; marketConfig carries { lang, locale, retention } for rendering.
 let marketLocale = null;
+let marketConfig = null;
 
 const thread      = document.getElementById('sparringThread');
 const emptyState  = document.getElementById('sparringEmpty');
@@ -769,13 +771,21 @@ async function sendMessage() {
     // Hold the session id the server assigns so the whole conversation
     // logs to one Conversations row.
     if (data.session_id) sessionId = data.session_id;
-    // Capture the market the Function reports and expose it (not applied yet —
-    // SESSION 2 will drive rendering off this). Surfaced via a body data-attribute
-    // and a console log so we can confirm it arrives.
+    // Category B (runtime): apply the market the Function reports to the in-app
+    // surface. data.market (locale string) stays for compat; data.marketConfig
+    // carries the values we render during interaction.
     if (data.market) {
       marketLocale = data.market;
       document.body.dataset.market = marketLocale;
-      console.log('[market] Function reports locale:', marketLocale);
+    }
+    if (data.marketConfig) {
+      marketConfig = data.marketConfig;
+      // Retention disclosure differs per market (BE 10 jaar / NL 7 jaar).
+      const rd = document.getElementById('retentionDisclosure');
+      if (rd && marketConfig.retention) {
+        rd.textContent = `Gespreksgegevens worden ${marketConfig.retention} jaar bewaard.`;
+        rd.style.display = '';
+      }
     }
     let reply = (data.reply || data.text || 'Er ging iets mis. Probeer opnieuw.').trim();
 

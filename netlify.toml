@@ -1,6 +1,10 @@
 [build]
   functions = "netlify/functions"
   publish   = "."
+  # Category A: inject per-site MARKET values into the static crawler-critical
+  # surface (html lang, og:locale, canonical/og/sitemap/robots domain) before
+  # publish. Each Netlify site supplies its own MARKET env var.
+  command   = "node scripts/build-market.js"
 
 [functions]
   node_bundler = "esbuild"

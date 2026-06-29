@@ -215,6 +215,12 @@ exports.handler = async (event) => {
   const model = process.env.CLAUDE_MODEL || 'claude-haiku-4-5-20251001';
   const market = getMarket();
 
+  // Category B (runtime): chat language follows MARKET. BE → Vlaams/Belgisch
+  // Nederlands, NL → Nederlands-Nederlands. Appended to the server-side prompt.
+  const langInstruction = market.lang === 'nl-NL'
+    ? '\n\nAntwoord altijd in natuurlijk Nederlands-Nederlands (Nederland). Gebruik "je/jij".'
+    : '\n\nAntwoord altijd in natuurlijk Belgisch Nederlands (Vlaanderen). Gebruik "je/jij".';
+
   const messages = [
     ...(_history || []),
     { role: 'user', content: _message }
@@ -231,7 +237,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         model,
         max_tokens: 600,
-        system: SYSTEM_PROMPT || _system || '',
+        system: (SYSTEM_PROMPT + langInstruction) || _system || '',
         messages
       })
     });
@@ -269,7 +275,17 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({ reply: text, market: market.locale, session_id: sessionId })
+      body: JSON.stringify({
+        reply: text,
+        market: market.locale, // session-1 compat (string locale)
+        // Category B: runtime market surface the frontend renders from.
+        marketConfig: {
+          lang: market.lang,
+          locale: market.locale,
+          retention: market.legal.retention
+        },
+        session_id: sessionId
+      })
     };
   } catch (error) {
     return {

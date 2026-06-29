@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-# SESSION 2: Sitemap URL must be rendered per MARKET (absolute domain).
-Sitemap: /sitemap.xml
+# Category A: Sitemap URL injected per MARKET by scripts/build-market.js.
+Sitemap: __SITE_BASE__/sitemap.xml
