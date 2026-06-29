@@ -698,6 +698,7 @@ let conversationHistory = [];
 let messageCount = 0;
 let nudgeShown = false;
 let isLoading = false;
+let sessionId = null; // Held across turns; set by the server on the first reply.
 
 const thread      = document.getElementById('sparringThread');
 const emptyState  = document.getElementById('sparringEmpty');
@@ -740,6 +741,7 @@ resetBtn.addEventListener('click', () => {
   conversationHistory = [];
   messageCount = 0;
   nudgeShown = false;
+  sessionId = null; // New conversation → new Conversations row.
   // Clear thread, keep empty state + typing indicator
   Array.from(thread.children).forEach(el => {
     if (el !== emptyState && el !== typingInd) el.remove();
@@ -805,7 +807,8 @@ async function sendMessage() {
       body: JSON.stringify({
         _system: SYSTEM_PROMPT,
         _history: conversationHistory.slice(0, -1),
-        _message: text
+        _message: text,
+        session_id: sessionId
       })
     });
 
@@ -813,6 +816,9 @@ async function sendMessage() {
 
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
+    // Hold the session id the server assigns so the whole conversation
+    // logs to one Conversations row.
+    if (data.session_id) sessionId = data.session_id;
     let reply = (data.reply || data.text || 'Er ging iets mis. Probeer opnieuw.').trim();
 
     // Check for nudge trigger — only AI-initiated, never automatic
