@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://digistiel.be/sitemap.xml
+# SESSION 2: Sitemap URL must be rendered per MARKET (absolute domain).
+Sitemap: /sitemap.xml

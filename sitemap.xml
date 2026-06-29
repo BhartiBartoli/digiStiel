@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- SESSION 2: <loc> must be an absolute URL rendered per MARKET (be/nl domain).
+       Relative path used now to avoid baking a .be domain into static content. -->
   <url>
-    <loc>https://digistiel.be/</loc>
+    <loc>/</loc>
     <lastmod>2026-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>

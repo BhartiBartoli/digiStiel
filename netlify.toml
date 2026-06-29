@@ -35,8 +35,7 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-[[redirects]]
-  from   = "https://www.digistiel.be/*"
-  to     = "https://digistiel.be/:splat"
-  status = 301
-  force  = true
+# SESSION 2 (market-driven): each Netlify site needs its own www -> apex
+# redirect using its own domain (be: digistiel.be, nl: digistiel.nl).
+# The hardcoded .be redirect was removed here to keep static config
+# market-neutral; re-add it per-site/market-driven in session 2.

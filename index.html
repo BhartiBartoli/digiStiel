@@ -8,20 +8,23 @@
 <title>digiStiel — Meer klanten, vlottere verkoop, minder gedoe voor lokale KMO's</title>
 <meta name="description" content="Loopt het stroef — te weinig klanten, verkoop die blijft liggen, klanten die niet terugkomen? digiStiel helpt lokale ondernemers uitvissen waar het knelt en wat er écht aan te doen valt.">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://digistiel.be/">
+<!-- SESSION 2 (market-driven): absolute canonical/og:url + og:image + og:locale
+     must be rendered per MARKET (be/nl). Relative paths used now to avoid baking
+     a .be domain into static content. -->
+<link rel="canonical" href="/">
 
 <meta property="og:type"        content="website">
-<meta property="og:url"         content="https://digistiel.be/">
+<meta property="og:url"         content="/">
 <meta property="og:title"       content="digiStiel — Meer klanten, vlottere verkoop, minder gedoe voor lokale KMO's">
 <meta property="og:description" content="Loopt het stroef — te weinig klanten, verkoop die blijft liggen, klanten die niet terugkomen? digiStiel helpt lokale ondernemers uitvissen waar het knelt en wat er écht aan te doen valt.">
-<meta property="og:image"       content="https://digistiel.be/og.svg">
-<meta property="og:locale"      content="nl_BE">
+<meta property="og:image"       content="/og.svg">
+<meta property="og:locale"      content="nl_BE"><!-- SESSION 2: market-driven (be=nl_BE, nl=nl_NL) -->
 <meta property="og:site_name"   content="digiStiel">
 
 <meta name="twitter:card"        content="summary_large_image">
 <meta name="twitter:title"       content="digiStiel — Meer klanten, vlottere verkoop, minder gedoe voor lokale KMO's">
 <meta name="twitter:description" content="Loopt het stroef — te weinig klanten, verkoop die blijft liggen, klanten die niet terugkomen? digiStiel helpt lokale ondernemers uitvissen waar het knelt en wat er écht aan te doen valt.">
-<meta name="twitter:image"       content="https://digistiel.be/og.svg">
+<meta name="twitter:image"       content="/og.svg">
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231A2230'/><text x='16' y='23' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='22' fill='%232C7DFF'>S</text></svg>">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%231A2230'/><text x='90' y='130' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='120' fill='%232C7DFF'>S</text></svg>">
@@ -547,7 +550,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
         <a href="mailto:hallo@digistiel.be" class="cta-link">hallo@digistiel.be</a>
         <a href="https://wa.me/32487537574?text=Hallo%20digiStiel%2C%20ik%20wil%20graag%20even%20praten%20over%20mijn%20zaak." target="_blank" rel="noopener noreferrer" class="cta-link">💬 WhatsApp</a>
       </div>
-      <p class="reveal" style="margin-top:18px;font-size:.75rem;color:var(--subtle)">Voor lokale ondernemers door heel België</p>
+      <p class="reveal" style="margin-top:18px;font-size:.75rem;color:var(--subtle)">Voor lokale ondernemers</p>
     </div>
   </div>
 </section>
@@ -644,6 +647,9 @@ let messageCount = 0;
 let nudgeShown = false;
 let isLoading = false;
 let sessionId = null; // Held across turns; set by the server on the first reply.
+// Market locale the Function reports (e.g. nl_BE / nl_NL). SESSION 2 will apply
+// this to rendering; for now we only capture and expose that it arrives.
+let marketLocale = null;
 
 const thread      = document.getElementById('sparringThread');
 const emptyState  = document.getElementById('sparringEmpty');
@@ -763,6 +769,14 @@ async function sendMessage() {
     // Hold the session id the server assigns so the whole conversation
     // logs to one Conversations row.
     if (data.session_id) sessionId = data.session_id;
+    // Capture the market the Function reports and expose it (not applied yet —
+    // SESSION 2 will drive rendering off this). Surfaced via a body data-attribute
+    // and a console log so we can confirm it arrives.
+    if (data.market) {
+      marketLocale = data.market;
+      document.body.dataset.market = marketLocale;
+      console.log('[market] Function reports locale:', marketLocale);
+    }
     let reply = (data.reply || data.text || 'Er ging iets mis. Probeer opnieuw.').trim();
 
     // Check for nudge trigger — only AI-initiated, never automatic
@@ -788,7 +802,7 @@ async function sendMessage() {
           .join(' / ');
         const waMsg = encodeURIComponent(`Hallo digiStiel, ik heb de sparring geprobeerd op jullie website. Ik wil graag verder praten. Mijn situatie: ${summary.slice(0,200)}`);
         document.getElementById('nudgeWhatsApp').href = `https://wa.me/32487537574?text=${waMsg}`;
-        const mailBody = encodeURIComponent(`Hallo,\n\nIk heb de sparring op digistiel.be gebruikt en wil graag verder praten.\n\nMijn situatie:\n${summary}\n\nMet vriendelijke groeten`);
+        const mailBody = encodeURIComponent(`Hallo,\n\nIk heb de sparring op jullie website gebruikt en wil graag verder praten.\n\nMijn situatie:\n${summary}\n\nMet vriendelijke groeten`);
         document.getElementById('nudgeEmail').href = `mailto:hallo@digistiel.be?subject=Gesprek%20na%20sparring&body=${mailBody}`;
       }, 600);
     }
