@@ -31,6 +31,11 @@
     Access-Control-Allow-Origin = "*"
 
 [[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
   from   = "https://www.digistiel.be/*"
   to     = "https://digistiel.be/:splat"
   status = 301
