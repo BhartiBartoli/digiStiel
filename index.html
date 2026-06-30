@@ -34,6 +34,7 @@
 /* ══ DESIGN SYSTEM TOKENS ══════════════════════════════════════════ */
 :root{
   --ink:#1A2230;
+  --navy:#0E1B2A; /* DesignSystem primary anchor — small only (label/line/heading), never a dark block */
   --accent:#2C7DFF;
   --accent-dark:#1B5FCC;
   --ice1:#EAF1FB;
@@ -75,7 +76,7 @@ img,svg{display:block;max-width:100%;}a{color:inherit;}
 .display strong{font-weight:600;}
 .section-title{font-size:clamp(1.55rem,3.2vw,2.25rem);font-weight:300;letter-spacing:-.022em;line-height:1.2;margin-bottom:14px;}
 .section-title strong{font-weight:600;}
-.label{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);}
+.label{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--navy);}
 .body-lg{font-size:1.05rem;line-height:1.72;color:var(--muted);font-weight:300;}
 .body-sm{font-size:.875rem;line-height:1.6;color:var(--muted);}
 
@@ -92,7 +93,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid tran
 nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
 .nav-inner{max-width:1080px;margin:0 auto;padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between;}
 .nav-logo{font-size:1.28rem;font-weight:400;letter-spacing:-.02em;text-decoration:none;color:var(--ink);user-select:none;}
-.nav-logo .s{color:var(--accent);font-weight:600;font-size:1.48rem;}
+.nav-logo .s{color:var(--accent);font-weight:700;font-size:1.48rem;}
 .nav-cta{background:var(--accent)!important;color:#fff!important;padding:7px 15px!important;border-radius:7px;font-weight:500!important;font-size:.825rem!important;transition:background .18s!important;text-decoration:none;}
 .nav-cta:hover{background:var(--accent-dark)!important;}
 
@@ -108,6 +109,8 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 .eyebrow-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:dotBlink 2.5s ease-in-out infinite;}
 @keyframes dotBlink{0%,100%{opacity:1;}50%{opacity:.25;}}
 .hero-eyebrow span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;}
+/* Hero's single navy anchor: a thin navy rule above the title (small, structural). */
+.hero-rule{width:40px;height:2px;background:var(--navy);border-radius:2px;margin-bottom:22px;animation:fadeUp .7s ease both;}
 .hero-title{margin-bottom:20px;animation:fadeUp .7s ease both;animation-delay:.08s;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
 .hero-sub{font-size:clamp(.95rem,1.8vw,1.1rem);line-height:1.7;color:var(--muted);font-weight:300;max-width:520px;margin-bottom:36px;animation:fadeUp .7s ease both;animation-delay:.18s;}
@@ -124,10 +127,10 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 
 /* ══ SECTION LABEL ════════════════════════════════════════════════ */
 .section-label{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
-.section-label::after{content:'';flex:1;max-width:32px;height:1px;background:var(--accent);opacity:.45;}
-/* Six-panel section ("Waar het misloopt"): its single accent anchor is the label's
-   accent line — one subtle marker, not all six panels. */
-#where .section-label::after{background:var(--accent);opacity:1;}
+/* The section eyebrow (label text + this thin line) is the ONE small navy
+   structural anchor per section — never a dark block. */
+.section-label::after{content:'';flex:1;max-width:32px;height:1px;background:var(--navy);opacity:.55;}
+#where .section-label::after{opacity:1;}
 
 /* ══════════════════════════════════════════════════════════════════
    AI SPARRING SECTION
@@ -163,6 +166,7 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 }
 .sparring-ai-label{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;}
 .sparring-ai-label strong{color:var(--ink);font-weight:500;}
+.sparring-ai-label .s{color:var(--accent);font-weight:700;} /* wordmark "S" accent (canonical) */
 
 /* Prompt chips */
 .sparring-prompts{
@@ -315,14 +319,16 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 .cta-title strong{font-weight:600;}
 .cta-sub{font-size:1rem;color:var(--muted);font-weight:300;max-width:420px;margin:0 auto 32px;line-height:1.65;}
 .cta-contact-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px;}
-.cta-link{font-family:var(--mono);font-size:.8rem;color:var(--muted);text-decoration:none;padding:9px 14px;border:1px solid var(--border);border-radius:var(--r);transition:all .18s;background:var(--white);}
-.cta-link:hover{color:var(--ink);border-color:var(--border-h);}
+/* Level-3 accent detail: real contact links in accent with a fine hover-underline,
+   reducing barrenness without competing with the section's filled CTA button. */
+.cta-link{font-family:var(--mono);font-size:.8rem;color:var(--accent);text-decoration:none;padding:9px 14px;border:1px solid var(--border);border-radius:var(--r);transition:all .18s;background:var(--white);}
+.cta-link:hover{color:var(--accent-dark);border-color:var(--accent-rim);text-decoration:underline;text-underline-offset:3px;}
 
 /* ══ FOOTER ══════════════════════════════════════════════════════ */
 footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-index:1;background:var(--white);}
 .footer-inner{max-width:1080px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .footer-logo{font-size:1.05rem;font-weight:400;letter-spacing:-.02em;color:var(--ink);}
-.footer-logo .s{color:var(--accent);font-weight:600;}
+.footer-logo .s{color:var(--accent);font-weight:700;}
 .footer-copy{font-size:.75rem;color:var(--subtle);}
 @media(max-width:480px){.footer-inner{flex-direction:column;align-items:flex-start;gap:10px;}}
 
@@ -362,6 +368,11 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 /* ══ SCROLL REVEAL ════════════════════════════════════════════════ */
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease;}
 .reveal.visible{opacity:1;transform:none;}
+
+/* Wordmark "S": bold accent everywhere it appears in text (bare spans). */
+.s{color:var(--accent);font-weight:700;}
+/* Specific eyebrow labels + prompt label requested in bold accent. */
+.label-accent{color:var(--accent);font-weight:700;}
 </style>
 </head>
 <body>
@@ -390,12 +401,13 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
   <div class="hero-orb" aria-hidden="true"></div>
   <div class="container">
     <div class="hero-content">
+      <div class="hero-rule" aria-hidden="true"></div>
       <h1 class="display hero-title" id="hero-title">
         Het loopt stroef.<br>
         <strong>Maar waarom precies?</strong>
       </h1>
       <p class="hero-sub">
-        Te weinig nieuwe klanten, verkoop die blijft liggen, of klanten die niet terugkomen. Vaak weet je dat het beter kan, maar niet waar het knelt. digiStiel kijkt met je mee en zoekt uit wat er echt achter zit, en wat eraan te doen valt.
+        Te weinig nieuwe klanten, verkoop die blijft liggen, of klanten die niet terugkomen. Vaak weet je dat het beter kan, maar niet waar het knelt. digi<span class="s">S</span>tiel kijkt met je mee en zoekt uit wat er echt achter zit, en wat eraan te doen valt.
       </p>
       <div class="hero-actions">
         <a href="#sparring" class="btn btn-blue">Herken jij dit? →</a>
@@ -409,7 +421,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 <!-- KETEN-KAARTEN -->
 <section class="section" id="where" aria-labelledby="where-title">
   <div class="container">
-    <div class="section-label reveal"><span class="label">Waar het misloopt</span></div>
+    <div class="section-label reveal"><span class="label label-accent">Waar het misloopt</span></div>
     <h2 class="section-title reveal" id="where-title">
       Niet één groot probleem.<br>
       <strong>Maar ergens loopt de keten stroef.</strong>
@@ -448,7 +460,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 <!-- SPARRING -->
 <section class="section sparring-section" id="sparring" aria-labelledby="sparring-title">
   <div class="container">
-    <div class="section-label reveal"><span class="label">Herken jij dit?</span></div>
+    <div class="section-label reveal"><span class="label label-accent">Herken jij dit?</span></div>
     <h2 class="section-title reveal" id="sparring-title">
       Ergens klopt het niet.<br>
       <strong>Maar wat precies?</strong>
@@ -464,7 +476,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
         <div class="sparring-header-left">
           <div class="sparring-ai-dot" aria-hidden="true"></div>
           <div>
-            <div class="sparring-ai-label"><strong>digiStiel</strong> · Hoe kan ik je helpen meer omzet te draaien</div>
+            <div class="sparring-ai-label"><strong>digi<span class="s">S</span>tiel</strong> · Hoe kan ik je helpen meer omzet te draaien</div>
             <div style="font-family:var(--mono);font-size:9.5px;color:var(--subtle);margin-top:2px;">Dit gesprek wordt gevoerd door een AI-assistent (EU AI Act art.&nbsp;50).</div>
             <!-- Category B: retention disclosure, populated at runtime from data.marketConfig (be=10 / nl=7). -->
             <div id="retentionDisclosure" style="font-family:var(--mono);font-size:9.5px;color:var(--subtle);margin-top:2px;display:none;"></div>
@@ -477,7 +489,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 
       <!-- Prompt chips -->
       <div class="sparring-prompts" id="sparringPrompts" role="region" aria-label="Herkenbare situaties">
-        <div class="sparring-prompts-label" aria-hidden="true">Herken je één van deze situaties?</div>
+        <div class="sparring-prompts-label label-accent" aria-hidden="true">Herken je één van deze situaties?</div>
         <div class="sparring-chips" role="list">
           <button class="sparring-chip" role="listitem">Er komen te weinig nieuwe klanten binnen</button>
           <button class="sparring-chip" role="listitem">Aanvragen en mailtjes blijven te lang liggen</button>
@@ -562,7 +574,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 <footer role="contentinfo">
   <div class="footer-inner">
     <div class="footer-logo">digi<span class="s">S</span>tiel</div>
-    <div class="footer-copy">© 2026 digiStiel · Meer klanten, vlottere verkoop, minder gedoe</div>
+    <div class="footer-copy">© 2026 digi<span class="s">S</span>tiel · Meer klanten, vlottere verkoop, minder gedoe</div>
   </div>
 </footer>
 
@@ -733,7 +745,9 @@ function appendMessage(text, role) {
 
   const meta = document.createElement('div');
   meta.className = 'msg-meta';
-  meta.textContent = isUser ? 'Jij' : 'digiStiel';
+  // Static strings only (no user input) — safe to set innerHTML for the wordmark "S".
+  if (isUser) { meta.textContent = 'Jij'; }
+  else { meta.innerHTML = 'digi<span class="s">S</span>tiel'; }
 
   msg.appendChild(bubble);
   msg.appendChild(meta);
