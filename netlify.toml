@@ -39,7 +39,7 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# SESSION 2 (market-driven): each Netlify site needs its own www -> apex
-# redirect using its own domain (be: digistiel.be, nl: digistiel.nl).
-# The hardcoded .be redirect was removed here to keep static config
-# market-neutral; re-add it per-site/market-driven in session 2.
+# www -> apex 301 is market-driven and NOT a static rule here: scripts/build-market.js
+# generates a per-site _redirects file at build time, deriving the apex domain from
+# the same site domain (process.env.URL) used for the canonical. So be -> .be,
+# nl -> .nl, com -> .com without hardcoding any domain in this config.

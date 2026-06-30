@@ -1,0 +1,4 @@
+# Build artifact generated per-build by scripts/build-market.js (market-driven
+# www->apex). Must never be committed: a market-specific copy would be served on
+# every site.
+_redirects
