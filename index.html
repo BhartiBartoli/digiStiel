@@ -125,6 +125,9 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 /* ══ SECTION LABEL ════════════════════════════════════════════════ */
 .section-label{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
 .section-label::after{content:'';flex:1;max-width:32px;height:1px;background:var(--accent);opacity:.45;}
+/* Six-panel section ("Waar het misloopt"): its single accent anchor is the label's
+   accent line — one subtle marker, not all six panels. */
+#where .section-label::after{background:var(--accent);opacity:1;}
 
 /* ══════════════════════════════════════════════════════════════════
    AI SPARRING SECTION
@@ -173,8 +176,10 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 .sparring-chips{display:flex;flex-wrap:wrap;gap:8px;}
 .sparring-chip{
   padding:8px 14px;
-  background:var(--white);
-  border:1px solid var(--border);
+  /* Light-blue (same ICE value as the removed hero pill): soft background + rim,
+     not a solid fill — kept visually subordinate to the accent send button. */
+  background:var(--ice1);
+  border:1px solid var(--accent-rim);
   border-radius:100px;
   font-size:.825rem;color:var(--muted);
   cursor:pointer;
@@ -185,7 +190,7 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
   font-family:var(--sans);
 }
 .sparring-chip:hover{
-  border-color:var(--accent-rim);
+  border-color:var(--accent);
   color:var(--ink);
   background:var(--ice1);
 }
@@ -261,6 +266,7 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 .sparring-textarea:focus{border-color:var(--accent-rim);}
 .sparring-send{
   width:42px;height:42px;border-radius:9px;
+  /* Chat section's single accent anchor: the send button (the key action). */
   background:var(--accent);color:#fff;
   border:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
@@ -384,10 +390,6 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
   <div class="hero-orb" aria-hidden="true"></div>
   <div class="container">
     <div class="hero-content">
-      <div class="hero-eyebrow" aria-hidden="true">
-        <div class="eyebrow-dot"></div>
-        <span>Meer klanten, vlottere verkoop, minder gedoe</span>
-      </div>
       <h1 class="display hero-title" id="hero-title">
         Het loopt stroef.<br>
         <strong>Maar waarom precies?</strong>
