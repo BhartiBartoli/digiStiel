@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://digistiel.be/sitemap.xml
+# Category A: Sitemap URL injected per MARKET by scripts/build-market.js.
+Sitemap: __SITE_BASE__/sitemap.xml

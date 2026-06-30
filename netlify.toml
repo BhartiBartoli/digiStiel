@@ -1,6 +1,10 @@
 [build]
   functions = "netlify/functions"
   publish   = "."
+  # Category A: inject per-site MARKET values into the static crawler-critical
+  # surface (html lang, og:locale, canonical/og/sitemap/robots domain) before
+  # publish. Each Netlify site supplies its own MARKET env var.
+  command   = "node scripts/build-market.js"
 
 [functions]
   node_bundler = "esbuild"
@@ -35,8 +39,8 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-[[redirects]]
-  from   = "https://www.digistiel.be/*"
-  to     = "https://digistiel.be/:splat"
-  status = 301
-  force  = true
+# www -> apex 301 is DELIBERATELY not in code. It is handled by Netlify per site,
+# via the site's primary-domain setting (set when the custom domain is connected):
+# Netlify auto-redirects the non-primary host (www) to the primary apex. Each site
+# (be/nl/com) does this with its own domain, so there is no redirect rule — and no
+# hardcoded domain — here. Do not add a static www->apex rule; it would double up.

@@ -51,8 +51,7 @@
   <rect x="88" y="508" width="1024" height="1" fill="rgba(255,255,255,0.065)"/>
 
   <!-- Footer row -->
-  <text x="88" y="540" font-family="ui-monospace,monospace" font-size="13" letter-spacing="2" fill="#38383f">LIMBURG, BELGIË</text>
-  <text x="1112" y="540" font-family="ui-monospace,monospace" font-size="13" letter-spacing="1" fill="#38383f" text-anchor="end">digistiel.be</text>
+  <text x="1112" y="540" font-family="ui-monospace,monospace" font-size="13" letter-spacing="1" fill="#38383f" text-anchor="end">digiStiel</text>
 
   <!-- Right side: quiet pattern element -->
   <rect x="1000" y="180" width="1" height="220" fill="rgba(59,130,246,0.2)"/>

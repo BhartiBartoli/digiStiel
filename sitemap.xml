@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Category A: <loc> injected per MARKET by scripts/build-market.js. -->
   <url>
-    <loc>https://digistiel.be/</loc>
+    <loc>__SITE_BASE__/</loc>
     <lastmod>2026-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
