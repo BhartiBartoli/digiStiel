@@ -133,6 +133,10 @@ async function upsertConversation({ sessionId, messageCount, usage }) {
   const nowIso = new Date().toISOString();
   const inTok  = (usage && usage.inputTokens)  || 0;
   const outTok = (usage && usage.outputTokens) || 0;
+  // Market label = the raw MARKET env var, unchanged, with the same 'be' fallback
+  // market.js uses. No translation/formatting, so it matches MARKET values (be/nl/
+  // com) one-to-one and scales for free as new markets are added.
+  const market = process.env.MARKET || 'be';
 
   const formula = encodeURIComponent(`{session_id}='${sessionId}'`);
   const found = await airtableRequest(
@@ -150,6 +154,7 @@ async function upsertConversation({ sessionId, messageCount, usage }) {
         updated_at: nowIso,
         message_count: messageCount,
         status: 'active',
+        market,
         input_tokens_total:  newIn,
         output_tokens_total: newOut,
         tokens_total:        newIn + newOut
@@ -164,6 +169,7 @@ async function upsertConversation({ sessionId, messageCount, usage }) {
       updated_at: nowIso,
       message_count: messageCount,
       status: 'active',
+      market,
       input_tokens_total:  inTok,
       output_tokens_total: outTok,
       tokens_total:        inTok + outTok
