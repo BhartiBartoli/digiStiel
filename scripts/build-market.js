@@ -43,20 +43,6 @@ function replacements({ market, base }) {
   };
 }
 
-// Derive the per-site www -> apex 301 from the same base as the canonical, so the
-// redirect domain is never hardcoded: be -> .be, nl -> .nl, com -> .com all follow
-// process.env.URL (Netlify site domain) / DOMAINS fallback. Returns a Netlify
-// _redirects line, or null if base has no host.
-function wwwToApexRule(base) {
-  let u;
-  try { u = new URL(base); } catch { return null; }
-  const apexHost = u.host.replace(/^www\./, '');     // strip www. if present
-  const apex = `${u.protocol}//${apexHost}`;
-  const www  = `${u.protocol}//www.${apexHost}`;
-  // 301!, force, with :splat to preserve the path.
-  return `${www}/* ${apex}/:splat 301!`;
-}
-
 function applyTo(filePath, repl) {
   if (!fs.existsSync(filePath)) return false;
   let src = fs.readFileSync(filePath, 'utf8');
@@ -89,8 +75,6 @@ function main() {
   console.log(`[build-market]   liabilityRegime: ${m.legal.liabilityRegime}`);
   console.log(`[build-market]   promotionRegime: ${m.legal.promotionRegime}`);
   console.log(`[build-market]   tuple          : ${JSON.stringify(m)}`);
-  const redirectRule = wwwToApexRule(ctx.base);
-  console.log(`[build-market]   www->apex      : ${redirectRule}`);
 
   // ── Dwingende legalStatus-gate ──────────────────────────────────────────────
   // HOE de gate afdwingt: dit script is het Netlify build-command. process.exit(1)
@@ -112,17 +96,6 @@ function main() {
     const full = path.join(root, f);
     const ok = applyTo(full, repl);
     console.log(`[build-market]   ${ok ? 'wrote' : 'skipped (missing)'}: ${full}`);
-  }
-
-  // Per-site www -> apex 301, generated into the publish root. Netlify reads
-  // _redirects post-build, so the dynamic (non-hardcoded) domain works here where
-  // a static netlify.toml rule could not. The /api/* rewrite stays in netlify.toml
-  // (processed first); this only adds the host-level www->apex redirect.
-  if (redirectRule) {
-    const redirectsPath = path.join(root, '_redirects');
-    const banner = '# Generated per build by scripts/build-market.js — do not edit by hand.\n';
-    fs.writeFileSync(redirectsPath, banner + redirectRule + '\n');
-    console.log(`[build-market]   wrote: ${redirectsPath}`);
   }
 }
 

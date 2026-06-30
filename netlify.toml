@@ -39,7 +39,8 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# www -> apex 301 is market-driven and NOT a static rule here: scripts/build-market.js
-# generates a per-site _redirects file at build time, deriving the apex domain from
-# the same site domain (process.env.URL) used for the canonical. So be -> .be,
-# nl -> .nl, com -> .com without hardcoding any domain in this config.
+# www -> apex 301 is DELIBERATELY not in code. It is handled by Netlify per site,
+# via the site's primary-domain setting (set when the custom domain is connected):
+# Netlify auto-redirects the non-primary host (www) to the primary apex. Each site
+# (be/nl/com) does this with its own domain, so there is no redirect rule — and no
+# hardcoded domain — here. Do not add a static www->apex rule; it would double up.
