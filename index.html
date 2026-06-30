@@ -93,7 +93,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid tran
 nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
 .nav-inner{max-width:1080px;margin:0 auto;padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between;}
 .nav-logo{font-size:1.28rem;font-weight:400;letter-spacing:-.02em;text-decoration:none;color:var(--ink);user-select:none;}
-.nav-logo .s{color:var(--accent);font-weight:600;font-size:1.48rem;}
+.nav-logo .s{color:var(--accent);font-weight:700;font-size:1.48rem;}
 .nav-cta{background:var(--accent)!important;color:#fff!important;padding:7px 15px!important;border-radius:7px;font-weight:500!important;font-size:.825rem!important;transition:background .18s!important;text-decoration:none;}
 .nav-cta:hover{background:var(--accent-dark)!important;}
 
@@ -166,7 +166,7 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 }
 .sparring-ai-label{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;}
 .sparring-ai-label strong{color:var(--ink);font-weight:500;}
-.sparring-ai-label .s{color:var(--accent);font-weight:600;} /* wordmark "S" accent (canonical) */
+.sparring-ai-label .s{color:var(--accent);font-weight:700;} /* wordmark "S" accent (canonical) */
 
 /* Prompt chips */
 .sparring-prompts{
@@ -328,7 +328,7 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-index:1;background:var(--white);}
 .footer-inner{max-width:1080px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .footer-logo{font-size:1.05rem;font-weight:400;letter-spacing:-.02em;color:var(--ink);}
-.footer-logo .s{color:var(--accent);font-weight:600;}
+.footer-logo .s{color:var(--accent);font-weight:700;}
 .footer-copy{font-size:.75rem;color:var(--subtle);}
 @media(max-width:480px){.footer-inner{flex-direction:column;align-items:flex-start;gap:10px;}}
 
@@ -368,6 +368,11 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 /* ══ SCROLL REVEAL ════════════════════════════════════════════════ */
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease;}
 .reveal.visible{opacity:1;transform:none;}
+
+/* Wordmark "S": bold accent everywhere it appears in text (bare spans). */
+.s{color:var(--accent);font-weight:700;}
+/* Specific eyebrow labels + prompt label requested in bold accent. */
+.label-accent{color:var(--accent);font-weight:700;}
 </style>
 </head>
 <body>
@@ -402,7 +407,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
         <strong>Maar waarom precies?</strong>
       </h1>
       <p class="hero-sub">
-        Te weinig nieuwe klanten, verkoop die blijft liggen, of klanten die niet terugkomen. Vaak weet je dat het beter kan, maar niet waar het knelt. digiStiel kijkt met je mee en zoekt uit wat er echt achter zit, en wat eraan te doen valt.
+        Te weinig nieuwe klanten, verkoop die blijft liggen, of klanten die niet terugkomen. Vaak weet je dat het beter kan, maar niet waar het knelt. digi<span class="s">S</span>tiel kijkt met je mee en zoekt uit wat er echt achter zit, en wat eraan te doen valt.
       </p>
       <div class="hero-actions">
         <a href="#sparring" class="btn btn-blue">Herken jij dit? →</a>
@@ -416,7 +421,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 <!-- KETEN-KAARTEN -->
 <section class="section" id="where" aria-labelledby="where-title">
   <div class="container">
-    <div class="section-label reveal"><span class="label">Waar het misloopt</span></div>
+    <div class="section-label reveal"><span class="label label-accent">Waar het misloopt</span></div>
     <h2 class="section-title reveal" id="where-title">
       Niet één groot probleem.<br>
       <strong>Maar ergens loopt de keten stroef.</strong>
@@ -455,7 +460,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 <!-- SPARRING -->
 <section class="section sparring-section" id="sparring" aria-labelledby="sparring-title">
   <div class="container">
-    <div class="section-label reveal"><span class="label">Herken jij dit?</span></div>
+    <div class="section-label reveal"><span class="label label-accent">Herken jij dit?</span></div>
     <h2 class="section-title reveal" id="sparring-title">
       Ergens klopt het niet.<br>
       <strong>Maar wat precies?</strong>
@@ -484,7 +489,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 
       <!-- Prompt chips -->
       <div class="sparring-prompts" id="sparringPrompts" role="region" aria-label="Herkenbare situaties">
-        <div class="sparring-prompts-label" aria-hidden="true">Herken je één van deze situaties?</div>
+        <div class="sparring-prompts-label label-accent" aria-hidden="true">Herken je één van deze situaties?</div>
         <div class="sparring-chips" role="list">
           <button class="sparring-chip" role="listitem">Er komen te weinig nieuwe klanten binnen</button>
           <button class="sparring-chip" role="listitem">Aanvragen en mailtjes blijven te lang liggen</button>
@@ -569,7 +574,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 <footer role="contentinfo">
   <div class="footer-inner">
     <div class="footer-logo">digi<span class="s">S</span>tiel</div>
-    <div class="footer-copy">© 2026 digiStiel · Meer klanten, vlottere verkoop, minder gedoe</div>
+    <div class="footer-copy">© 2026 digi<span class="s">S</span>tiel · Meer klanten, vlottere verkoop, minder gedoe</div>
   </div>
 </footer>
 
@@ -740,7 +745,9 @@ function appendMessage(text, role) {
 
   const meta = document.createElement('div');
   meta.className = 'msg-meta';
-  meta.textContent = isUser ? 'Jij' : 'digiStiel';
+  // Static strings only (no user input) — safe to set innerHTML for the wordmark "S".
+  if (isUser) { meta.textContent = 'Jij'; }
+  else { meta.innerHTML = 'digi<span class="s">S</span>tiel'; }
 
   msg.appendChild(bubble);
   msg.appendChild(meta);
