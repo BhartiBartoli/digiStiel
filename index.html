@@ -474,7 +474,7 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
       </div>
 
       <!-- Prompt chips -->
-      <div class="sparring-prompts" role="region" aria-label="Herkenbare situaties">
+      <div class="sparring-prompts" id="sparringPrompts" role="region" aria-label="Herkenbare situaties">
         <div class="sparring-prompts-label" aria-hidden="true">Herken je één van deze situaties?</div>
         <div class="sparring-chips" role="list">
           <button class="sparring-chip" role="listitem">Er komen te weinig nieuwe klanten binnen</button>
@@ -661,6 +661,7 @@ const input       = document.getElementById('sparringInput');
 const sendBtn     = document.getElementById('sparringSend');
 const workspace   = document.getElementById('sparringWorkspace');
 const resetBtn    = document.getElementById('sparringReset');
+const prompts     = document.getElementById('sparringPrompts');
 
 // Auto-resize textarea
 input.addEventListener('input', () => {
@@ -700,6 +701,7 @@ resetBtn.addEventListener('click', () => {
     if (el !== emptyState && el !== typingInd) el.remove();
   });
   emptyState.style.display = '';
+  if (prompts) prompts.style.display = ''; // reset = fresh cold start → chips back
   nudge.classList.remove('visible');
   workspace.classList.remove('active');
   input.value = '';
@@ -712,6 +714,11 @@ function appendMessage(text, role) {
   workspace.classList.add('active');
 
   const isUser = role === 'user';
+  // Single mechanism for both triggers: the moment the first user message enters
+  // the conversation (via chip-click or typed input — both route through here),
+  // hide the starter chips. This is one-way: appendMessage never re-shows them,
+  // so they stay gone for the rest of the conversation. Not market-dependent.
+  if (isUser && prompts) prompts.style.display = 'none';
   const msg  = document.createElement('div');
   msg.className = `msg msg-${isUser ? 'user' : 'ai'}`;
 
