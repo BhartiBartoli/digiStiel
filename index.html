@@ -109,8 +109,6 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 .eyebrow-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:dotBlink 2.5s ease-in-out infinite;}
 @keyframes dotBlink{0%,100%{opacity:1;}50%{opacity:.25;}}
 .hero-eyebrow span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;}
-/* Hero's single navy anchor: a thin navy rule above the title (small, structural). */
-.hero-rule{width:40px;height:2px;background:var(--navy);border-radius:2px;margin-bottom:22px;animation:fadeUp .7s ease both;}
 .hero-title{margin-bottom:20px;animation:fadeUp .7s ease both;animation-delay:.08s;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
 .hero-sub{font-size:clamp(.95rem,1.8vw,1.1rem);line-height:1.7;color:var(--muted);font-weight:300;max-width:520px;margin-bottom:36px;animation:fadeUp .7s ease both;animation-delay:.18s;}
@@ -127,10 +125,6 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
 
 /* ══ SECTION LABEL ════════════════════════════════════════════════ */
 .section-label{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
-/* The section eyebrow (label text + this thin line) is the ONE small navy
-   structural anchor per section — never a dark block. */
-.section-label::after{content:'';flex:1;max-width:32px;height:1px;background:var(--navy);opacity:.55;}
-#where .section-label::after{opacity:1;}
 
 /* ══════════════════════════════════════════════════════════════════
    AI SPARRING SECTION
@@ -373,6 +367,8 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 .s{color:var(--accent);font-weight:700;}
 /* Specific eyebrow labels + prompt label requested in bold accent. */
 .label-accent{color:var(--accent);font-weight:700;}
+/* Section eyebrow labels "Waar het misloopt" / "Herken jij dit?": +2px, bold. */
+.label.label-accent{font-size:12.5px;}
 </style>
 </head>
 <body>
@@ -401,7 +397,6 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
   <div class="hero-orb" aria-hidden="true"></div>
   <div class="container">
     <div class="hero-content">
-      <div class="hero-rule" aria-hidden="true"></div>
       <h1 class="display hero-title" id="hero-title">
         Het loopt stroef.<br>
         <strong>Maar waarom precies?</strong>
