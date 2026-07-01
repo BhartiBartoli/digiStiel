@@ -24,6 +24,21 @@ Lives **above** the deterministic engine (`engine/`). It STORES and ANCHORS
 - `{kind,ref}` self-describing refs only for mixed-type collections (`relatedRefs`,
   `supportedByMemoryRefs`).
 - Currentness is computed from supersede chains — no active flag.
+
+### Currentness is direction-independent
+Different object types may represent supersession using different canonical relationships.
+Currentness helpers interpret each canonical relationship correctly while preserving the same
+architectural principle: history remains immutable, current state is always computed.
+- **Memory** uses a FORWARD chain: the old entry points to its successor (`supersededByRef`);
+  current = entries with no `supersededByRef`.
+- **Advice / Decision** use a BACKWARD chain: the successor points to what it replaces
+  (`supersedesRef`); current = records not referenced by any other's `supersedesRef`.
+Both proven explicitly in `tests/brokB.test.js` (proofs 2, 3, 5).
+
+> **Future path (V2, documented intent — not built in Brok B):** a generic "Currentness
+> Strategy" where each object type DECLARES its supersession direction (Memory→forward,
+> Advice→backward, Decision→backward) so `currentness.js` never assumes. This is a later
+> generalisation; recorded here as intent only, not implemented.
 - Advice & Decision anchor at Value-Plan level; the ref sits on the CHILD, never as a
   collection on the Value Plan (no God-object).
 

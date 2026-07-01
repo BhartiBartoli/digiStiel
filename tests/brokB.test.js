@@ -38,11 +38,21 @@ check('2. Advice Proposed→Accepted / Proposed→Rejected work; Rejected→Acce
   const a2 = k.createAdvice({ valuePlanId: planId, title: 'A2', body: 'body', originType: 'human' });
   assert.strictEqual(k.rejectAdvice(a2.id).status, 'Rejected');
   assert.throws(() => k.acceptAdvice(a2.id), LifecycleViolation, 'Rejected→Accepted is illegal');
-  // supersede the accepted advice: new advice, old kept + marked Superseded
+
+  // ── BACKWARD chain (Advice/Decision): successor points back via supersedesRef. ──
+  // A → Accept → B(supersedesRef=A). Prove currentness AND lineage together.
   const a3 = k.supersedeAdvice(a1.id, { valuePlanId: planId, title: 'A1b', body: 'better', originType: 'ai' });
-  assert.strictEqual(k.get('adviceRecords', a1.id).status, 'Superseded', 'old still present, Superseded');
-  assert.strictEqual(a3.supersedesRef, a1.id, 'successor points back');
-  assert.deepStrictEqual(k.currentAdviceFor(planId).map((a) => a.id).sort(), [a3.id].sort(), 'only successor is current');
+  assert.strictEqual(a3.supersedesRef, a1.id, 'successor B points back to A');
+  // currentness.js resolves the backward chain to B (not A):
+  const currentAdvice = k.currentAdviceFor(planId).map((a) => a.id);
+  assert.deepStrictEqual(currentAdvice, [a3.id], 'currentAdvice = B (successor), not A');
+  assert.ok(!currentAdvice.includes(a1.id), 'A is NOT current');
+  // lineage: A still exists and is marked Superseded (history immutable, never deleted).
+  assert.ok(k.get('adviceRecords', a1.id), 'A still exists (lineage preserved)');
+  assert.strictEqual(k.get('adviceRecords', a1.id).status, 'Superseded');
+  // history contains BOTH A and B.
+  const adviceHistory = [...k.store.adviceRecords.values()].map((a) => a.id);
+  assert.ok(adviceHistory.includes(a1.id) && adviceHistory.includes(a3.id), 'history holds both A and B');
 });
 
 // ── Proof 3: Decision is immutable; revision only via a new superseding record ──
@@ -54,8 +64,12 @@ check('3. Decision Record is immutable; revision is a new record with supersedes
   assert.throws(() => { d1.outcome = 'rejected'; }, TypeError, 'frozen object blocks direct write');
   assert.strictEqual(k.get('decisionRecords', d1.id).outcome, 'accepted', 'unchanged');
   const d2 = k.reviseDecision(d1.id, { title: 'D2', body: 'b2', outcome: 'rejected', rationale: 'revised', valuePlanId: planId });
-  assert.strictEqual(d2.supersedesRef, d1.id);
-  assert.deepStrictEqual(k.currentDecisionFor(planId).map((d) => d.id), [d2.id], 'old superseded, new current');
+  assert.strictEqual(d2.supersedesRef, d1.id, 'D2 points BACK to D1 (backward chain)');
+  // currentness.js resolves the backward chain to D2 (not D1):
+  assert.deepStrictEqual(k.currentDecisionFor(planId).map((d) => d.id), [d2.id], 'currentDecision = D2, not D1');
+  assert.ok(k.get('decisionRecords', d1.id), 'D1 still exists (immutable lineage)');
+  const decHistory = [...k.store.decisionRecords.values()].map((d) => d.id);
+  assert.ok(decHistory.includes(d1.id) && decHistory.includes(d2.id), 'history holds both D1 and D2');
 });
 
 // ── Proof 4: Decision requires rationale + bounded outcome ──
@@ -68,13 +82,20 @@ check('4. Decision without rationale refused; invalid outcome refused', () => {
 // ── Proof 5: Memory current = computed; supersede preserves lineage ──
 check('5. Memory current=computed; superseded entry kept (lineage)', () => {
   const { k } = setup();
+  // ── FORWARD chain (Memory): the OLD entry points to its successor via supersededByRef. ──
   const m1 = k.rememberIfImpactful({ tenantId: 't1', sourceType: 'discovery', memoryType: 'Fact', content: 'sells bikes', impactRelevant: true });
-  assert.ok(m1 && !m1.supersededByRef, 'new entry is current');
+  assert.ok(m1 && !m1.supersededByRef, 'new entry is current (no supersededByRef)');
   assert.deepStrictEqual(k.currentMemory('t1').map((m) => m.id), [m1.id]);
   const m2 = k.supersedeMemory(m1.id, { tenantId: 't1', sourceType: 'interaction', memoryType: 'Fact', content: 'sells e-bikes', impactRelevant: true });
-  assert.strictEqual(k.get('memoryEntries', m1.id).supersededByRef, m2.id, 'old points to successor');
-  assert.ok(k.get('memoryEntries', m1.id), 'old entry still exists (lineage)');
-  assert.deepStrictEqual(k.currentMemory('t1').map((m) => m.id), [m2.id], 'only successor is current');
+  assert.strictEqual(k.get('memoryEntries', m1.id).supersededByRef, m2.id, 'old M1 points FORWARD to successor M2');
+  // currentness.js resolves the forward chain to M2 (not M1):
+  const currentMem = k.currentMemory('t1').map((m) => m.id);
+  assert.deepStrictEqual(currentMem, [m2.id], 'currentMemory = M2 (successor), not M1');
+  assert.ok(!currentMem.includes(m1.id), 'M1 is NOT current');
+  // lineage: M1 still exists; history holds BOTH.
+  assert.ok(k.get('memoryEntries', m1.id), 'M1 still exists (lineage preserved)');
+  const memHistory = [...k.store.memoryEntries.values()].map((m) => m.id);
+  assert.ok(memHistory.includes(m1.id) && memHistory.includes(m2.id), 'history holds both M1 and M2');
 });
 
 // ── Proof 6: Memory trigger — impactRelevant:false is not stored ──
