@@ -53,7 +53,7 @@ const MARKETS = {
   com: {
     lang: 'en', locale: 'en_US',
     jurisdiction: 'BE', annexSet: 'none', // Belgisch recht, geen landannex → EU-core
-    legalStatus: 'cleared',
+    legalStatus: 'blocked', // Engelse GT&C nog niet juridisch goedgekeurd — blocked tot sign-off
     ux: { ctaDirectness: 'standard', previewDepth: 'standard' },
   },
   // Config-skeletten — juridisch NIET vrijgegeven. Blijven 'blocked' tot vrijgave.
