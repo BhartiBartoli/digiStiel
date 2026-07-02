@@ -53,7 +53,7 @@ const MARKETS = {
   com: {
     lang: 'en', locale: 'en_US',
     jurisdiction: 'BE', annexSet: 'none', // Belgisch recht, geen landannex → EU-core
-    legalStatus: 'blocked', // Engelse GT&C nog niet juridisch goedgekeurd — blocked tot sign-off
+    legalStatus: 'cleared', // Juridical clearance 2026-07-02: Engelse rechtskeuze-clausule GT&C/EN-4 (Belgisch recht + Rome I-consumentenvangnet) geleverd
     ux: { ctaDirectness: 'standard', previewDepth: 'standard' },
   },
   // Config-skeletten — juridisch NIET vrijgegeven. Blijven 'blocked' tot vrijgave.
