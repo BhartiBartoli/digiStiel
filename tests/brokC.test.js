@@ -95,5 +95,120 @@ check('7. Decision Brok C fields are immutable after creation (frozen)', () => {
   assert.strictEqual(k.get('decisionRecords', d.id).decisionAuthority, 'customer', 'unchanged');
 });
 
+// ══════════════════════════════════════════════════════════════════════════════
+// Brok C deel 2 — the four COMPUTED evaluations (Decision Intelligence).
+// Pure functions over the canonical history; they store nothing.
+// ══════════════════════════════════════════════════════════════════════════════
+const DI = require('../knowledge/decision-intelligence');
+
+// Engine + knowledge with some history, plus the read-only world adapter.
+function setupDI() {
+  const engine = new Engine();
+  const intent = engine.createStrategicIntent({ name: 'Growth' });
+  const goal = engine.createStrategicGoal({ intentId: intent.id, name: 'Revenue', targetValue: 100000, unit: 'EUR' });
+  engine.activateStrategicGoal(goal.id);
+  const plan = engine.createValuePlan({ goalId: goal.id });
+  engine.activateValuePlan(plan.id);
+  const k = new KnowledgeLayer({ valuePlanExists: (id) => !!engine.get('valuePlans', id) });
+  // seed history
+  k.createAdvice({ valuePlanId: plan.id, title: 'W', body: 'risk', originType: 'ai', adviceForm: 'Warning' });
+  k.recordDecision({ title: 'D', body: 'b', outcome: 'accepted', rationale: 'r', valuePlanId: plan.id });
+  k.rememberIfImpactful({ tenantId: 't1', sourceType: 'discovery', memoryType: 'Fact', content: 'x', impactRelevant: true });
+  const world = DI.makeWorld({ engine, knowledge: k });
+  return { engine, k, planId: plan.id, world };
+}
+// Full serialisable snapshot of the knowledge store (proof of "nothing persisted").
+function storeSnapshot(k) {
+  return JSON.stringify({
+    advice: [...k.store.adviceRecords.values()],
+    decisions: [...k.store.decisionRecords.values()],
+    memory: [...k.store.memoryEntries.values()],
+  });
+}
+function storeCounts(k) {
+  return {
+    advice: k.store.adviceRecords.size,
+    decisions: k.store.decisionRecords.size,
+    memory: k.store.memoryEntries.size,
+  };
+}
+
+// ── 8: Judgement is a function/derivation, not a stored record ──
+check('8. Judgement is computed (function returns evaluation; nothing stored)', () => {
+  const { k, planId, world } = setupDI();
+  const before = storeSnapshot(k);
+  const j = DI.computeJudgement(world, planId, { now: '2026-07-03', riskSignal: 3 });
+  assert.strictEqual(j.kind, 'Judgement');
+  assert.ok(['low', 'medium', 'high'].includes(j.assessment));
+  assert.strictEqual(storeSnapshot(k), before, 'store unchanged — no judgement record');
+});
+
+// ── 9: Trust is computed, not stored ──
+check('9. Trust is computed (function returns evaluation; nothing stored)', () => {
+  const { k, planId, world } = setupDI();
+  const before = storeSnapshot(k);
+  const t = DI.computeTrust(world, planId, { now: '2026-07-03' });
+  assert.strictEqual(t.kind, 'Trust');
+  assert.ok(['low', 'medium', 'high'].includes(t.level));
+  assert.strictEqual(storeSnapshot(k), before, 'store unchanged — no trust record');
+});
+
+// ── 10: Governance Verdict is bounded; 'Stop' is a recommendation, not an autonomous action ──
+check("10. Governance Verdict ∈ enum; 'Stop' recommends, creates no Decision, mutates nothing", () => {
+  const { k, planId, world } = setupDI();
+  const before = storeSnapshot(k);
+  const beforeDecisions = storeCounts(k).decisions;
+  const v = DI.computeGovernanceVerdict(world, planId, { now: 'n', riskSignal: 10 }); // force high → Stop
+  assert.ok(DI.VERDICTS.includes(v.verdict), 'verdict within bounded enum');
+  assert.strictEqual(v.verdict, 'Stop', 'high risk → Stop');
+  assert.strictEqual(v.isRecommendation, true, 'Stop is a recommendation');
+  assert.strictEqual(v.commitment, null, 'no commitment produced');
+  assert.strictEqual(storeCounts(k).decisions, beforeDecisions, 'no Decision created by a Stop');
+  assert.strictEqual(storeSnapshot(k), before, 'store unchanged');
+});
+
+// ── 11: Authorization needs an active mandate; writes no permission record ──
+check('11. Authorization: active mandate → judged; inert/no mandate → not authorized; nothing written', () => {
+  const { k, planId, world } = setupDI();
+  const before = storeSnapshot(k);
+  const action = { type: 'transition', valuePlanId: planId };
+
+  const ok = DI.computeAuthorization(world, action, { source: 'customer-approval' }, {});
+  assert.strictEqual(ok.kind, 'Authorization');
+  assert.strictEqual(ok.authorized, true, 'customer-approval → judged authorized');
+
+  const inert = DI.computeAuthorization(world, action, { source: 'goal-budget' }, {});
+  assert.strictEqual(inert.authorized, false, 'inert mandate source drives no authorization');
+  assert.strictEqual(inert.reason, 'inert-mandate-source');
+
+  const none = DI.computeAuthorization(world, action, null, {});
+  assert.strictEqual(none.authorized, false, 'no mandate → not authorized (never mandateless)');
+  assert.strictEqual(none.reason, 'no-mandate');
+
+  assert.strictEqual(storeSnapshot(k), before, 'no authorization/permission record written');
+});
+
+// ── 12: STATELESS overall — calling all four (incl. composition) leaves the store identical ──
+check('12. Stateless: the full store is unchanged after all four evaluations (incl. composition)', () => {
+  const { k, planId, world } = setupDI();
+  const before = storeSnapshot(k);
+  DI.computeJudgement(world, planId, { now: 'n' });
+  DI.computeTrust(world, planId, { now: 'n' });
+  DI.computeGovernanceVerdict(world, planId, { now: 'n' });          // composes judgement in-memory
+  DI.computeAuthorization(world, { valuePlanId: planId }, { source: 'customer-approval' }, { now: 'n' }); // composes verdict in-memory
+  assert.strictEqual(storeSnapshot(k), before, 'no evaluation (or composition) persisted anything');
+});
+
+// ── 13: No new Knowledge output — Advice/Decision/Memory counts unchanged ──
+check('13. Decision Intelligence produces no Knowledge (Advice/Decision/Memory counts unchanged)', () => {
+  const { k, planId, world } = setupDI();
+  const before = storeCounts(k);
+  DI.computeJudgement(world, planId, {});
+  DI.computeTrust(world, planId, {});
+  DI.computeGovernanceVerdict(world, planId, {});
+  DI.computeAuthorization(world, { valuePlanId: planId }, { source: 'customer-approval' }, {});
+  assert.deepStrictEqual(storeCounts(k), before, 'no new Advice/Decision/Memory');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

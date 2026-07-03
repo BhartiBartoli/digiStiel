@@ -57,6 +57,20 @@ Both proven explicitly in `tests/brokB.test.js` (proofs 2, 3, 5).
 `authorRef` (Advice), `decidedBy` (Decision), `supportedByMemoryRefs` (Advice),
 `tenantId` cross-tenant use, `volatility` (Memory), the weighting mechanism.
 
+## Decision Intelligence (Brok C deel 2) — `decision-intelligence/`
+Four **computed evaluations** — Judgement, Trust, Governance Verdict, Authorization —
+as **pure functions** over the canonical history (`world.js` = read-only adapter over the
+engine + knowledge stores). "Judgement is transient. Decision is persistent." They store
+NOTHING (no records, no active flags, no cache-as-source); this layer must never become a
+second Knowledge layer.
+- Governance Verdict ∈ `Continue | Adapt | Pause | Stop | Merge`; a 'Stop' is a strong
+  recommendation authorising the customer, not an autonomous stop.
+- Authorization never exists mandateless; only `customer-approval` is active (MVP), the
+  other mandate sources are inert.
+- Composition happens at compute-time (Verdict calls Judgement, Authorization calls Verdict)
+  in-memory — no evaluation persists another. Everything remains reducible to the same
+  canonical history. Enforced by proofs 8–13 in `tests/brokC.test.js`.
+
 ## Not in Brok B
 Governance enforcement / Customer Validation gate, Decision→Advice status coupling,
 Identity & Access, Memory→Advice reasoning, pattern detection, cross-tenant learning.
