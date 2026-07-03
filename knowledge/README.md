@@ -19,6 +19,17 @@ Lives **above** the deterministic engine (`engine/`). It STORES and ANCHORS
   Proposed→Accepted/Rejected, Accepted→Superseded. Never deleted on Superseded/Rejected.
 - **Decision Record** — IMMUTABLE. A revision is a NEW record with `supersedesRef`.
 
+### Brok C deel 1 — field additions (no new objects/tables)
+- **Decision Record** gains `decisionAuthority` (who commits; enum, default `customer`) and
+  `decisionRecorder` (who registers; enum, default `platform`). Identity-agnostic and kept
+  SEPARATE — recording ≠ deciding. Both set at creation, then immutable. Inert enum values
+  (`autonomous-platform`/`partner`/`human-operator` for authority) drive no behaviour yet;
+  the refusal of autonomous authority is deel 3.
+- **Advice Record** gains `adviceForm` (enum: Observation|Insight|Warning|Question|
+  Alternative|Recommendation, required). **Only `Recommendation`** is chain-eligible to
+  later continue a reasoning chain toward Authorization/Decision (`isChainEligible`); the
+  other five enrich Knowledge only. The chain guard/gate itself is deel 3.
+
 ## Single Source of Truth / patterns
 - Flat id-refs for single, type-known parents (`valuePlanId`, `adviceRef`, `tenantId`).
 - `{kind,ref}` self-describing refs only for mixed-type collections (`relatedRefs`,

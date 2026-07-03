@@ -33,15 +33,15 @@ check('1. Advice with invalid/missing valuePlanId is refused (ReferenceViolation
 // ── Proof 2: Advice lifecycle + superseded advice kept ──
 check('2. Advice Proposed→Accepted / Proposed→Rejected work; Rejected→Accepted refused; superseded kept', () => {
   const { k, planId } = setup();
-  const a1 = k.createAdvice({ valuePlanId: planId, title: 'A1', body: 'body', originType: 'ai' });
+  const a1 = k.createAdvice({ valuePlanId: planId, title: 'A1', body: 'body', originType: 'ai', adviceForm: 'Recommendation' });
   assert.strictEqual(k.acceptAdvice(a1.id).status, 'Accepted');
-  const a2 = k.createAdvice({ valuePlanId: planId, title: 'A2', body: 'body', originType: 'human' });
+  const a2 = k.createAdvice({ valuePlanId: planId, title: 'A2', body: 'body', originType: 'human', adviceForm: 'Recommendation' });
   assert.strictEqual(k.rejectAdvice(a2.id).status, 'Rejected');
   assert.throws(() => k.acceptAdvice(a2.id), LifecycleViolation, 'Rejected→Accepted is illegal');
 
   // ── BACKWARD chain (Advice/Decision): successor points back via supersedesRef. ──
   // A → Accept → B(supersedesRef=A). Prove currentness AND lineage together.
-  const a3 = k.supersedeAdvice(a1.id, { valuePlanId: planId, title: 'A1b', body: 'better', originType: 'ai' });
+  const a3 = k.supersedeAdvice(a1.id, { valuePlanId: planId, title: 'A1b', body: 'better', originType: 'ai', adviceForm: 'Recommendation' });
   assert.strictEqual(a3.supersedesRef, a1.id, 'successor B points back to A');
   // currentness.js resolves the backward chain to B (not A):
   const currentAdvice = k.currentAdviceFor(planId).map((a) => a.id);
@@ -110,9 +110,9 @@ check('6. Memory trigger: impactRelevant=false leads to no storage', () => {
 check('7. Inert fields (authorRef, decidedBy, supportedByMemoryRefs, volatility, tenantId) drive no behaviour', () => {
   const { k, planId } = setup();
   // Advice with inert fields set vs not — identical lifecycle outcome.
-  const aInert = k.createAdvice({ valuePlanId: planId, title: 'X', body: 'b', originType: 'ai',
+  const aInert = k.createAdvice({ valuePlanId: planId, title: 'X', body: 'b', originType: 'ai', adviceForm: 'Recommendation',
     authorRef: 'agent-x', supportedByMemoryRefs: [{ kind: 'memory', ref: 'mem_1' }] });
-  const aPlain = k.createAdvice({ valuePlanId: planId, title: 'X', body: 'b', originType: 'ai' });
+  const aPlain = k.createAdvice({ valuePlanId: planId, title: 'X', body: 'b', originType: 'ai', adviceForm: 'Recommendation' });
   assert.strictEqual(k.acceptAdvice(aInert.id).status, k.acceptAdvice(aPlain.id).status, 'inert advice fields do not alter lifecycle');
   // Decision with inert decidedBy vs not — identical outcome.
   const dInert = k.recordDecision({ title: 'D', body: 'b', outcome: 'deferred', rationale: 'r', valuePlanId: planId, decidedBy: 'someone' });
