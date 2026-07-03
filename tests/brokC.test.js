@@ -233,11 +233,11 @@ function setupGate() {
 check('16. Gate: activation refused without validation (typed error), allowed with it', () => {
   const { engine, planId } = setupGate();
   assert.strictEqual(engine.get('valuePlans', planId).status, 'Proposed');
-  assert.throws(() => DI.activateValuePlan(engine, planId, {}), ConstraintViolation, 'no validation → refused');
-  assert.throws(() => DI.activateValuePlan(engine, planId, { validatedAt: '2026-07-03' }), ConstraintViolation, 'validatedBy missing → refused');
+  assert.throws(() => DI.requestValuePlanActivation(engine, planId, {}), ConstraintViolation, 'no validation → refused');
+  assert.throws(() => DI.requestValuePlanActivation(engine, planId, { validatedAt: '2026-07-03' }), ConstraintViolation, 'validatedBy missing → refused');
   assert.strictEqual(engine.get('valuePlans', planId).status, 'Proposed', 'still Proposed after refusal');
 
-  const res = DI.activateValuePlan(engine, planId, { validatedAt: '2026-07-03', validatedBy: 'customer' });
+  const res = DI.requestValuePlanActivation(engine, planId, { validatedAt: '2026-07-03', validatedBy: 'customer' });
   assert.strictEqual(res.ok, true);
   assert.strictEqual(engine.get('valuePlans', planId).status, 'Active', 'validated → Active');
 });
@@ -253,20 +253,20 @@ check('17. Gate guards commitment only: Advice/Judgement/Trust/Governance Verdic
   assert.strictEqual(DI.computeTrust(world, planId, {}).kind, 'Trust');
   assert.ok(DI.VERDICTS.includes(DI.computeGovernanceVerdict(world, planId, {}).verdict), 'Governance Verdict runs');
   // Only commitment (activation) is gated:
-  assert.throws(() => DI.activateValuePlan(engine, planId, {}), Error);
+  assert.throws(() => DI.requestValuePlanActivation(engine, planId, {}), Error);
 });
 
 // ── 18: reasoning chain may only start from a Recommendation; guard weighs no content (guarantee 2) ──
 check('18. Chain guard: Recommendation starts a chain; the other five are refused; only the form decides', () => {
   const { k, planId } = setupGate();
   const rec = k.createAdvice({ valuePlanId: planId, title: 'T', body: 'same body', originType: 'ai', adviceForm: 'Recommendation' });
-  const started = DI.startReasoningChain(rec);
+  const started = DI.guardCommitmentChainEntry(rec);
   assert.strictEqual(started.start, 'Recommendation');
   assert.strictEqual(started.adviceId, rec.id);
   // Identical body/title — only adviceForm differs — proving the guard weighs FORM, not content.
   for (const form of ['Observation', 'Insight', 'Warning', 'Question', 'Alternative']) {
     const a = k.createAdvice({ valuePlanId: planId, title: 'T', body: 'same body', originType: 'ai', adviceForm: form });
-    assert.throws(() => DI.startReasoningChain(a), ConstraintViolation, `${form} may not start a chain`);
+    assert.throws(() => DI.guardCommitmentChainEntry(a), ConstraintViolation, `${form} may not start a chain`);
   }
 });
 
@@ -297,14 +297,14 @@ check('20. MVP-policy: refusal references ACTIVE_COMMIT_AUTHORITIES; widening th
 
 // ── 21: no bypass path — activation always goes through the gate ──
 check('21. No bypass: the DI layer exposes exactly one activation route, and it enforces the gate', () => {
-  const activationExports = Object.keys(DI).filter((k) => /^activate/i.test(k));
-  assert.deepStrictEqual(activationExports, ['activateValuePlan'], 'exactly one managed activation export');
+  const activationExports = Object.keys(DI).filter((k) => /ValuePlanActivation$/.test(k));
+  assert.deepStrictEqual(activationExports, ['requestValuePlanActivation'], 'exactly one managed activation export');
   const { engine, planId } = setupGate();
   // The single route cannot reach Active without validation…
-  assert.throws(() => DI.activateValuePlan(engine, planId, {}), ConstraintViolation);
+  assert.throws(() => DI.requestValuePlanActivation(engine, planId, {}), ConstraintViolation);
   assert.strictEqual(engine.get('valuePlans', planId).status, 'Proposed', 'no ungated route activated it');
   // …and there is no second DI function that activates while skipping the validation check.
-  assert.strictEqual(typeof DI.activateValuePlan, 'function');
+  assert.strictEqual(typeof DI.requestValuePlanActivation, 'function');
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

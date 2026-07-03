@@ -78,7 +78,7 @@ only preconditions/refusals. Root principle: "Understanding precedes Automation"
 - **Customer Validation gate** (`gate.js`) — a PRECONDITION on the Value Plan Proposed→Active
   transition: it checks a `validatedAt`/`validatedBy` flag on the source discovery/memory
   context (not a field on the Value Plan, not a new record). Missing/empty → activation refused
-  (`ConstraintViolation`). `activateValuePlan(engine, id, ctx)` is the SINGLE managed activation
+  (`ConstraintViolation`). `requestValuePlanActivation(engine, id, ctx)` is the SINGLE managed activation
   gate — no bypass path. Guarantee 1: validation is a precondition, not approval/authorization/
   decision. Guarantee 4: the gate guards COMMITMENT only — Advice, Judgement, Trust and
   Governance Verdict always run, also without validation.
