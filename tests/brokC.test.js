@@ -210,5 +210,102 @@ check('13. Decision Intelligence produces no Knowledge (Advice/Decision/Memory c
   assert.deepStrictEqual(storeCounts(k), before, 'no new Advice/Decision/Memory');
 });
 
+// ══════════════════════════════════════════════════════════════════════════════
+// Brok C deel 3 — the boundary that guards action WITHOUT autonomy.
+// Gate (validation precondition) + chain guard + commit-authority policy.
+// Preconditions/refusals only: no new stored objects, no Execution layer.
+// (Proofs 14–15 intentionally skipped per spec numbering.)
+// ══════════════════════════════════════════════════════════════════════════════
+
+// A Value Plan left in Proposed (NOT activated) so the gate governs its activation.
+function setupGate() {
+  const engine = new Engine();
+  const intent = engine.createStrategicIntent({ name: 'Growth' });
+  const goal = engine.createStrategicGoal({ intentId: intent.id, name: 'Revenue', targetValue: 100000, unit: 'EUR' });
+  engine.activateStrategicGoal(goal.id);
+  const plan = engine.createValuePlan({ goalId: goal.id }); // Proposed
+  const k = new KnowledgeLayer({ valuePlanExists: (id) => !!engine.get('valuePlans', id) });
+  const world = DI.makeWorld({ engine, knowledge: k });
+  return { engine, k, planId: plan.id, world };
+}
+
+// ── 16: Value Plan cannot go Active without confirmed validation; with it, it can ──
+check('16. Gate: activation refused without validation (typed error), allowed with it', () => {
+  const { engine, planId } = setupGate();
+  assert.strictEqual(engine.get('valuePlans', planId).status, 'Proposed');
+  assert.throws(() => DI.activateValuePlan(engine, planId, {}), ConstraintViolation, 'no validation → refused');
+  assert.throws(() => DI.activateValuePlan(engine, planId, { validatedAt: '2026-07-03' }), ConstraintViolation, 'validatedBy missing → refused');
+  assert.strictEqual(engine.get('valuePlans', planId).status, 'Proposed', 'still Proposed after refusal');
+
+  const res = DI.activateValuePlan(engine, planId, { validatedAt: '2026-07-03', validatedBy: 'customer' });
+  assert.strictEqual(res.ok, true);
+  assert.strictEqual(engine.get('valuePlans', planId).status, 'Active', 'validated → Active');
+});
+
+// ── 17: the gate guards COMMITMENT, not interpretation (guarantee 1 + 4) ──
+check('17. Gate guards commitment only: Advice/Judgement/Trust/Governance Verdict run without validation', () => {
+  const { engine, k, planId, world } = setupGate(); // NO validation anywhere
+  // Knowledge-forming is always allowed:
+  const a = k.createAdvice({ valuePlanId: planId, title: 'T', body: 'b', originType: 'ai', adviceForm: 'Observation' });
+  assert.strictEqual(a.type, 'AdviceRecord', 'Advice creatable without validation');
+  // Evaluation is always allowed:
+  assert.strictEqual(DI.computeJudgement(world, planId, {}).kind, 'Judgement');
+  assert.strictEqual(DI.computeTrust(world, planId, {}).kind, 'Trust');
+  assert.ok(DI.VERDICTS.includes(DI.computeGovernanceVerdict(world, planId, {}).verdict), 'Governance Verdict runs');
+  // Only commitment (activation) is gated:
+  assert.throws(() => DI.activateValuePlan(engine, planId, {}), Error);
+});
+
+// ── 18: reasoning chain may only start from a Recommendation; guard weighs no content (guarantee 2) ──
+check('18. Chain guard: Recommendation starts a chain; the other five are refused; only the form decides', () => {
+  const { k, planId } = setupGate();
+  const rec = k.createAdvice({ valuePlanId: planId, title: 'T', body: 'same body', originType: 'ai', adviceForm: 'Recommendation' });
+  const started = DI.startReasoningChain(rec);
+  assert.strictEqual(started.start, 'Recommendation');
+  assert.strictEqual(started.adviceId, rec.id);
+  // Identical body/title — only adviceForm differs — proving the guard weighs FORM, not content.
+  for (const form of ['Observation', 'Insight', 'Warning', 'Question', 'Alternative']) {
+    const a = k.createAdvice({ valuePlanId: planId, title: 'T', body: 'same body', originType: 'ai', adviceForm: form });
+    assert.throws(() => DI.startReasoningChain(a), ConstraintViolation, `${form} may not start a chain`);
+  }
+});
+
+// ── 19: only 'customer' may commit; the inert authorities are refused as commit authority ──
+check("19. Commit-authority: 'customer' commits; autonomous-platform/partner/human-operator refused", () => {
+  const { k, planId } = setupGate();
+  const d = DI.commitDecision(k, { title: 'D', body: 'b', outcome: 'accepted', rationale: 'r', valuePlanId: planId });
+  assert.strictEqual(d.decisionAuthority, 'customer', 'default customer commits');
+  const c = DI.commitDecision(k, { title: 'D', body: 'b', outcome: 'accepted', rationale: 'r', valuePlanId: planId, decisionAuthority: 'customer' });
+  assert.strictEqual(c.decisionAuthority, 'customer');
+  for (const inert of ['autonomous-platform', 'partner', 'human-operator']) {
+    assert.throws(() => DI.commitDecision(k, { title: 'D', body: 'b', outcome: 'accepted', rationale: 'r', valuePlanId: planId, decisionAuthority: inert }), ConstraintViolation, `${inert} refused as commit authority`);
+  }
+});
+
+// ── 20: the refusal is MVP-POLICY, not a hardcoded ban (guarantee 3) ──
+check('20. MVP-policy: refusal references ACTIVE_COMMIT_AUTHORITIES; widening the policy lifts it', () => {
+  const { assertCommitAuthority, ACTIVE_COMMIT_AUTHORITIES, AUTHORITIES } = require('../knowledge/decision-intelligence/commitPolicy');
+  assert.deepStrictEqual(ACTIVE_COMMIT_AUTHORITIES, ['customer'], 'MVP: only customer active');
+  // 'partner' is refused under the MVP policy…
+  assert.throws(() => assertCommitAuthority({ decisionAuthority: 'partner' }), ConstraintViolation);
+  // …but widening the POLICY CONSTANT (not the structure) lifts the refusal — proof it is policy.
+  assert.doesNotThrow(() => assertCommitAuthority({ decisionAuthority: 'partner' }, ['customer', 'partner']));
+  // The category never left the architecture: it is still a valid structural enum value.
+  assert.ok(AUTHORITIES.includes('partner') && AUTHORITIES.includes('autonomous-platform') && AUTHORITIES.includes('human-operator'),
+    'reserved authorities remain in the enum (Reserve, Don\'t Activate)');
+});
+
+// ── 21: no bypass path — activation always goes through the gate ──
+check('21. No bypass: the DI layer exposes exactly one activation route, and it enforces the gate', () => {
+  const activationExports = Object.keys(DI).filter((k) => /^activate/i.test(k));
+  assert.deepStrictEqual(activationExports, ['activateValuePlan'], 'exactly one managed activation export');
+  const { engine, planId } = setupGate();
+  // The single route cannot reach Active without validation…
+  assert.throws(() => DI.activateValuePlan(engine, planId, {}), ConstraintViolation);
+  assert.strictEqual(engine.get('valuePlans', planId).status, 'Proposed', 'no ungated route activated it');
+  // …and there is no second DI function that activates while skipping the validation check.
+  assert.strictEqual(typeof DI.activateValuePlan, 'function');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

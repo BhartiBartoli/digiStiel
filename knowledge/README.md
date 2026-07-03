@@ -71,8 +71,29 @@ second Knowledge layer.
   in-memory — no evaluation persists another. Everything remains reducible to the same
   canonical history. Enforced by proofs 8–13 in `tests/brokC.test.js`.
 
+## Gate & Guard (Brok C deel 3) — `decision-intelligence/`
+The boundary that guards ACTION without autonomy. MVP = Managed Execution: the layer may
+judge/advise/authorize, but never commits itself. No Execution layer, no new stored objects —
+only preconditions/refusals. Root principle: "Understanding precedes Automation".
+- **Customer Validation gate** (`gate.js`) — a PRECONDITION on the Value Plan Proposed→Active
+  transition: it checks a `validatedAt`/`validatedBy` flag on the source discovery/memory
+  context (not a field on the Value Plan, not a new record). Missing/empty → activation refused
+  (`ConstraintViolation`). `activateValuePlan(engine, id, ctx)` is the SINGLE managed activation
+  gate — no bypass path. Guarantee 1: validation is a precondition, not approval/authorization/
+  decision. Guarantee 4: the gate guards COMMITMENT only — Advice, Judgement, Trust and
+  Governance Verdict always run, also without validation.
+- **Reasoning-chain guard** (`chainGuard.js`) — a chain (Judgement→Recommendation→Authorization→
+  Decision→Execution) may only START from a `Recommendation`, via the reused deel-1 hook
+  `isChainEligible`. The other five forms are refused. Guarantee 2: it guards only the STRUCTURE/
+  sequence — never the quality/evidence/correctness (that stays the deel-2 compute functions).
+- **Commit-authority policy** (`commitPolicy.js`) — a commitment requires a `decisionAuthority`;
+  MVP policy `ACTIVE_COMMIT_AUTHORITIES = ['customer']`. autonomous-platform/partner/human-operator
+  are refused as commit authority. Guarantee 3: this is MVP-POLICY, not an architecture limit — the
+  categories stay in the enum; widening the policy constant re-activates them (Reserve, Don't
+  Activate). Enforced by proofs 16–21 in `tests/brokC.test.js`.
+
 ## Not in Brok B
-Governance enforcement / Customer Validation gate, Decision→Advice status coupling,
+Governance enforcement, Decision→Advice status coupling,
 Identity & Access, Memory→Advice reasoning, pattern detection, cross-tenant learning.
 
 ## Run the proofs
