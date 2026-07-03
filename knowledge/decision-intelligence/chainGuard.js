@@ -24,10 +24,11 @@ function assertChainStart(advice) {
   }
 }
 
-// Runs the structural guard and returns an in-memory chain-start descriptor. Stores NOTHING.
-function startReasoningChain(advice) {
+// Guards the transition INTO the commitment chain (reasoning itself begins far earlier, at any
+// Observation) and returns an in-memory chain-entry descriptor. Stores NOTHING.
+function guardCommitmentChainEntry(advice) {
   assertChainStart(advice);
   return { start: 'Recommendation', adviceId: advice.id };
 }
 
-module.exports = { assertChainStart, startReasoningChain };
+module.exports = { assertChainStart, guardCommitmentChainEntry };

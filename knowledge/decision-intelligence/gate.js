@@ -15,9 +15,13 @@
 // Advice, Judgement, Trust and Governance Verdict always remain allowed, also without validation
 // (see decision-intelligence/*.js — those are pure reads that never touch this gate).
 //
-// There is exactly ONE managed activation gate here (activateValuePlan); no second bypass path.
+// There is exactly ONE managed activation gate here (requestValuePlanActivation); no bypass path.
 const { ConstraintViolation } = require('../../engine/errors');
 
+// @param validationContext — a TEMPORARY TRANSPORT OBJECT carrying the As-Is validation flag
+//   (validatedAt/validatedBy). It is deliberately SOURCE-AGNOSTIC: it is NOT a canonical business
+//   object and is never stored. A future Discovery implementation can supply the validation source
+//   (e.g. from a discovery/memory context) without changing this gate implementation.
 // Pure precondition: the source context must carry a non-empty validatedAt AND validatedBy.
 function assertCustomerValidated(validationContext) {
   const ctx = validationContext || {};
@@ -33,9 +37,9 @@ function assertCustomerValidated(validationContext) {
 // The single managed activation gate: validate As-Is, THEN delegate to the engine's Brok A
 // Proposed→Active mechanic. Every managed activation flows through here — there is no second,
 // ungated managed activation twin.
-function activateValuePlan(engine, valuePlanId, validationContext) {
+function requestValuePlanActivation(engine, valuePlanId, validationContext) {
   assertCustomerValidated(validationContext); // precondition — refuses before any transition
-  return engine.activateValuePlan(valuePlanId);
+  return engine.activateValuePlan(valuePlanId); // low-level engine activation keeps its own name
 }
 
-module.exports = { assertCustomerValidated, activateValuePlan };
+module.exports = { assertCustomerValidated, requestValuePlanActivation };
