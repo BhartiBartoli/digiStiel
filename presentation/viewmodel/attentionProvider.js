@@ -1,6 +1,11 @@
 'use strict';
 // ATTENTION CANDIDATES — provider interface + stub.
 //
+// AttentionCandidate is a CANONICAL DECISION INTELLIGENCE CONTRACT. Presentation does NOT produce or
+// enrich it; Presentation only READS this contract. New business fields belong later in Decision
+// Intelligence, never in Presentation. The stub below imitates the DI contract as a temporary stand-in
+// — the contract is DI-owned, not a Presentation definition.
+//
 // Ownership boundary (Platform + M&S, frozen): "what deserves attention today" is BUSINESS PRIORITY
 // and belongs to Decision Intelligence, NOT to Presentation. DI produces Attention Candidates from
 // Recommendation / Governance-Verdict / Gate signals; that real production is a FUTURE Platform
@@ -8,7 +13,9 @@
 //
 //   Provider interface:  getAttentionCandidates() → [AttentionCandidate]
 //   AttentionCandidate = {
-//     sourceRef: { sourceId },              // → a node in the Canonical Presentation Tree
+//     sourceRef: { sourceId },              // a PRESENTATION REFERENCE — a navigation handle INTO the
+//                                           //   Canonical Presentation Tree, NOT a copy of a domain
+//                                           //   object (Single Source of Truth: ref, never a copy).
 //     signalType: 'gate-pending' | 'attention' | 'confirmation',
 //     priority:  <number>,                  // DI-decided ranking (asc = more important). READ, not computed.
 //     severity:  'normal' | 'severe',       // DI-decided. READ, not computed.
