@@ -104,15 +104,20 @@ function vanDijckAttentionCandidates(engine) {
   const [vp1a, vp1b] = plansOfGoal(sgRevenue.id);
   const [vp2a] = plansOfGoal(sgProjects.id);
 
+  // Stub priorities follow the M&S tone canon (an input wish toward DI, refinable without a rebuild):
+  // "open on what works and the action that is ready, not on the worry — unless the worry is severe."
+  // Order: action → confirmation → ordinary attention, with a severity threshold that would lift a
+  // SEVERE warning. The warning here is severity 'normal', so it sits BELOW the confirmation (and, with
+  // Top N=3, falls outside the cap). The ViewModel READS these priorities; it does not compute them.
   return [
-    // Plan waiting for the customer's go-ahead (gate) — shown first.
+    // 1 — action: a plan waiting for the customer's go-ahead (gate).
     { sourceRef: { sourceId: vp1a.id },       signalType: 'gate-pending', priority: 1, severity: 'normal' },
-    // Early warning: repeat purchases slipping (calm tone).
-    { sourceRef: { sourceId: vp1b.id },       signalType: 'attention',    priority: 2, severity: 'normal' },
-    // Success: the revenue goal is running ahead of schedule.
-    { sourceRef: { sourceId: sgRevenue.id },  signalType: 'confirmation', priority: 3, severity: 'normal' },
-    // Early initiative: the first project plan awaits go-ahead — beyond the Top-N cap.
-    { sourceRef: { sourceId: vp2a.id },       signalType: 'gate-pending', priority: 4, severity: 'normal' },
+    // 2 — confirmation: the revenue goal is running ahead of schedule.
+    { sourceRef: { sourceId: sgRevenue.id },  signalType: 'confirmation', priority: 2, severity: 'normal' },
+    // 3 — action: the early project plan (Intent 2) awaits go-ahead.
+    { sourceRef: { sourceId: vp2a.id },       signalType: 'gate-pending', priority: 3, severity: 'normal' },
+    // 4 — ordinary (non-severe) attention: repeat purchases slipping — below the confirmation, outside Top-N.
+    { sourceRef: { sourceId: vp1b.id },       signalType: 'attention',    priority: 4, severity: 'normal' },
   ];
 }
 
