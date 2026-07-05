@@ -15,6 +15,11 @@ UI come later. It is the presentation-side counterpart of
 boundary for Decision Intelligence, the **Canonical Presentation Tree** is the channel-agnostic
 **presentation** boundary for all clients.
 
+> **Presentation never determines business priority.** Business priority, urgency, ranking and
+> attention are produced by Decision Intelligence. Presentation only projects and renders these
+> results. The **Home ViewModel** (`presentation/viewmodel/`) reads a DI-produced list of Attention
+> Candidates and chooses only Top N, rendering, wording and tone — it computes no priority/severity.
+
 ## The modules
 
 - **`reader.js` — Presentation Read Model over the canonical Reality Model.** Not an "engine
@@ -35,6 +40,31 @@ boundary for Decision Intelligence, the **Canonical Presentation Tree** is the c
 - **`seedCustomer.js` — one seed customer via an injectable adapter.** `loadSeedCustomer(loader)`; the
   default loader builds the graph in-memory through the Engine facade, a real persistence adapter
   plugs into the same signature later without a rebuild. One fixed tenant; cross-tenant inert.
+
+## Home ViewModel — `presentation/viewmodel/`
+
+**Home ViewModel is one possible consumer of the Canonical Presentation Tree.** Under the same
+architecture there can later be Executive Summary / Goal / Timeline / Mobile / PDF / AI Conversation
+ViewModels — each deriving its own screen output without changing Projection or Decision Intelligence
+(Reserve, Don't Activate: documented, not built).
+
+- **`AttentionCandidate` is a canonical Decision Intelligence contract.** Presentation never produces
+  or enriches it; it only reads it. New business fields belong later in Decision Intelligence, not in
+  Presentation. The stub provider is a temporary stand-in for the DI-owned contract.
+- **`sourceRef` is a Presentation Reference** — a navigation handle into the Canonical Presentation
+  Tree, *not* a copy of a domain object (Single Source of Truth: ref, never a copy — consistent with
+  `sourceId` in the Projection).
+- **Top N is a View Policy**, not a business rule. Decision Intelligence determines what deserves
+  attention; Presentation determines how many items fit on the screen.
+- **Tone is presentation metadata.** Tone never changes the meaning of a Decision Intelligence signal;
+  it only changes how that signal is communicated. It never determines urgency, severity, priority or
+  governance. Defaults are M&S-tunable without a rebuild (incl. the severe variant for `attention`,
+  chosen from the DI-provided severity — read, never computed).
+- **ViewModels consume two immutable sources** — the Canonical Presentation Tree and Decision
+  Intelligence contracts — and never reinterpret either.
+- **`summaryTemplate` expresses semantic intent, not presentation wording.** No HTML/Markdown/emoji in
+  a template — markup would break channel independence (a marked-up template is unusable by PDF/AI/API
+  channels). The template carries the meaning; the channel decides the formatting.
 
 ## Hard rules
 
