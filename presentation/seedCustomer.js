@@ -17,69 +17,73 @@ const { all } = require('../engine/store/MemoryStore');
 
 // Named handles used by the demo so callers need not hardcode generated ids.
 const NAMES = {
-  goalRevenue:  'Meer omzet uit de bestaande winkel + webshop',
-  goalProjects: 'Een winstgevende interieur-projectendienst lanceren',
+  intent:    'Groeien',
+  goalGrow:  'Bestaande business laten groeien',
+  goalNewStream: 'Een nieuwe waardestroom opbouwen',
 };
 
-// defaultSeedLoader — the Van Dijck Wonen two-intent hierarchy, all activated so measurableValue is
-// meaningful. No new object types — only data through the existing facade.
+// defaultSeedLoader — the Van Dijck Wonen hierarchy: ONE overarching Intent "Groeien" with TWO
+// Strategic Goals under it. All activated so measurableValue is meaningful. No new object types —
+// only data through the existing facade. (Brok A allows multiple Strategic Goals per Intent;
+// createStrategicGoal only validates the Intent exists.)
 function defaultSeedLoader() {
   const engine = new Engine();
 
-  // ── Intent 1: grow the existing business ─────────────────────────────────────────────
-  const intent1 = engine.createStrategicIntent({ name: 'Groei bestaande business' });
-  const sgRevenue = engine.createStrategicGoal({ intentId: intent1.id, name: NAMES.goalRevenue, targetValue: 3500000, unit: 'EUR' });
-  engine.activateStrategicGoal(sgRevenue.id);
+  const intent = engine.createStrategicIntent({ name: NAMES.intent });
 
-  // VP1a — "Meer klanten uit de buurt"
-  const vp1a = engine.createValuePlan({ goalId: sgRevenue.id });
-  const og1 = engine.createOperationalGoal({ valuePlanId: vp1a.id, name: 'Meer mensen vinden de winkel online' });
-  const og2 = engine.createOperationalGoal({ valuePlanId: vp1a.id, name: 'Meer bezoekers worden koper' });
+  // ── Strategic Goal 1: grow the existing business ─────────────────────────────────────
+  const goal1 = engine.createStrategicGoal({ intentId: intent.id, name: NAMES.goalGrow, targetValue: 3500000, unit: 'EUR' });
+  engine.activateStrategicGoal(goal1.id);
 
-  // VP1b — "Bestaande klanten komen vaker terug"
-  const vp1b = engine.createValuePlan({ goalId: sgRevenue.id });
-  const og3 = engine.createOperationalGoal({ valuePlanId: vp1b.id, name: 'Klanten kopen ook online, niet enkel in de winkel' });
-  const og4 = engine.createOperationalGoal({ valuePlanId: vp1b.id, name: 'Tevreden klanten brengen nieuwe klanten aan' });
+  // VP-A — "Lokale klanten kopen meer via de webshop"
+  const vpA = engine.createValuePlan({ goalId: goal1.id });
+  const ogA1 = engine.createOperationalGoal({ valuePlanId: vpA.id, name: 'Bestaande klanten vinden en gebruiken de webshop' });
+  const ogA2 = engine.createOperationalGoal({ valuePlanId: vpA.id, name: 'Klanten kopen ook online, niet enkel in de winkel' });
 
-  // Value Indicators for Intent 1 (illustrative values + units).
-  const viKlanten    = engine.createValueIndicator({ name: 'Klanten',   indicatorType: 'leading', value: 48,      unit: 'klanten', supportedBy: [] }); // SHARED
-  const viConvLead   = engine.createValueIndicator({ name: 'Conversie', indicatorType: 'leading', value: 3.1,     unit: '%',       supportedBy: [] });
-  const viConvLag    = engine.createValueIndicator({ name: 'Conversie', indicatorType: 'lagging', value: 2.4,     unit: '%',       supportedBy: [] });
-  const viOmzet      = engine.createValueIndicator({ name: 'Omzet',     indicatorType: 'lagging', value: 2170000, unit: 'EUR',     supportedBy: [] });
-  const viRetentie   = engine.createValueIndicator({ name: 'Retentie',  indicatorType: 'lagging', value: 31,      unit: '%',       supportedBy: [] });
+  // VP-B — "Bekend worden in een grotere regio"
+  const vpB = engine.createValuePlan({ goalId: goal1.id });
+  const ogB1 = engine.createOperationalGoal({ valuePlanId: vpB.id, name: 'Mensen buiten de buurt vinden de winkel online' });
+  const ogB2 = engine.createOperationalGoal({ valuePlanId: vpB.id, name: 'Tevreden klanten in de regio brengen nieuwe klanten aan' });
 
-  // Many-to-many links. Klanten is SHARED between OG1 (VP1a) and OG3 (VP1b) — same vi id.
-  engine.linkIndicator(og1.id, viKlanten.id);
-  engine.linkIndicator(og1.id, viConvLead.id);
-  engine.linkIndicator(og2.id, viConvLag.id);
-  engine.linkIndicator(og3.id, viOmzet.id);
-  engine.linkIndicator(og3.id, viKlanten.id); // shared indicator
-  engine.linkIndicator(og4.id, viRetentie.id);
+  // Value Indicators for Goal 1 (illustrative). Conversie lightly declining → feeds the attention scenario on VP-A.
+  const viOmzet     = engine.createValueIndicator({ name: 'Omzet',     indicatorType: 'lagging', value: 2170000, unit: 'EUR',     supportedBy: [] });
+  const viConversie = engine.createValueIndicator({ name: 'Conversie', indicatorType: 'leading', value: 2.8,     unit: '%',       supportedBy: [] });
+  const viKlanten   = engine.createValueIndicator({ name: 'Klanten',   indicatorType: 'leading', value: 48,      unit: 'klanten', supportedBy: [] }); // SHARED A↔B
+  const viRetentie  = engine.createValueIndicator({ name: 'Retentie',  indicatorType: 'lagging', value: 31,      unit: '%',       supportedBy: [] });
 
-  engine.activateValuePlan(vp1a.id);
-  engine.activateValuePlan(vp1b.id);
-  [og1, og2, og3, og4].forEach((og) => engine.activateOperationalGoal(og.id));
+  // Klanten is SHARED between OG-A2 (VP-A) and OG-B1 (VP-B) — same vi id (within Goal 1). Omzet is
+  // shared within VP-A (OG-A1+OG-A2) → within-plan dedup. Conversie is shared across VP-A/VP-B.
+  engine.linkIndicator(ogA1.id, viOmzet.id);
+  engine.linkIndicator(ogA1.id, viConversie.id);
+  engine.linkIndicator(ogA2.id, viOmzet.id);
+  engine.linkIndicator(ogA2.id, viKlanten.id);   // shared indicator
+  engine.linkIndicator(ogB1.id, viKlanten.id);   // shared indicator (same id)
+  engine.linkIndicator(ogB1.id, viConversie.id);
+  engine.linkIndicator(ogB2.id, viRetentie.id);
 
-  // ── Intent 2: build a new value stream (early, little data) ───────────────────────────
-  const intent2 = engine.createStrategicIntent({ name: 'Nieuwe waardestroom opbouwen' });
-  const sgProjects = engine.createStrategicGoal({ intentId: intent2.id, name: NAMES.goalProjects, targetValue: 25, unit: 'projectklanten' });
-  engine.activateStrategicGoal(sgProjects.id);
+  engine.activateValuePlan(vpA.id);
+  engine.activateValuePlan(vpB.id);
+  [ogA1, ogA2, ogB1, ogB2].forEach((og) => engine.activateOperationalGoal(og.id));
 
-  const vp2a = engine.createValuePlan({ goalId: sgProjects.id });
-  const og5 = engine.createOperationalGoal({ valuePlanId: vp2a.id, name: 'Eerste offertes voor projecten' });
-  const vp2b = engine.createValuePlan({ goalId: sgProjects.id });
-  const og6 = engine.createOperationalGoal({ valuePlanId: vp2b.id, name: 'Een vast projectstappenplan' });
+  // ── Strategic Goal 2: build a new value stream (early, little data) ───────────────────
+  const goal2 = engine.createStrategicGoal({ intentId: intent.id, name: NAMES.goalNewStream, targetValue: 25, unit: 'projectklanten' });
+  engine.activateStrategicGoal(goal2.id);
+
+  const vpC = engine.createValuePlan({ goalId: goal2.id });
+  const ogC1 = engine.createOperationalGoal({ valuePlanId: vpC.id, name: 'Eerste offertes voor projecten' });
+  const vpD = engine.createValuePlan({ goalId: goal2.id });
+  const ogD1 = engine.createOperationalGoal({ valuePlanId: vpD.id, name: 'Een vast projectstappenplan' });
 
   const viKlantenP    = engine.createValueIndicator({ name: 'Klanten',     indicatorType: 'leading', value: 2,  unit: 'projectklanten', supportedBy: [] });
   const viEfficientie = engine.createValueIndicator({ name: 'Efficiëntie', indicatorType: 'leading', value: 40, unit: '%',              supportedBy: [] });
 
-  engine.linkIndicator(og5.id, viKlantenP.id);
-  engine.linkIndicator(og6.id, viEfficientie.id);
+  engine.linkIndicator(ogC1.id, viKlantenP.id);
+  engine.linkIndicator(ogD1.id, viEfficientie.id);
 
-  engine.activateValuePlan(vp2a.id);
-  engine.activateValuePlan(vp2b.id);
-  engine.activateOperationalGoal(og5.id);
-  engine.activateOperationalGoal(og6.id);
+  engine.activateValuePlan(vpC.id);
+  engine.activateValuePlan(vpD.id);
+  engine.activateOperationalGoal(ogC1.id);
+  engine.activateOperationalGoal(ogD1.id);
 
   return engine;
 }
@@ -99,25 +103,25 @@ function vanDijckAttentionCandidates(engine) {
   const goalByName = (name) => all(store, 'strategicGoals').find((g) => g.name === name);
   const plansOfGoal = (goalId) => all(store, 'valuePlans').filter((p) => p.goalId === goalId); // creation order
 
-  const sgRevenue = goalByName(NAMES.goalRevenue);
-  const sgProjects = goalByName(NAMES.goalProjects);
-  const [vp1a, vp1b] = plansOfGoal(sgRevenue.id);
-  const [vp2a] = plansOfGoal(sgProjects.id);
+  const goal1 = goalByName(NAMES.goalGrow);
+  const goal2 = goalByName(NAMES.goalNewStream);
+  const [vpA, vpB] = plansOfGoal(goal1.id);
+  const [vpC] = plansOfGoal(goal2.id);
 
   // Stub priorities follow the M&S tone canon (an input wish toward DI, refinable without a rebuild):
-  // "open on what works and the action that is ready, not on the worry — unless the worry is severe."
-  // Order: action → confirmation → ordinary attention, with a severity threshold that would lift a
-  // SEVERE warning. The warning here is severity 'normal', so it sits BELOW the confirmation (and, with
-  // Top N=3, falls outside the cap). The ViewModel READS these priorities; it does not compute them.
+  // action → confirmation → ordinary attention, with ONE gate at the top. The second gate (early
+  // project plan) gets priority 4 so it falls OUTSIDE the Top-3 cap — the Home never shows two gates
+  // at the top. This one-gate outcome is STUB PRIORITISATION (M&S tone input toward DI), NOT a
+  // ViewModel signalType filter: the ViewModel reads priority and shows Top-N in DI order.
   return [
-    // 1 — action: a plan waiting for the customer's go-ahead (gate).
-    { sourceRef: { sourceId: vp1a.id },       signalType: 'gate-pending', priority: 1, severity: 'normal' },
-    // 2 — confirmation: the revenue goal is running ahead of schedule.
-    { sourceRef: { sourceId: sgRevenue.id },  signalType: 'confirmation', priority: 2, severity: 'normal' },
-    // 3 — action: the early project plan (Intent 2) awaits go-ahead.
-    { sourceRef: { sourceId: vp2a.id },       signalType: 'gate-pending', priority: 3, severity: 'normal' },
-    // 4 — ordinary (non-severe) attention: repeat purchases slipping — below the confirmation, outside Top-N.
-    { sourceRef: { sourceId: vp1b.id },       signalType: 'attention',    priority: 4, severity: 'normal' },
+    // 1 — action: the region plan (Goal 1) waits for the customer's go-ahead (gate).
+    { sourceRef: { sourceId: vpB.id },   signalType: 'gate-pending', priority: 1, severity: 'normal' },
+    // 2 — confirmation: the growth goal is running ahead of schedule.
+    { sourceRef: { sourceId: goal1.id }, signalType: 'confirmation', priority: 2, severity: 'normal' },
+    // 3 — ordinary (non-severe) attention: webshop conversion slipping on VP-A.
+    { sourceRef: { sourceId: vpA.id },   signalType: 'attention',    priority: 3, severity: 'normal' },
+    // 4 — action: the early project plan (Goal 2) awaits go-ahead — outside the Top-3 cap.
+    { sourceRef: { sourceId: vpC.id },   signalType: 'gate-pending', priority: 4, severity: 'normal' },
   ];
 }
 
