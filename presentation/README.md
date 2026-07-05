@@ -15,6 +15,11 @@ UI come later. It is the presentation-side counterpart of
 boundary for Decision Intelligence, the **Canonical Presentation Tree** is the channel-agnostic
 **presentation** boundary for all clients.
 
+> **Presentation never determines business priority.** Business priority, urgency, ranking and
+> attention are produced by Decision Intelligence. Presentation only projects and renders these
+> results. The **Home ViewModel** (`presentation/viewmodel/`) reads a DI-produced list of Attention
+> Candidates and chooses only Top N, rendering, wording and tone — it computes no priority/severity.
+
 ## The modules
 
 - **`reader.js` — Presentation Read Model over the canonical Reality Model.** Not an "engine
