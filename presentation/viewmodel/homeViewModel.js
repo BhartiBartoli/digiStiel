@@ -40,10 +40,25 @@ function indexTree(tree) {
   return byId;
 }
 
+// plan.sourceId → parent Goal name, read from the Tree (Goal nodes carry a name; Value Plans do not
+// in Brok A). Used to give a plan card identifying context — from the model, not a plan-name field.
+function goalNameByPlan(tree) {
+  const map = new Map();
+  for (const intent of tree.intents) {
+    for (const goal of intent.goals) {
+      for (const plan of goal.plans) map.set(plan.sourceId, goal.name);
+    }
+  }
+  return map;
+}
+
 // Title in CUSTOMER LANGUAGE, read straight from the dereferenced Tree node (the Projection already
-// mapped it — the ViewModel does NOT map). Nodes without a name (e.g. a plan) fall back to the label.
-function titleFor(node) {
-  return node.name ? `${node.label}: ${node.name}` : node.label;
+// mapped it — the ViewModel does NOT map). A node with a name → "label: name". A plan node (no name
+// in Brok A) → "label · <goal-naam>", the goal context read from the Tree so two plans are
+// distinguishable; without goal context it falls back to the bare label.
+function titleFor(node, goalName) {
+  if (node.name) return `${node.label}: ${node.name}`;
+  return goalName ? `${node.label} · ${goalName}` : node.label;
 }
 
 // buildHomeViewModel — orders by the DI-provided candidate.priority (honouring DI's ranking, NOT
@@ -51,6 +66,7 @@ function titleFor(node) {
 // tiebreak), takes Top N, and shapes each shown candidate into a Home card.
 function buildHomeViewModel({ tree, provider, topN = 3, toneOverrides = {}, orderPreference = [], destination = 'executive-summary' } = {}) {
   const byId = indexTree(tree);
+  const goalOfPlan = goalNameByPlan(tree);
   const candidates = provider.getAttentionCandidates();
 
   const prefIndex = (signalType) => {
@@ -72,7 +88,7 @@ function buildHomeViewModel({ tree, provider, topN = 3, toneOverrides = {}, orde
     const node = byId.get(cand.sourceRef.sourceId);
     if (!node) return null;
     return {
-      title: titleFor(node),                                            // klanttaal, uit de Tree
+      title: titleFor(node, goalOfPlan.get(node.sourceId)),             // klanttaal, uit de Tree (+ goal-context)
       summaryTemplate: DEFAULT_SUMMARY_TEMPLATES[cand.signalType] || null, // M&S copy, refinable template
       tone: resolveTone(cand.signalType, cand.severity, toneOverrides),  // presentatie-metadata (leest severity)
       // Generic presentation navigation contract: the channel picks its own destination; no hardcoded
