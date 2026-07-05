@@ -62,6 +62,9 @@ ViewModels — each deriving its own screen output without changing Projection o
   chosen from the DI-provided severity — read, never computed).
 - **ViewModels consume two immutable sources** — the Canonical Presentation Tree and Decision
   Intelligence contracts — and never reinterpret either.
+- **`summaryTemplate` expresses semantic intent, not presentation wording.** No HTML/Markdown/emoji in
+  a template — markup would break channel independence (a marked-up template is unusable by PDF/AI/API
+  channels). The template carries the meaning; the channel decides the formatting.
 
 ## Hard rules
 

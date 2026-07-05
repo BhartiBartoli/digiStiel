@@ -18,6 +18,8 @@ const { resolveTone } = require('./tone');
 // One-sentence M&S summary TEMPLATE per signalType (presentation, not business logic). A template, not
 // a fixed final string: later it can be personalised/translated/AI-generated/channel-specific without
 // breaking the contract.
+// summaryTemplate expresses semantic intent, not presentation wording. (No HTML/Markdown/emoji in a
+// template — markup would break channel independence; the channel decides the formatting.)
 const DEFAULT_SUMMARY_TEMPLATES = {
   'gate-pending': 'Dit plan wacht op jouw akkoord om verder te gaan.',
   'attention':    'Een signaal om even in de gaten te houden.',
