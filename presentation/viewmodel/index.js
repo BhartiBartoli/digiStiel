@@ -5,7 +5,7 @@
 // no save/update/create/put/link export anywhere in the layer.
 const { makeStubAttentionProvider, seedDemoCandidates } = require('./attentionProvider');
 const { DEFAULT_TONE, SEVERE_TONE, resolveTone } = require('./tone');
-const { buildHomeViewModel, DEFAULT_SUMMARY } = require('./homeViewModel');
+const { buildHomeViewModel, DEFAULT_SUMMARY_TEMPLATES } = require('./homeViewModel');
 
 module.exports = {
   makeStubAttentionProvider,
@@ -14,5 +14,5 @@ module.exports = {
   DEFAULT_TONE,
   SEVERE_TONE,
   buildHomeViewModel,
-  DEFAULT_SUMMARY,
+  DEFAULT_SUMMARY_TEMPLATES,
 };

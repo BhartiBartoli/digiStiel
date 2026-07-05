@@ -95,16 +95,43 @@ check('6. Read-only: no write API in the ViewModel layer; store snapshot identic
 });
 
 // ── 7: no re-interpretation — priority/severity passed through, nothing computed ──
-check('7. No re-interpretation: no computed priority/severity/score/urgency in output', () => {
-  const { tree, provider } = setup();
+check('7. No re-interpretation: no computed priority/severity/score/urgency; generic contract shape', () => {
+  const { tree, candidates, provider } = setup();
+  const candidatesBefore = JSON.stringify(candidates);
   const vm = VM.buildHomeViewModel({ tree, provider });
   const serialized = JSON.stringify(vm);
   for (const key of ['score', 'urgency', 'rank', 'ranking', 'computedPriority', 'severityScore', 'priorityScore', 'weight']) {
     assert.ok(!serialized.includes(`"${key}"`), `derived field "${key}" must not appear`);
   }
-  // the candidate priority/severity are used as-is (order == priority order), never rewritten onto a new field
-  const cards = vm.cards;
-  assert.ok(cards.length >= 2 && cards[0].tone && cards[0].title, 'cards are pure presentation shape');
+  // priority & severity immutable: no modify/normalize/rescale/recompute — the input candidates are unchanged
+  assert.strictEqual(JSON.stringify(provider.getAttentionCandidates()), candidatesBefore, 'candidates passed through immutably');
+  // card is pure presentation shape: title + refinable summaryTemplate + tone + GENERIC navRef
+  const card = vm.cards[0];
+  assert.ok(card.title && card.tone, 'title + tone present');
+  assert.ok('summaryTemplate' in card && !('summary' in card), 'summaryTemplate (refinable), not a fixed summary');
+  assert.deepStrictEqual(Object.keys(card.navRef).sort(), ['destination', 'sourceId'], 'navRef is generic { sourceId, destination }');
+  assert.ok(!serialized.includes('"target"'), 'no hardcoded screen-name key in the navigation contract');
+});
+
+// ── 9: orderPreference tiebreaks ONLY within equal DI priority; never overrides DI order ──
+check('9. orderPreference sorts only between equal-priority candidates (never overrides DI order)', () => {
+  const { tree } = setup();
+  // Two candidates with DIFFERENT DI priority: preference must NOT reorder them.
+  const diff = [
+    { sourceRef: { sourceId: tree.intents[0].goals[0].sourceId }, signalType: 'confirmation', priority: 1, severity: 'normal' },
+    { sourceRef: { sourceId: tree.intents[0].goals[0].plans[0].sourceId }, signalType: 'gate-pending', priority: 2, severity: 'normal' },
+  ];
+  const pDiff = VM.makeStubAttentionProvider(diff);
+  const vmDiff = VM.buildHomeViewModel({ tree, provider: pDiff, orderPreference: ['gate-pending', 'confirmation'] });
+  assert.strictEqual(vmDiff.cards[0].navRef.sourceId, diff[0].sourceRef.sourceId, 'DI priority wins; preference cannot override it');
+  // Two candidates with EQUAL DI priority: preference decides the order.
+  const eq = [
+    { sourceRef: { sourceId: tree.intents[0].goals[0].sourceId }, signalType: 'confirmation', priority: 5, severity: 'normal' },
+    { sourceRef: { sourceId: tree.intents[0].goals[0].plans[0].sourceId }, signalType: 'gate-pending', priority: 5, severity: 'normal' },
+  ];
+  const pEq = VM.makeStubAttentionProvider(eq);
+  const vmEq = VM.buildHomeViewModel({ tree, provider: pEq, orderPreference: ['gate-pending', 'confirmation'] });
+  assert.strictEqual(vmEq.cards[0].navRef.sourceId, eq[1].sourceRef.sourceId, 'within equal priority, M&S preference decides');
 });
 
 // ── 8: stub covers the three demo situations; a second provider plugs into the same interface ──
@@ -117,6 +144,16 @@ check('8. Stub covers gate-pending/attention/confirmation; interface is provider
   const vm = VM.buildHomeViewModel({ tree, provider: altProvider });
   assert.strictEqual(vm.cards.length, 1, 'the real DI provider plugs into the same interface without rebuild');
 });
+
+// Visible render of the three Home cards from the stub (customer language title + tone marker).
+(function renderDemo() {
+  const { tree, provider } = setup();
+  const vm = VM.buildHomeViewModel({ tree, provider });
+  console.log('\nHome-kaarten (stub — gate-pending / attention / confirmation):');
+  for (const c of vm.cards) {
+    console.log(`  • [${c.tone}] ${c.title}\n      ${c.summaryTemplate}  → ${c.navRef.destination}`);
+  }
+})();
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
