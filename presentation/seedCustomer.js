@@ -145,4 +145,39 @@ function vanDijckPlanTitles(engine) {
   };
 }
 
-module.exports = { loadSeedCustomer, defaultSeedLoader, vanDijckAttentionCandidates, vanDijckPlanTitles, NAMES };
+// vanDijckHomeCopy() — M&S-authored Home framing copy (greeting + one calm summary sentence that
+// opens on what works). Presentation copy, not computed — same nature as summaryTemplate.
+function vanDijckHomeCopy() {
+  return {
+    greeting: 'Goeiemorgen',
+    intro: 'Het meeste loopt zoals het hoort. Dit zijn de dingen die vandaag even je aandacht waard zijn — geen brandjes, gewoon het bekijken waard.',
+  };
+}
+
+// vanDijckExecutiveSummaries(engine) — M&S-authored Executive Summary NARRATIVE per source (demo copy;
+// there is no Executive Summary ViewModel yet — that stays a Platform question). Understanding +
+// explanation are read-only customer-language TEXT; the measurement `metrics` carry only LABELS and a
+// reference (kind/unit) — the actual numbers are read from the Canonical Presentation Tree at build
+// time, never entered here. Built for the SUCCESS scenario (the revenue goal); other cards route to a
+// "binnenkort" state.
+function vanDijckExecutiveSummaries(engine) {
+  const goal1 = all(engine.store, 'strategicGoals').find((g) => g.name === NAMES.goalGrow);
+  return {
+    [goal1.id]: {
+      understanding: 'Je omzetdoel voor dit jaar ligt voor op schema — winkel en webshop trekken samen goed.',
+      reasons: [
+        { kind: 'strength', text: 'Bestaande klanten kopen vaker, en ook steeds vaker online. Dat houdt je omzet stevig op koers.' },
+        { kind: 'opportunity', text: 'Er is nog ruimte richting je jaardoel. Meer mensen buiten de buurt bereiken kan dat verder aanjagen.' },
+      ],
+      metrics: [
+        { label: 'Je jaardoel', kind: 'goal-target' },
+        { label: 'Waar je nu staat', kind: 'measurable', unit: 'EUR', reassurance: 'berekend uit je eigen resultaten — geen apart ingevuld getal' },
+      ],
+    },
+  };
+}
+
+module.exports = {
+  loadSeedCustomer, defaultSeedLoader, vanDijckAttentionCandidates, vanDijckPlanTitles,
+  vanDijckHomeCopy, vanDijckExecutiveSummaries, NAMES,
+};
