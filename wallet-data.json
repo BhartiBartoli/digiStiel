@@ -1,0 +1,64 @@
+{
+  "customer": "Van Dijck Wonen",
+  "demo": true,
+  "home": {
+    "greeting": "Goeiemorgen",
+    "intro": "Het meeste loopt zoals het hoort. Dit zijn de dingen die vandaag even je aandacht waard zijn — geen brandjes, gewoon het bekijken waard.",
+    "cards": [
+      {
+        "sourceId": "vp_mr97zvyn6zvcngb",
+        "title": "je plan: Bekend worden in een grotere regio",
+        "summary": "Dit plan wacht op jouw akkoord om verder te gaan.",
+        "tone": "geruststellend",
+        "signalType": "gate-pending",
+        "hasSummary": false
+      },
+      {
+        "sourceId": "sg_mr97zvyn20yc9s0",
+        "title": "je doel: Bestaande business laten groeien",
+        "summary": "Dit loopt voor op schema — mooi bezig.",
+        "tone": "warm",
+        "signalType": "confirmation",
+        "hasSummary": true
+      },
+      {
+        "sourceId": "vp_mr97zvyn31jj9d4",
+        "title": "je plan: Meer online omzet uit bestaande klanten",
+        "summary": "Een signaal om even in de gaten te houden.",
+        "tone": "kalm",
+        "signalType": "attention",
+        "hasSummary": false
+      }
+    ]
+  },
+  "executiveSummaries": {
+    "sg_mr97zvyn20yc9s0": {
+      "title": "je doel: Bestaande business laten groeien",
+      "understanding": "Je omzetdoel voor dit jaar ligt voor op schema — winkel en webshop trekken samen goed.",
+      "reasons": [
+        {
+          "kind": "strength",
+          "text": "Bestaande klanten kopen vaker, en ook steeds vaker online. Dat houdt je omzet stevig op koers."
+        },
+        {
+          "kind": "opportunity",
+          "text": "Er is nog ruimte richting je jaardoel. Meer mensen buiten de buurt bereiken kan dat verder aanjagen."
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Je jaardoel",
+          "value": 3500000,
+          "unit": "EUR"
+        },
+        {
+          "label": "Waar je nu staat",
+          "value": 2170000,
+          "unit": "EUR",
+          "reassurance": "berekend uit je eigen resultaten — geen apart ingevuld getal"
+        }
+      ]
+    }
+  },
+  "generatedBy": "scripts/build-wallet.js (read-only over the frozen data layer)"
+}

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>digiStiel — je wallet</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231A2230'/><text x='16' y='23' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='22' fill='%232C7DFF'>S</text></svg>">
+<style>
+  /* Light-first branding: single theme by deliberate Design-System choice (no dark toggle). */
+  :root{
+    --ink:#1A2230; --navy:#0E1B2A; --accent:#2C7DFF; --accent-dark:#1B5FCC;
+    --ice1:#EAF1FB; --ice2:#F4F8FE; --border:#D8E2EF; --border-h:#B8CDE0;
+    --muted:#5A6B7E; --subtle:#8A9AB0; --white:#FFFFFF;
+    --accent-dim:rgba(44,125,255,.1); --accent-rim:rgba(44,125,255,.25);
+    /* Semantic tones — M&S-canonical MUTED Design-System tokens (whispers not blinks; calm, mature —
+       never the bright default UI greens/oranges/reds). Card rails/labels only, never navy. */
+    --success:#2E8B6F; --success-tint:#E9F3EF; /* confirmation — "dit loopt goed" */
+    --warning:#C08A2E; --warning-tint:#F7F0E1; /* attention — "iets om in de gaten te houden" */
+    --error:#B0453C;   --error-tint:#F5E8E6;   /* severe — DEFINED, not applied (Reserve, Don't Activate) */
+    --r:9px; --r-lg:14px;
+    --mono:'Courier New',monospace; --sans:Aptos,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html:focus-within{scroll-behavior:smooth;}
+  body{margin:0;background:var(--ice2);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;}}
+
+  .shell{max-width:660px;margin:0 auto;padding:22px 20px 64px;}
+
+  /* ── top bar ── */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:30px;}
+  .brand{display:flex;align-items:baseline;gap:10px;min-width:0;}
+  .wordmark{font-size:1.28rem;font-weight:600;letter-spacing:-.02em;color:var(--ink);text-decoration:none;white-space:nowrap;}
+  .wordmark .s{color:var(--accent);font-weight:700;}
+  .customer{font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .demo-badge{flex-shrink:0;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--warning);background:var(--warning-dim);border:1px solid rgba(199,125,17,.28);border-radius:100px;padding:4px 10px;}
+
+  .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--navy);margin:0 0 10px;}
+  h1.greeting{font-size:1.5rem;font-weight:600;letter-spacing:-.02em;color:var(--navy);margin:0 0 8px;text-wrap:balance;}
+  .intro{color:var(--muted);font-weight:300;max-width:52ch;margin:0 0 26px;}
+
+  /* ── attention cards ── */
+  .cards{display:flex;flex-direction:column;gap:14px;}
+  .card{position:relative;background:var(--white);border:1px solid var(--border);border-left:3px solid var(--tone,var(--accent));
+    border-radius:var(--r-lg);padding:18px 20px 16px;transition:border-color .16s, box-shadow .16s, transform .16s;}
+  .card:hover{border-color:var(--border-h);box-shadow:0 6px 20px -14px rgba(14,27,42,.4);}
+  .card--accent{--tone:var(--accent);--tone-dim:var(--accent-dim);}
+  .card--success{--tone:var(--success);--tone-dim:var(--success-tint);}
+  .card--warning{--tone:var(--warning);--tone-dim:var(--warning-tint);}
+  .tone-label{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--tone);background:var(--tone-dim);border-radius:100px;padding:3px 9px;margin-bottom:11px;}
+  .card-title{font-size:1.12rem;font-weight:600;color:var(--ink);letter-spacing:-.01em;margin:0 0 5px;text-wrap:balance;}
+  .card-sum{color:var(--muted);font-size:.94rem;margin:0 0 14px;}
+  .card-cta{appearance:none;background:none;border:none;padding:0;cursor:pointer;font-family:var(--sans);font-size:.9rem;
+    font-weight:500;color:var(--accent);display:inline-flex;align-items:center;gap:6px;}
+  .card-cta:hover{color:var(--accent-dark);gap:9px;}
+  .card-cta .arw{transition:transform .16s;}
+  .card-cta:hover .arw{transform:translateX(2px);}
+
+  .allview{margin-top:26px;}
+  .ghost{appearance:none;width:100%;background:var(--white);border:1px solid var(--border);border-radius:var(--r);
+    padding:12px;color:var(--muted);font-family:var(--sans);font-size:.9rem;cursor:pointer;transition:border-color .16s,color .16s;}
+  .ghost:hover{border-color:var(--border-h);color:var(--ink);}
+  .ghost[disabled]{cursor:default;opacity:.85;}
+
+  /* ── executive summary ── */
+  .back{appearance:none;background:none;border:none;padding:0;margin:0 0 22px;cursor:pointer;color:var(--muted);
+    font-family:var(--sans);font-size:.88rem;display:inline-flex;align-items:center;gap:7px;}
+  .back:hover{color:var(--ink);}
+  h2.exec-title{font-size:1.4rem;font-weight:600;color:var(--navy);letter-spacing:-.02em;margin:0 0 28px;text-wrap:balance;}
+  .section{margin-bottom:26px;}
+  .section > .eyebrow{margin-bottom:8px;}
+  .understanding{font-size:1.15rem;line-height:1.55;color:var(--ink);font-weight:400;max-width:54ch;margin:0;text-wrap:pretty;}
+  .reasons{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none;}
+  .reason{background:var(--white);border:1px solid var(--border);border-left:3px solid var(--tone);border-radius:var(--r);
+    padding:13px 16px;color:var(--ink);}
+  .reason--opportunity{--tone:var(--warning);}
+  .reason--strength{--tone:var(--success);}
+  .reason .rk{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--tone);margin-bottom:4px;}
+  .reason .rt{color:var(--muted);font-size:.95rem;}
+  .metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:440px){.metrics{grid-template-columns:1fr;}}
+  .metric{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;}
+  .metric .ml{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--subtle);margin-bottom:7px;}
+  .metric .mv{font-size:1.5rem;font-weight:600;color:var(--navy);letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+  .metric .mr{font-size:.78rem;color:var(--subtle);margin-top:8px;line-height:1.45;}
+  .exits{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px;}
+  .exit{flex:1 1 200px;appearance:none;background:var(--white);border:1px solid var(--border);border-radius:var(--r);
+    padding:13px 15px;text-align:left;cursor:pointer;font-family:var(--sans);font-size:.92rem;color:var(--ink);transition:border-color .16s,box-shadow .16s;}
+  .exit:hover{border-color:var(--accent-rim);box-shadow:0 4px 14px -12px rgba(14,27,42,.5);}
+  .exit .ex-sub{display:block;font-size:.76rem;color:var(--subtle);margin-top:3px;}
+
+  /* ── "binnenkort" panel ── */
+  .soon{background:var(--white);border:1px dashed var(--border-h);border-radius:var(--r-lg);padding:22px;text-align:center;color:var(--muted);}
+  .soon .soon-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px;}
+
+  .foot{margin-top:40px;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--subtle);text-align:center;}
+  [hidden]{display:none!important;}
+  .fade{animation:fade .4s ease both;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <a href="#home" class="wordmark" aria-label="digiStiel — naar Home">digi<span class="s">S</span>tiel</a>
+      <span class="customer" id="customer"></span>
+    </div>
+    <span class="demo-badge" id="demoBadge" hidden>demo-omgeving</span>
+  </header>
+  <main id="view" aria-live="polite"></main>
+  <p class="foot">digiStiel · van doel naar meetbare waarde</p>
+</div>
+
+<script>
+// The UI CONSUMES the ViewModel output (wallet-data.json) read-only. It renders; it never computes,
+// re-orders, filters on signalType, or interprets. Numbers arrive already computed from the Tree.
+(function () {
+  'use strict';
+  var DATA = null;
+  var view = document.getElementById('view');
+
+  var TONE = {
+    geruststellend: { cls: 'card--accent',  label: 'er staat iets voor je klaar' }, // gate
+    warm:           { cls: 'card--success', label: 'dit loopt goed' },              // confirmation
+    kalm:           { cls: 'card--warning', label: 'iets om in de gaten te houden' }, // attention
+    feitelijk:      { cls: 'card--warning', label: 'iets om in de gaten te houden' }  // attention (severe)
+  };
+  // Navigation = conversation (M&S). No "klik/open/drill-down".
+  var CTA = {
+    'gate-pending': 'bekijk wat er klaarstaat',
+    'confirmation': 'ontdek waarom het goed loopt',
+    'attention':    'bekijk wat er speelt'
+  };
+  var eur = new Intl.NumberFormat('nl-BE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+  function fmt(value, unit) {
+    if (value === null || value === undefined) return '—';
+    if (unit === 'EUR') return eur.format(value);
+    if (unit === '%') return value + '%';
+    return value + (unit ? ' ' + unit : '');
+  }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  // ── Home ──
+  function renderHome() {
+    var h = DATA.home;
+    view.innerHTML = '';
+    var wrap = el('div', 'fade');
+    wrap.appendChild(el('p', 'eyebrow', 'Wat vraagt vandaag aandacht?'));
+    wrap.appendChild(el('h1', 'greeting', h.greeting + '.'));
+    wrap.appendChild(el('p', 'intro', h.intro));
+
+    var cards = el('div', 'cards');
+    h.cards.forEach(function (c) {
+      var tone = TONE[c.tone] || TONE.geruststellend;
+      var card = el('article', 'card ' + tone.cls);
+      card.appendChild(el('span', 'tone-label', tone.label));
+      card.appendChild(el('h3', 'card-title', c.title));
+      card.appendChild(el('p', 'card-sum', c.summary || ''));
+      var cta = el('button', 'card-cta');
+      cta.innerHTML = esc(CTA[c.signalType] || 'ontdek meer') + ' <span class="arw" aria-hidden="true">→</span>';
+      cta.addEventListener('click', function () {
+        location.hash = c.hasSummary ? '#summary/' + c.sourceId : '#soon/story/' + c.sourceId;
+      });
+      card.appendChild(cta);
+      cards.appendChild(card);
+    });
+    wrap.appendChild(cards);
+
+    var all = el('div', 'allview');
+    var g = el('button', 'ghost', 'Alles bekijken — binnenkort');
+    g.setAttribute('disabled', '');
+    all.appendChild(g);
+    wrap.appendChild(all);
+    view.appendChild(wrap);
+  }
+
+  // ── Executive Summary: Understanding → Explanation → Measurement ──
+  function renderSummary(sourceId) {
+    var s = DATA.executiveSummaries[sourceId];
+    if (!s) { renderSoon('story', sourceId); return; }
+    view.innerHTML = '';
+    var wrap = el('div', 'fade');
+
+    var back = el('button', 'back'); back.innerHTML = '<span aria-hidden="true">←</span> terug naar Home';
+    back.addEventListener('click', function () { location.hash = '#home'; });
+    wrap.appendChild(back);
+
+    wrap.appendChild(el('h2', 'exec-title', s.title));
+
+    var u = el('section', 'section');
+    u.appendChild(el('p', 'eyebrow', 'Waar je staat'));
+    u.appendChild(el('p', 'understanding', s.understanding));
+    wrap.appendChild(u);
+
+    var ex = el('section', 'section');
+    ex.appendChild(el('p', 'eyebrow', 'Waarom'));
+    var ul = el('ul', 'reasons');
+    s.reasons.forEach(function (r) {
+      var li = el('li', 'reason reason--' + r.kind);
+      li.appendChild(el('span', 'rk', r.kind === 'opportunity' ? 'de kans' : 'de sterkte'));
+      li.appendChild(el('span', 'rt', r.text));
+      ul.appendChild(li);
+    });
+    ex.appendChild(ul);
+    wrap.appendChild(ex);
+
+    var me = el('section', 'section');
+    me.appendChild(el('p', 'eyebrow', 'De cijfers'));
+    var grid = el('div', 'metrics');
+    s.metrics.forEach(function (m) {
+      var card = el('div', 'metric');
+      card.appendChild(el('div', 'ml', m.label));
+      card.appendChild(el('div', 'mv', fmt(m.value, m.unit)));
+      if (m.reassurance) card.appendChild(el('div', 'mr', m.reassurance));
+      grid.appendChild(card);
+    });
+    me.appendChild(grid);
+    wrap.appendChild(me);
+
+    var exits = el('div', 'exits');
+    [['Bekijk wat er precies loopt', 'de plannen en wat je nu doet', 'story'],
+     ['Wat kan ik doen?', 'de mogelijke volgende stappen', 'action']].forEach(function (x) {
+      var b = el('button', 'exit');
+      b.innerHTML = esc(x[0]) + '<span class="ex-sub">' + esc(x[1]) + '</span>';
+      b.addEventListener('click', function () { location.hash = '#soon/' + x[2] + '/' + sourceId; });
+      exits.appendChild(b);
+    });
+    wrap.appendChild(exits);
+    view.appendChild(wrap);
+  }
+
+  // ── "binnenkort" — the deeper layers are routed but inert (Reserve, Don't Activate) ──
+  function renderSoon(layer, sourceId) {
+    var names = { story: 'Het verhaal achter dit plan', action: 'Wat je kunt doen', detail: 'Wat er precies loopt', evidence: 'De onderbouwing' };
+    view.innerHTML = '';
+    var wrap = el('div', 'fade');
+    var back = el('button', 'back'); back.innerHTML = '<span aria-hidden="true">←</span> terug';
+    back.addEventListener('click', function () { history.length > 1 ? history.back() : (location.hash = '#home'); });
+    wrap.appendChild(back);
+    var soon = el('div', 'soon');
+    soon.appendChild(el('div', 'soon-eyebrow', 'Binnenkort'));
+    soon.appendChild(el('p', null, (names[layer] || 'Deze laag') + ' komt in een volgende stap.'));
+    wrap.appendChild(soon);
+    view.appendChild(wrap);
+  }
+
+  // ── routing: Home → Executive Summary → (Value Story → Operational Detail → Evidence, inert) ──
+  function route() {
+    var h = location.hash.replace(/^#/, '');
+    if (!h || h === 'home') return renderHome();
+    var parts = h.split('/');
+    if (parts[0] === 'summary') return renderSummary(parts[1]);
+    if (parts[0] === 'soon') return renderSoon(parts[1], parts[2]);
+    return renderHome();
+  }
+
+  fetch('wallet-data.json', { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error('geen data'); return r.json(); })
+    .then(function (d) {
+      DATA = d;
+      document.getElementById('customer').textContent = d.customer;
+      var badge = document.getElementById('demoBadge');
+      if (d.demo) badge.hidden = false; // demo badge always present in the demo environment
+      window.addEventListener('hashchange', route);
+      route();
+    })
+    .catch(function () {
+      view.innerHTML = '<div class="soon"><div class="soon-eyebrow">Even geduld</div>' +
+        '<p>De wallet-gegevens worden geladen bij het publiceren van deze omgeving.</p></div>';
+      var badge = document.getElementById('demoBadge'); if (badge) badge.hidden = false;
+    });
+})();
+</script>
+</body>
+</html>
