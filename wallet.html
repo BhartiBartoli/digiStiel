@@ -13,9 +13,11 @@
     --ice1:#EAF1FB; --ice2:#F4F8FE; --border:#D8E2EF; --border-h:#B8CDE0;
     --muted:#5A6B7E; --subtle:#8A9AB0; --white:#FFFFFF;
     --accent-dim:rgba(44,125,255,.1); --accent-rim:rgba(44,125,255,.25);
-    /* Semantic tones — added to the Design System for card rails/labels only (never navy). */
-    --success:#1E9E63; --success-dim:rgba(30,158,99,.10);
-    --warning:#C77D11; --warning-dim:rgba(199,125,17,.10);
+    /* Semantic tones — M&S-canonical MUTED Design-System tokens (whispers not blinks; calm, mature —
+       never the bright default UI greens/oranges/reds). Card rails/labels only, never navy. */
+    --success:#2E8B6F; --success-tint:#E9F3EF; /* confirmation — "dit loopt goed" */
+    --warning:#C08A2E; --warning-tint:#F7F0E1; /* attention — "iets om in de gaten te houden" */
+    --error:#B0453C;   --error-tint:#F5E8E6;   /* severe — DEFINED, not applied (Reserve, Don't Activate) */
     --r:9px; --r-lg:14px;
     --mono:'Courier New',monospace; --sans:Aptos,Arial,sans-serif;
   }
@@ -47,8 +49,8 @@
     border-radius:var(--r-lg);padding:18px 20px 16px;transition:border-color .16s, box-shadow .16s, transform .16s;}
   .card:hover{border-color:var(--border-h);box-shadow:0 6px 20px -14px rgba(14,27,42,.4);}
   .card--accent{--tone:var(--accent);--tone-dim:var(--accent-dim);}
-  .card--success{--tone:var(--success);--tone-dim:var(--success-dim);}
-  .card--warning{--tone:var(--warning);--tone-dim:var(--warning-dim);}
+  .card--success{--tone:var(--success);--tone-dim:var(--success-tint);}
+  .card--warning{--tone:var(--warning);--tone-dim:var(--warning-tint);}
   .tone-label{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
     color:var(--tone);background:var(--tone-dim);border-radius:100px;padding:3px 9px;margin-bottom:11px;}
   .card-title{font-size:1.12rem;font-weight:600;color:var(--ink);letter-spacing:-.01em;margin:0 0 5px;text-wrap:balance;}

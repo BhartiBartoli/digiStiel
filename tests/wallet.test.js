@@ -100,5 +100,20 @@ check('8. wallet.html consumes read-only: no engine/require of the data layer, n
   assert.ok(!/require\(|measurableValue|projectWallet|buildHomeViewModel/.test(html), 'UI does not touch the data layer directly');
 });
 
+// ── 9: semantic colours use the M&S-canonical MUTED tokens; --error defined, not applied ──
+check('9. Card rails use M&S muted tokens (no bright #1E9E63/#C77D11); --error inert', () => {
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  assert.ok(html.includes('--success:#2E8B6F'), 'muted teal-green success token');
+  assert.ok(html.includes('--warning:#C08A2E'), 'muted amber warning token');
+  assert.ok(!html.includes('#1E9E63') && !html.includes('#C77D11'), 'old bright values removed');
+  // rails reference the tokens (not hardcoded hex)
+  assert.ok(/\.card--success\{--tone:var\(--success\)/.test(html), 'success rail via token');
+  assert.ok(/\.card--warning\{--tone:var\(--warning\)/.test(html), 'warning rail via token');
+  // --error is DEFINED but NOT applied anywhere (Reserve, Don't Activate)
+  assert.ok(html.includes('--error:#B0453C'), '--error token defined');
+  assert.ok(!/var\(--error\)/.test(html), '--error not applied by any rule');
+  assert.ok(!/card--error/.test(html), 'no severe/error card class');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
