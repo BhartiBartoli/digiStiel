@@ -40,33 +40,26 @@ function indexTree(tree) {
   return byId;
 }
 
-// plan.sourceId → parent Goal name, read from the Tree (Goal nodes carry a name; Value Plans do not
-// in Brok A). Used to give a plan card identifying context — from the model, not a plan-name field.
-function goalNameByPlan(tree) {
-  const map = new Map();
-  for (const intent of tree.intents) {
-    for (const goal of intent.goals) {
-      for (const plan of goal.plans) map.set(plan.sourceId, goal.name);
-    }
-  }
-  return map;
-}
-
-// Title in CUSTOMER LANGUAGE, read straight from the dereferenced Tree node (the Projection already
-// mapped it — the ViewModel does NOT map). A node with a name → "label: name". A plan node (no name
-// in Brok A) → "label · <goal-naam>", the goal context read from the Tree so two plans are
-// distinguishable; without goal context it falls back to the bare label.
-function titleFor(node, goalName) {
+// Title in CUSTOMER LANGUAGE. A node with a name (Intent/Goal/OG/Indicator) → "label: name", read
+// straight from the Tree (the Projection already mapped it — the ViewModel does NOT map).
+//
+// A Value Plan carries NO name in Brok A (Computed Before Stored — no stored name field). Its title is
+// COMPUTED: "je plan: <computed title>", where the computed title is a customer-language OUTCOME (the
+// value/direction the plan pursues), NEVER an activity/Operational-Goal name. The label "je plan"
+// stays (standardised meaning) and is AUGMENTED, not replaced. `planTitle` is supplied via the
+// planTitles map (a presentation seam): today M&S provides the demo titles; later a generic title
+// deriver populates the same map without rebuilding the card-shape (Reserve, Don't Activate). Without
+// a computed title, it falls back to the bare label.
+function titleFor(node, planTitle) {
   if (node.name) return `${node.label}: ${node.name}`;
-  return goalName ? `${node.label} · ${goalName}` : node.label;
+  return planTitle ? `${node.label}: ${planTitle}` : node.label;
 }
 
 // buildHomeViewModel — orders by the DI-provided candidate.priority (honouring DI's ranking, NOT
 // computing one), applies an optional M&S order preference WITHIN equal priority (presentation
 // tiebreak), takes Top N, and shapes each shown candidate into a Home card.
-function buildHomeViewModel({ tree, provider, topN = 3, toneOverrides = {}, orderPreference = [], destination = 'executive-summary' } = {}) {
+function buildHomeViewModel({ tree, provider, topN = 3, toneOverrides = {}, orderPreference = [], destination = 'executive-summary', planTitles = {} } = {}) {
   const byId = indexTree(tree);
-  const goalOfPlan = goalNameByPlan(tree);
   const candidates = provider.getAttentionCandidates();
 
   const prefIndex = (signalType) => {
@@ -88,7 +81,7 @@ function buildHomeViewModel({ tree, provider, topN = 3, toneOverrides = {}, orde
     const node = byId.get(cand.sourceRef.sourceId);
     if (!node) return null;
     return {
-      title: titleFor(node, goalOfPlan.get(node.sourceId)),             // klanttaal, uit de Tree (+ goal-context)
+      title: titleFor(node, planTitles[node.sourceId]),                 // klanttaal (+ computed plan-title)
       summaryTemplate: DEFAULT_SUMMARY_TEMPLATES[cand.signalType] || null, // M&S copy, refinable template
       tone: resolveTone(cand.signalType, cand.severity, toneOverrides),  // presentatie-metadata (leest severity)
       // Generic presentation navigation contract: the channel picks its own destination; no hardcoded

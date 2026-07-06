@@ -125,4 +125,24 @@ function vanDijckAttentionCandidates(engine) {
   ];
 }
 
-module.exports = { loadSeedCustomer, defaultSeedLoader, vanDijckAttentionCandidates, NAMES };
+// vanDijckPlanTitles(engine) — the four M&S computed plan titles as a PRESENTATION mapping
+// { planSourceId → computed title }, fed to the ViewModel card-shape. Each title is a customer-language
+// OUTCOME (the value the plan pursues), NOT an Operational-Goal activity name and NOT a mechanical
+// derivation from the OG names. M&S-refinable without a rebuild; this same map is the seam a later
+// generic title deriver would populate for non-demo plans (inert until then — Reserve, Don't Activate).
+function vanDijckPlanTitles(engine) {
+  const store = engine.store;
+  const goalByName = (name) => all(store, 'strategicGoals').find((g) => g.name === name);
+  const plansOfGoal = (goalId) => all(store, 'valuePlans').filter((p) => p.goalId === goalId); // creation order
+
+  const [vpA, vpB] = plansOfGoal(goalByName(NAMES.goalGrow).id);
+  const [vpC, vpD] = plansOfGoal(goalByName(NAMES.goalNewStream).id);
+  return {
+    [vpA.id]: 'Meer online omzet uit bestaande klanten', // webshop-plan
+    [vpB.id]: 'Bekend worden in een grotere regio',      // regio-plan
+    [vpC.id]: 'Eerste projectklanten winnen',            // projectklanten-plan
+    [vpD.id]: 'Een vlotter projectproces',               // projectproces-plan
+  };
+}
+
+module.exports = { loadSeedCustomer, defaultSeedLoader, vanDijckAttentionCandidates, vanDijckPlanTitles, NAMES };

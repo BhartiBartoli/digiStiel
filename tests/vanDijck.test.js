@@ -4,7 +4,7 @@
 const assert = require('assert');
 const P = require('../presentation');
 const VM = require('../presentation/viewmodel');
-const { vanDijckAttentionCandidates } = require('../presentation/seedCustomer');
+const { vanDijckAttentionCandidates, vanDijckPlanTitles } = require('../presentation/seedCustomer');
 
 let pass = 0, fail = 0;
 function check(name, fn) {
@@ -125,42 +125,81 @@ check('4. measurableValue per plan is computed from the underlying indicators', 
   assert.ok(mv.indicatorIds.length >= 1, 'derived from real indicators, not an entered figure');
 });
 
-// ── 5: four scenarios render as Home cards; plan cards carry goal-name context ──
-check('5. Four scenarios: correct tone + plan cards identified via goal-name context', () => {
+// ── 5: four scenarios → "je plan: <M&S computed title>" (outcome, not activity) ──
+check('5. Four scenarios: "je plan: <computed title>" (outcome), correct tone, not an OG name', () => {
   const { engine, tree } = setup();
   const candidates = vanDijckAttentionCandidates(engine);
+  const planTitles = vanDijckPlanTitles(engine);
   assert.strictEqual(candidates.length, 4, 'four scenarios');
   const provider = VM.makeStubAttentionProvider(candidates);
-  const vm = VM.buildHomeViewModel({ tree, provider, topN: 4 }); // topN 4 to inspect all four
+  const vm = VM.buildHomeViewModel({ tree, provider, topN: 4, planTitles }); // topN 4 to inspect all four
   const toneBySignal = { 'gate-pending': 'geruststellend', 'attention': 'kalm', 'confirmation': 'warm' };
   for (const cand of candidates) {
     const card = vm.cards.find((c) => c.navRef.sourceId === cand.sourceRef.sourceId);
     assert.ok(card && card.title, 'each candidate yields a card with a title');
     assert.strictEqual(card.tone, toneBySignal[cand.signalType], `tone matches ${cand.signalType}`);
   }
-  // The two gate cards are distinguishable via their goal-name context (they hang under different Goals).
-  const gateCards = vm.cards.filter((c) => c.tone === 'geruststellend');
-  const gateTitles = gateCards.map((c) => c.title).sort();
-  assert.deepStrictEqual(gateTitles, ['je plan · Bestaande business laten groeien', 'je plan · Een nieuwe waardestroom opbouwen'],
-    'two gate cards distinguishable by goal context');
-  // confirmation card is the goal itself → "je doel: <naam>"
-  assert.ok(vm.cards.some((c) => c.title === 'je doel: Bestaande business laten groeien'), 'confirmation shows the goal');
+  // The mapping holds all four M&S computed titles (data completeness)…
+  assert.strictEqual(Object.keys(planTitles).length, 4, 'four computed plan titles supplied');
+  assert.deepStrictEqual(Object.values(planTitles).sort(), [
+    'Bekend worden in een grotere regio', 'Een vlotter projectproces',
+    'Eerste projectklanten winnen', 'Meer online omzet uit bestaande klanten',
+  ], 'exact M&S formulations');
+  // …and the three plans that HAVE a scenario show "je plan: <exact M&S title>" (label augmented, not replaced).
+  // (The fourth plan, 'Een vlotter projectproces', has no Attention Candidate, so no card — correct.)
+  const titleOf = (sid) => vm.cards.find((c) => c.navRef.sourceId === sid).title;
+  const idOfTitle = (t) => Object.keys(planTitles).find((k) => planTitles[k] === t);
+  assert.strictEqual(titleOf(idOfTitle('Meer online omzet uit bestaande klanten')), 'je plan: Meer online omzet uit bestaande klanten');
+  assert.strictEqual(titleOf(idOfTitle('Bekend worden in een grotere regio')),      'je plan: Bekend worden in een grotere regio');
+  assert.strictEqual(titleOf(idOfTitle('Eerste projectklanten winnen')),            'je plan: Eerste projectklanten winnen');
+  for (const c of vm.cards) assert.ok(c.title.startsWith('je plan') || c.title.startsWith('je doel'), 'label preserved');
+  // Proof 3: the title is an OUTCOME, NOT the literal Operational-Goal name.
+  const webshopCard = vm.cards.find((c) => c.title.includes('Meer online omzet uit bestaande klanten'));
+  assert.ok(!webshopCard.title.includes('Bestaande klanten vinden en gebruiken de webshop'), 'title is an outcome, not the OG activity name');
 });
 
-// ── 6: Top-N cap → one gate at top, via STUB priorities (no ViewModel signalType filter) ──
-check('6. Top-N cap: max 3, one gate at top — via stub priorities, not a ViewModel filter', () => {
+// ── 4b: mapping is M&S-refinable + the seam is inert by default ──
+check('4b. Plan-title mapping is refinable; the derivation seam is inert (default = bare label)', () => {
   const { engine, tree } = setup();
   const candidates = vanDijckAttentionCandidates(engine);
+  const provider = VM.makeStubAttentionProvider(candidates);
+  // Refinable: supply a different map → the title follows it (no rebuild).
+  const one = Object.keys(vanDijckPlanTitles(engine))[0];
+  const refined = VM.buildHomeViewModel({ tree, provider, topN: 4, planTitles: { [one]: 'Andere uitkomst' } });
+  assert.ok(refined.cards.some((c) => c.title === 'je plan: Andere uitkomst'), 'refined title honoured');
+  // Inert seam: with NO map, plan cards fall back to the bare "je plan" (no invented title).
+  const bare = VM.buildHomeViewModel({ tree, provider, topN: 4 });
+  assert.ok(bare.cards.some((c) => c.title === 'je plan'), 'without a computed title, bare label — seam inert');
+});
+
+// ── 6: Top-N cap → one gate at top, distinguishable via computed title; via STUB priorities ──
+check('6. Top-N cap: max 3, one gate at top — via stub priorities; gates distinguishable by computed title', () => {
+  const { engine, tree } = setup();
+  const candidates = vanDijckAttentionCandidates(engine);
+  const planTitles = vanDijckPlanTitles(engine);
   assert.strictEqual(candidates.filter((c) => c.signalType === 'gate-pending').length, 2, 'stub genuinely has two gates');
-  const vm = VM.buildHomeViewModel({ tree, provider: VM.makeStubAttentionProvider(candidates) }); // default topN=3
+  const vm = VM.buildHomeViewModel({ tree, provider: VM.makeStubAttentionProvider(candidates), planTitles }); // default topN=3
   assert.strictEqual(vm.cards.length, 3, 'four candidates capped to three');
   assert.strictEqual(vm.cards.filter((c) => c.tone === 'geruststellend').length, 1, 'exactly one gate shown');
-  assert.strictEqual(vm.cards[0].title, 'je plan · Bestaande business laten groeien', 'priority-1 gate (region, Goal 1) first');
+  assert.strictEqual(vm.cards[0].title, 'je plan: Bekend worden in een grotere regio', 'priority-1 gate (region) first');
   assert.ok(vm.cards[1].tone === 'warm' && vm.cards[2].tone === 'kalm', 'order gate → confirmation → attention (DI priority)');
-  // Counter-proof it is priority, not a signalType filter: bump the second gate to priority 0 → two gates appear.
+  // The two gates are distinguishable per-plan by their computed title (finer than goal context).
+  const allFour = VM.buildHomeViewModel({ tree, provider: VM.makeStubAttentionProvider(candidates), topN: 4, planTitles });
+  const gateTitles = allFour.cards.filter((c) => c.tone === 'geruststellend').map((c) => c.title).sort();
+  assert.deepStrictEqual(gateTitles, ['je plan: Bekend worden in een grotere regio', 'je plan: Eerste projectklanten winnen'], 'gates distinguishable per plan');
+  // Counter-proof: priority alone decides (bump second gate to priority 0 → two gates in top-3).
   const bumped = candidates.map((c) => (c.priority === 4 ? { ...c, priority: 0 } : c));
-  const vm2 = VM.buildHomeViewModel({ tree, provider: VM.makeStubAttentionProvider(bumped) });
+  const vm2 = VM.buildHomeViewModel({ tree, provider: VM.makeStubAttentionProvider(bumped), planTitles });
   assert.strictEqual(vm2.cards.filter((c) => c.tone === 'geruststellend').length, 2, 'ViewModel does not filter signalType — priority alone decides');
+});
+
+// ── 5b: Projection unchanged — still projects the bare "je plan" label ──
+check('5b. Projection unchanged: plan nodes still project the bare "je plan" label', () => {
+  const { tree } = setup();
+  for (const goal of tree.intents[0].goals) for (const plan of goal.plans) {
+    assert.strictEqual(plan.label, 'je plan', 'Projection still emits bare "je plan"; title composition is ViewModel-only');
+    assert.ok(!('name' in plan), 'plan node carries no name (no stored plan name)');
+  }
 });
 
 // ── 7: read-only — projection/viewmodel mutate nothing ──
@@ -178,8 +217,8 @@ check('7. Read-only: store snapshot identical before/after projection + viewmode
   console.log('\n================ Van Dijck Wonen — geprojecteerde boom (klanttaal) ================');
   console.log(renderTree(tree));
   const provider = VM.makeStubAttentionProvider(vanDijckAttentionCandidates(engine));
-  const vm = VM.buildHomeViewModel({ tree, provider });
-  console.log('\n================ Home-kaarten (Top 3 van 4 candidates, DI-volgorde) ================');
+  const vm = VM.buildHomeViewModel({ tree, provider, topN: 4, planTitles: vanDijckPlanTitles(engine) });
+  console.log('\n================ Home-kaarten (alle 4 candidates, computed titles) ================');
   for (const c of vm.cards) console.log(`  • [${c.tone}] ${c.title}\n      ${c.summaryTemplate}  → ${c.navRef.destination}`);
 })();
 
