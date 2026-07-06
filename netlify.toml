@@ -4,7 +4,9 @@
   # Category A: inject per-site MARKET values into the static crawler-critical
   # surface (html lang, og:locale, canonical/og/sitemap/robots domain) before
   # publish. Each Netlify site supplies its own MARKET env var.
-  command   = "node scripts/build-market.js"
+  # build-market.js: per-site MARKET injection. build-wallet.js: snapshot the frozen wallet data
+  # layer (ViewModel output) to wallet-data.json for the static wallet UI to consume read-only.
+  command   = "node scripts/build-market.js && node scripts/build-wallet.js"
 
 [functions]
   node_bundler = "esbuild"

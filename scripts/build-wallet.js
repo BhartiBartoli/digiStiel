@@ -1,0 +1,114 @@
+#!/usr/bin/env node
+'use strict';
+
+// ── Build-time wallet data snapshot ───────────────────────────────────────────
+// The wallet UI is static (no framework, no bundler) and the ViewModel is CommonJS
+// Node code, so it cannot run in the browser. This script runs the frozen data layer
+// ONCE at build time and writes wallet-data.json — the UI renders that JSON read-only.
+// Every number comes from the Canonical Presentation Tree / engine (computed there);
+// nothing is calculated or hardcoded here or in the UI. Narrative copy is M&S-authored
+// presentation data from the seed.
+//
+// Usage:
+//   node scripts/build-wallet.js            # write ./wallet-data.json
+//   node scripts/build-wallet.js --print    # print the data, no write
+const fs = require('fs');
+const path = require('path');
+
+const P = require('../presentation');
+const VM = require('../presentation/viewmodel');
+const {
+  loadSeedCustomer, vanDijckAttentionCandidates, vanDijckPlanTitles,
+  vanDijckHomeCopy, vanDijckExecutiveSummaries,
+} = require('../presentation/seedCustomer');
+
+// Walk the tree to find a node by its sourceId (read-only dereference).
+function findNode(tree, sourceId) {
+  let hit = null;
+  const visit = (n) => {
+    if (!n || hit) return;
+    if (n.sourceId === sourceId) { hit = n; return; }
+    for (const c of [...(n.goals || []), ...(n.plans || []), ...(n.operationalGoals || []), ...(n.results || [])]) visit(c);
+  };
+  for (const intent of tree.intents) visit(intent);
+  return hit;
+}
+
+// Resolve a measurement metric's NUMBER from the Tree (never entered by hand).
+function resolveMetric(metric, node) {
+  if (metric.kind === 'goal-target') {
+    return { label: metric.label, value: node.target.value, unit: node.target.unit };
+  }
+  if (metric.kind === 'measurable') {
+    // Read the computed measurableValue for the requested unit from the goal's plans.
+    for (const plan of node.plans || []) {
+      const perUnit = plan.measurableValue && plan.measurableValue.perUnit;
+      if (perUnit && perUnit[metric.unit] !== undefined) {
+        return { label: metric.label, value: perUnit[metric.unit], unit: metric.unit, reassurance: metric.reassurance };
+      }
+    }
+  }
+  return { label: metric.label, value: null, unit: metric.unit || null };
+}
+
+// buildWalletBundle — returns the data plus the engine/tree it was built from, so tests can verify
+// numbers against the SAME load (ids are minted per load).
+function buildWalletBundle() {
+  const engine = loadSeedCustomer();
+  const tree = P.projectWallet(P.makeReader(engine));
+  const candidates = vanDijckAttentionCandidates(engine);
+  const planTitles = vanDijckPlanTitles(engine);
+  const provider = VM.makeStubAttentionProvider(candidates);
+
+  // Home cards straight from the ViewModel (Top-N + DI order — not re-ordered here).
+  const vm = VM.buildHomeViewModel({ tree, provider, planTitles });
+  const signalBySource = Object.fromEntries(candidates.map((c) => [c.sourceRef.sourceId, c.signalType]));
+
+  const execRaw = vanDijckExecutiveSummaries(engine);
+  const executiveSummaries = {};
+  for (const [sid, content] of Object.entries(execRaw)) {
+    const node = findNode(tree, sid);
+    executiveSummaries[sid] = {
+      title: node.name ? `${node.label}: ${node.name}` : node.label,
+      understanding: content.understanding,
+      reasons: content.reasons,
+      metrics: content.metrics.map((m) => resolveMetric(m, node)),
+    };
+  }
+
+  const cards = vm.cards.map((c) => ({
+    sourceId: c.navRef.sourceId,
+    title: c.title,
+    summary: c.summaryTemplate,
+    tone: c.tone,
+    signalType: signalBySource[c.navRef.sourceId],
+    hasSummary: Boolean(executiveSummaries[c.navRef.sourceId]), // does a working Executive Summary exist?
+  }));
+
+  const copy = vanDijckHomeCopy();
+  const data = {
+    customer: 'Van Dijck Wonen',
+    demo: true,
+    home: { greeting: copy.greeting, intro: copy.intro, cards },
+    executiveSummaries,
+    generatedBy: 'scripts/build-wallet.js (read-only over the frozen data layer)',
+  };
+  return { data, engine, tree };
+}
+
+function buildWalletData() {
+  return buildWalletBundle().data;
+}
+
+if (require.main === module) {
+  const data = buildWalletData();
+  if (process.argv.includes('--print')) {
+    console.log(JSON.stringify(data, null, 2));
+  } else {
+    const out = path.join(__dirname, '..', 'wallet-data.json');
+    fs.writeFileSync(out, JSON.stringify(data, null, 2) + '\n');
+    console.log(`wrote ${out} (${data.home.cards.length} cards, ${Object.keys(data.executiveSummaries).length} executive summaries)`);
+  }
+}
+
+module.exports = { buildWalletData, buildWalletBundle };
