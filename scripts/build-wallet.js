@@ -58,6 +58,41 @@ function resolveMetric(metric, node) {
   return { label: metric.label, value: null, unit: metric.unit || null };
 }
 
+// objectType from the canonical sourceType (presentation metadata; no domain meaning invented).
+function objectTypeOf(node) {
+  return node.sourceType === 'StrategicGoal' ? 'goal'
+    : node.sourceType === 'ValuePlan' ? 'plan'
+    : node.sourceType === 'ValueIndicator' ? 'result' : 'other';
+}
+
+// Conversation-bound context = the DIRECT Tree neighbours of the open subject (read-only filter, no
+// computation). Labels are the fixed M&S phrasings; items are neighbour names already in the Tree.
+function buildContext(node, tree, planTitles) {
+  const distinct = (arr) => [...new Set(arr)];
+  if (node.sourceType === 'StrategicGoal') {
+    const plans = (node.plans || []).map((p) => planTitles[p.sourceId] || p.label);
+    const indicators = distinct((node.plans || []).flatMap((p) =>
+      (p.operationalGoals || []).flatMap((og) => (og.results || []).map((r) => r.name))));
+    return [
+      { label: 'Je plannen bij dit doel', items: plans },
+      { label: 'Wat dit doel meet', items: indicators },
+    ];
+  }
+  if (node.sourceType === 'ValuePlan') {
+    let goalName = null;
+    for (const it of tree.intents) for (const g of it.goals) if ((g.plans || []).some((p) => p.sourceId === node.sourceId)) goalName = g.name;
+    const results = distinct((node.operationalGoals || []).flatMap((og) => (og.results || []).map((r) => r.name)));
+    return [
+      { label: 'Dit plan hoort bij je doel', items: goalName ? [goalName] : [] },
+      { label: 'De resultaten die het beweegt', items: results },
+    ];
+  }
+  if (node.sourceType === 'ValueIndicator') {
+    return [{ label: 'Dit resultaat telt mee voor', items: [] }]; // sparse; no result scenario in the demo
+  }
+  return [];
+}
+
 // buildWalletBundle — returns the data plus the engine/tree it was built from, so tests can verify
 // numbers against the SAME load (ids are minted per load).
 function buildWalletBundle() {
@@ -81,9 +116,11 @@ function buildWalletBundle() {
       : (planTitles[sid] ? `${node.label}: ${planTitles[sid]}` : node.label);
     executiveSummaries[sid] = {
       title: title,
+      objectType: objectTypeOf(node),                      // 'goal' | 'plan' | 'result' → picks the opener
       understanding: content.understanding,
       reasons: content.reasons,
       metrics: content.metrics.map((m) => resolveMetric(m, node)),
+      context: buildContext(node, tree, planTitles),        // RIGHT: direct Tree neighbours (read-only)
     };
   }
 
