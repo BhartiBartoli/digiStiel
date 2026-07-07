@@ -122,9 +122,10 @@ check('10. Three-region shell: LEFT/RIGHT empty placeholders, CENTER (#view) + r
   assert.ok(/class="workspace"/.test(html), 'workspace grid present');
   assert.ok(/region region-left/.test(html) && /region region-right/.test(html), 'LEFT + RIGHT regions present');
   assert.ok(/<main id="view"/.test(html), 'CENTER #view preserved');
-  // LEFT/RIGHT are empty placeholders — NO step-B nav labels, NO step-C context cards/conversation
-  for (const forbidden of ['Mijn doelen', 'Mijn plannen', 'Mijn resultaten', 'Mijn beslissingen', 'Vandaag', 'Gesprek', 'context-card', 'bubble', 'message-bubble']) {
-    assert.ok(!html.includes(forbidden), `no step-B/C content yet: "${forbidden}"`);
+  // No step-C content yet (conversation / bubbles / context cards) and no chat-language nav.
+  // (Step-B nav labels ARE present from wallet-workspace-skelet-b — asserted in proof 11.)
+  for (const forbidden of ['Gesprek', 'context-card', 'message-bubble', 'sparring']) {
+    assert.ok(!html.includes(forbidden), `no step-C/chat content yet: "${forbidden}"`);
   }
   // CENTER render + routing untouched
   for (const keep of ['function renderHome', 'function renderSummary', 'function renderSoon', "fetch('wallet-data.json'"]) {
@@ -136,6 +137,30 @@ check('10. Three-region shell: LEFT/RIGHT empty placeholders, CENTER (#view) + r
   // demo-badge token drift fixed (no dangling --warning-dim, no old-amber rgba)
   assert.ok(!/var\(--warning-dim\)/.test(html), 'no dangling --warning-dim token');
   assert.ok(!/199,\s*125,\s*17/.test(html), 'no pre-muted amber rgba (old #C77D11)');
+});
+
+// ── 11: LEFT-nav (skelet-stap B) — labels + "Vandaag" active + VISUAL SELECTION ONLY ──
+check('11. LEFT-nav: exact M&S labels, "Vandaag" active, visual-selection only (no routing)', () => {
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  // the five exact labels, with "Mijn"
+  for (const label of ['Vandaag', 'Mijn doelen', 'Mijn plannen', 'Mijn resultaten', 'Mijn beslissingen']) {
+    assert.ok(html.includes('>' + label + '</button>'), `nav label present: ${label}`);
+  }
+  assert.ok(!html.includes('Documenten'), 'no Documenten (no documents view exists)');
+  // nav items are buttons, not links (they do not navigate)
+  const navBlock = html.slice(html.indexOf('<nav class="nav"'), html.indexOf('</nav>'));
+  assert.ok(!/<a\s/.test(navBlock), 'no <a href> in the nav — buttons only');
+  assert.ok(/type="button"/.test(navBlock), 'nav items are type=button');
+  // "Vandaag" active on load
+  assert.ok(/<button type="button" class="nav-item active" aria-current="true">Vandaag<\/button>/.test(html), '"Vandaag" active at load');
+  // VISUAL SELECTION ONLY: the nav handler script touches no routing/render/#view
+  const navScript = html.slice(html.indexOf('// LEFT-nav — skelet-stap B'), html.lastIndexOf('</script>'));
+  for (const forbidden of ['location.hash', 'route(', 'renderHome', 'renderSummary', 'renderSoon', 'getElementById(\'view\')', '#view']) {
+    assert.ok(!navScript.includes(forbidden), `nav handler must not touch routing/render: "${forbidden}"`);
+  }
+  assert.ok(/classList\.add\('active'\)/.test(navScript) && /classList\.remove\('active'\)/.test(navScript), 'nav handler only toggles the active class');
+  // region-right still the Context placeholder (no step-C content)
+  assert.ok(/region region-right[^]*?region-cap">Context/.test(html), 'RIGHT stays the Context placeholder');
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);
