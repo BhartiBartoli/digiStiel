@@ -124,6 +124,37 @@
   [hidden]{display:none!important;}
   .fade{animation:fade .4s ease both;}
   @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  /* ── CENTER conversation (skelet-stap C): the partner reads out the existing content. No sender
+     labels — partner turns sit left with an ice fill; the disclosure prompts sit right in accent.
+     The conversation ARRANGES existing seed/Tree output; it generates nothing. ── */
+  .conv{display:flex;flex-direction:column;gap:14px;margin-top:6px;}
+  .turn{display:flex;}
+  .turn--partner{justify-content:flex-start;}
+  .turn--me{justify-content:flex-end;}
+  .bubble{max-width:82%;background:var(--ice2);border:1px solid var(--border);border-radius:16px;border-top-left-radius:5px;
+    padding:13px 16px;color:var(--ink);line-height:1.6;}
+  .bubble--opener{color:var(--muted);}
+  .bubble--understanding{font-size:1.1rem;line-height:1.55;color:var(--ink);}
+  .bubble--reason{border-left:3px solid var(--tone);}
+  .bubble--reason.reason--opportunity{--tone:var(--warning);}
+  .bubble--reason.reason--strength{--tone:var(--success);}
+  .bubble .rk{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--tone,var(--subtle));margin-bottom:4px;}
+  .bubble--metrics{width:100%;max-width:100%;background:none;border:none;padding:0;}
+  /* disclosure prompt = the customer's next question, tappable (right, accent) */
+  .prompt{appearance:none;cursor:pointer;background:var(--accent-dim);border:1px solid var(--accent-rim);border-radius:16px;
+    border-top-right-radius:5px;padding:11px 16px;color:var(--accent-dark);font-family:var(--sans);font-size:.95rem;font-weight:500;
+    display:inline-flex;align-items:center;gap:7px;transition:background .15s,border-color .15s;}
+  .prompt:hover{background:rgba(44,125,255,.16);border-color:var(--accent);}
+  .prompt .chev{transition:transform .15s;}
+  .prompt[hidden]{display:none;}
+
+  /* ── RIGHT context (skelet-stap C): read-only direct Tree neighbours of the open subject. ── */
+  .ctx{display:flex;flex-direction:column;gap:18px;}
+  .ctx-group{display:flex;flex-direction:column;gap:6px;}
+  .ctx-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);}
+  .ctx-item{font-size:.86rem;color:var(--muted);padding:6px 10px;background:var(--white);border:1px solid var(--border);border-radius:8px;}
+  .ctx-empty{font-size:.8rem;color:var(--subtle);font-style:italic;}
 </style>
 </head>
 <body>
@@ -150,7 +181,7 @@
     <!-- CENTER: the existing interim render, unchanged. -->
     <main id="view" aria-live="polite"></main>
     <!-- RIGHT: context region — reserved structure, filled in skelet-stap C (no context cards yet). -->
-    <aside class="region region-right" aria-hidden="true"><span class="region-cap">Context</span></aside>
+    <aside class="region region-right" aria-label="Context"><span class="region-cap">Context</span></aside>
   </div>
   <p class="foot">digiStiel · van doel naar meetbare waarde</p>
 </div>
@@ -185,10 +216,39 @@
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+  // Conversation copy — FIXED M&S strings. The openers introduce + invite and promise no generated
+  // answer; the two connectors are topic-INDEPENDENT (identical for every subject) — they are the
+  // "one question per step" disclosure, UI navigation, not content.
+  var OPENERS = {
+    goal:   'Dit is een van je doelen. Laten we samen kijken waar je staat en wat er speelt.',
+    plan:   'Dit is een van je plannen. Ik loop met je door waar het over gaat en hoe het ervoor staat.',
+    result: 'Dit is een van je resultaten. Laten we bekijken wat het je vertelt.'
+  };
+  var CONNECTOR_WHY = 'Zal ik uitleggen waarom?';       // after understanding → reveals explanation
+  var CONNECTOR_NUMBERS = 'Wil je de cijfers erbij zien?'; // after explanation → reveals measurement
+
+  // RIGHT context region — read-only render of the snapshot's Tree neighbours; null → placeholder.
+  function setContext(groups) {
+    var region = document.querySelector('.region-right');
+    if (!region) return;
+    region.innerHTML = '';
+    if (!groups || !groups.length) { region.appendChild(el('span', 'region-cap', 'Context')); return; }
+    var box = el('div', 'ctx fade');
+    groups.forEach(function (g) {
+      var grp = el('div', 'ctx-group');
+      grp.appendChild(el('span', 'ctx-label', g.label));
+      if (g.items && g.items.length) g.items.forEach(function (it) { grp.appendChild(el('div', 'ctx-item', it)); });
+      else grp.appendChild(el('div', 'ctx-empty', 'nog niets om te tonen'));
+      box.appendChild(grp);
+    });
+    region.appendChild(box);
+  }
+
   // ── Home ──
   function renderHome() {
     var h = DATA.home;
     view.innerHTML = '';
+    setContext(null); // no open subject on Home → RIGHT stays the Context placeholder
     var wrap = el('div', 'fade');
     wrap.appendChild(el('p', 'eyebrow', 'Wat vraagt vandaag aandacht?'));
     wrap.appendChild(el('h1', 'greeting', h.greeting + '.'));
@@ -219,11 +279,15 @@
     view.appendChild(wrap);
   }
 
-  // ── Executive Summary: Understanding → Explanation → Measurement ──
+  // ── CENTER conversation over the open subject (skelet-stap C) ──
+  // The partner READS OUT the existing Executive-Summary content (understanding → explanation →
+  // measurement, from seed/Tree) in conversation form. It generates nothing. The two connectors are
+  // fixed, topic-independent disclosure prompts ("one question per step").
   function renderSummary(sourceId) {
     var s = DATA.executiveSummaries[sourceId];
     if (!s) { renderSoon('story', sourceId); return; }
     view.innerHTML = '';
+    setContext(s.context); // RIGHT: the subject's direct Tree neighbours (read-only)
     var wrap = el('div', 'fade');
 
     var back = el('button', 'back'); back.innerHTML = '<span aria-hidden="true">←</span> terug naar Home';
@@ -231,26 +295,31 @@
     wrap.appendChild(back);
 
     wrap.appendChild(el('h2', 'exec-title', s.title));
+    var conv = el('div', 'conv'); wrap.appendChild(conv);
 
-    var u = el('section', 'section');
-    u.appendChild(el('p', 'eyebrow', 'Waar je staat'));
-    u.appendChild(el('p', 'understanding', s.understanding));
-    wrap.appendChild(u);
+    function partner(cls, text) {
+      var t = el('div', 'turn turn--partner');
+      var b = el('div', 'bubble' + (cls ? ' ' + cls : ''));
+      if (text != null) b.textContent = text;
+      t.appendChild(b); conv.appendChild(t); return t;
+    }
 
-    var ex = el('section', 'section');
-    ex.appendChild(el('p', 'eyebrow', 'Waarom'));
-    var ul = el('ul', 'reasons');
-    s.reasons.forEach(function (r) {
-      var li = el('li', 'reason reason--' + r.kind);
-      li.appendChild(el('span', 'rk', r.kind === 'opportunity' ? 'de kans' : 'de sterkte'));
-      li.appendChild(el('span', 'rt', r.text));
-      ul.appendChild(li);
+    // 1) opener (per object type) + understanding — both existing content
+    partner('bubble--opener', OPENERS[s.objectType] || OPENERS.plan);
+    partner('bubble--understanding', s.understanding);
+
+    // 2) explanation — the two existing reasons (hidden until the "waarom?" prompt)
+    var exTurns = s.reasons.map(function (r) {
+      var t = el('div', 'turn turn--partner'); t.setAttribute('hidden', '');
+      var b = el('div', 'bubble bubble--reason reason--' + r.kind);
+      b.appendChild(el('span', 'rk', r.kind === 'opportunity' ? 'de kans' : 'de sterkte'));
+      b.appendChild(el('span', 'rt', r.text));
+      t.appendChild(b); conv.appendChild(t); return t;
     });
-    ex.appendChild(ul);
-    wrap.appendChild(ex);
 
-    var me = el('section', 'section');
-    me.appendChild(el('p', 'eyebrow', 'De cijfers'));
+    // 3) measurement — the existing metric cards (hidden until the "cijfers?" prompt)
+    var meTurn = el('div', 'turn turn--partner'); meTurn.setAttribute('hidden', '');
+    var meBub = el('div', 'bubble bubble--metrics');
     var grid = el('div', 'metrics');
     s.metrics.forEach(function (m) {
       var card = el('div', 'metric');
@@ -259,8 +328,24 @@
       if (m.reassurance) card.appendChild(el('div', 'mr', m.reassurance));
       grid.appendChild(card);
     });
-    me.appendChild(grid);
-    wrap.appendChild(me);
+    meBub.appendChild(grid); meTurn.appendChild(meBub); conv.appendChild(meTurn);
+
+    // the two fixed disclosure prompts (customer turns, right/accent) — reveal one step at a time
+    function promptTurn(text) {
+      var t = el('div', 'turn turn--me');
+      var b = el('button', 'prompt'); b.innerHTML = esc(text) + ' <span class="chev" aria-hidden="true">▾</span>';
+      t.appendChild(b); conv.appendChild(t); return { turn: t, btn: b };
+    }
+    var p1 = promptTurn(CONNECTOR_WHY);
+    var p2 = promptTurn(CONNECTOR_NUMBERS); p2.turn.setAttribute('hidden', '');
+    p1.btn.addEventListener('click', function () {
+      exTurns.forEach(function (t) { t.removeAttribute('hidden'); t.classList.add('fade'); });
+      p1.turn.setAttribute('hidden', ''); p2.turn.removeAttribute('hidden');
+    });
+    p2.btn.addEventListener('click', function () {
+      meTurn.removeAttribute('hidden'); meTurn.classList.add('fade');
+      p2.turn.setAttribute('hidden', '');
+    });
 
     var exits = el('div', 'exits');
     [['Bekijk wat er precies loopt', 'de plannen en wat je nu doet', 'story'],
@@ -278,6 +363,7 @@
   function renderSoon(layer, sourceId) {
     var names = { story: 'Het verhaal achter dit plan', action: 'Wat je kunt doen', detail: 'Wat er precies loopt', evidence: 'De onderbouwing' };
     view.innerHTML = '';
+    setContext(null);
     var wrap = el('div', 'fade');
     var back = el('button', 'back'); back.innerHTML = '<span aria-hidden="true">←</span> terug';
     back.addEventListener('click', function () { history.length > 1 ? history.back() : (location.hash = '#home'); });
