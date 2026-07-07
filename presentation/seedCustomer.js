@@ -187,8 +187,8 @@ function vanDijckExecutiveSummaries(engine) {
     [vpA.id]: {
       understanding: 'Je bestaande klanten kopen de laatste weken wat minder online dan gewoonlijk. Nog geen groot verschil, maar het is het bekijken waard nu het net begint.',
       reasons: [
-        { kind: 'opportunity', text: 'Je hebt hier klanten die je al kent en die je al vertrouwen — als zij weer vlotter online kopen, groeit je omzet zonder dat je nieuwe klanten hoeft te zoeken.' },
         { kind: 'strength', text: 'Je winkelverkoop bij diezelfde klanten blijft gewoon goed — de band met je klanten is er, het gaat enkel om het online kanaal.' },
+        { kind: 'opportunity', text: 'Je hebt hier klanten die je al kent en die je al vertrouwen — als zij weer vlotter online kopen, groeit je omzet zonder dat je nieuwe klanten hoeft te zoeken.' },
       ],
       metrics: [
         { label: 'Online conversie nu', kind: 'plan-measurable', unit: '%', reassurance: RES },
@@ -200,8 +200,8 @@ function vanDijckExecutiveSummaries(engine) {
     [vpB.id]: {
       understanding: 'Er ligt een plan voor je klaar om buiten je eigen buurt bekend te worden. Voor er iets start, kijk jij het eerst na — jij beslist of we ermee verdergaan.',
       reasons: [
-        { kind: 'opportunity', text: 'In je eigen buurt ben je al goed gekend, dus daar valt weinig groei meer te halen. De ruimte om te groeien zit in de regio erbuiten, waar mensen je nog niet kennen.' },
         { kind: 'strength', text: 'Wat je in je eigen buurt hebt opgebouwd — je naam, je aanpak — werkt daar al. Datzelfde kun je nu breder inzetten.' },
+        { kind: 'opportunity', text: 'In je eigen buurt ben je al goed gekend, dus daar valt weinig groei meer te halen. De ruimte om te groeien zit in de regio erbuiten, waar mensen je nog niet kennen.' },
       ],
       metrics: [
         { label: 'Mensen die je nu bereikt', kind: 'plan-measurable', unit: 'klanten', reassurance: RES },
@@ -212,8 +212,8 @@ function vanDijckExecutiveSummaries(engine) {
     [vpC.id]: {
       understanding: 'Je nieuwe interieur-projectendienst staat klaar om te beginnen. Er is nog weinig gebeurd — dit is het prille begin, en dat is precies zoals het hoort op dit punt.',
       reasons: [
-        { kind: 'opportunity', text: 'Je zou hier kunnen starten bij de klanten die je al hebt en die je vertrouwen — dat is de makkelijkste plek om een nieuwe dienst te laten aanslaan.' },
         { kind: 'strength', text: 'Je hebt al een trouw klantenbestand en een gevestigde naam — een sterke basis om iets nieuws op te bouwen zonder bij nul te beginnen.' },
+        { kind: 'opportunity', text: 'Je zou hier kunnen starten bij de klanten die je al hebt en die je vertrouwen — dat is de makkelijkste plek om een nieuwe dienst te laten aanslaan.' },
       ],
       metrics: [
         { label: 'Eerste projectklanten', kind: 'plan-measurable', unit: 'projectklanten', reassurance: RES },
