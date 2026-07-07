@@ -115,5 +115,28 @@ check('9. Card rails use M&S muted tokens (no bright #1E9E63/#C77D11); --error i
   assert.ok(!/card--error/.test(html), 'no severe/error card class');
 });
 
+// ── 10: Conversation-Centric Workspace shell (skelet-stap A) — structure only ──
+check('10. Three-region shell: LEFT/RIGHT empty placeholders, CENTER (#view) + render/routing intact', () => {
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  // three regions exist as structure
+  assert.ok(/class="workspace"/.test(html), 'workspace grid present');
+  assert.ok(/region region-left/.test(html) && /region region-right/.test(html), 'LEFT + RIGHT regions present');
+  assert.ok(/<main id="view"/.test(html), 'CENTER #view preserved');
+  // LEFT/RIGHT are empty placeholders — NO step-B nav labels, NO step-C context cards/conversation
+  for (const forbidden of ['Mijn doelen', 'Mijn plannen', 'Mijn resultaten', 'Mijn beslissingen', 'Vandaag', 'Gesprek', 'context-card', 'bubble', 'message-bubble']) {
+    assert.ok(!html.includes(forbidden), `no step-B/C content yet: "${forbidden}"`);
+  }
+  // CENTER render + routing untouched
+  for (const keep of ['function renderHome', 'function renderSummary', 'function renderSoon', "fetch('wallet-data.json'"]) {
+    assert.ok(html.includes(keep), `interim render/routing intact: ${keep}`);
+  }
+  // light-mode only, demo badge present, no dark-mode drift
+  assert.ok(!/prefers-color-scheme:\s*dark/.test(html) && !/data-theme/.test(html), 'light-mode only');
+  assert.ok(/id="demoBadge"/.test(html), 'demo badge present');
+  // demo-badge token drift fixed (no dangling --warning-dim, no old-amber rgba)
+  assert.ok(!/var\(--warning-dim\)/.test(html), 'no dangling --warning-dim token');
+  assert.ok(!/199,\s*125,\s*17/.test(html), 'no pre-muted amber rgba (old #C77D11)');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
