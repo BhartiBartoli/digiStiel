@@ -161,8 +161,16 @@ function vanDijckHomeCopy() {
 // time, never entered here. Built for the SUCCESS scenario (the revenue goal); other cards route to a
 // "binnenkort" state.
 function vanDijckExecutiveSummaries(engine) {
-  const goal1 = all(engine.store, 'strategicGoals').find((g) => g.name === NAMES.goalGrow);
+  const store = engine.store;
+  const goalByName = (name) => all(store, 'strategicGoals').find((g) => g.name === name);
+  const plansOfGoal = (goalId) => all(store, 'valuePlans').filter((p) => p.goalId === goalId); // creation order
+  const goal1 = goalByName(NAMES.goalGrow);
+  const [vpA, vpB] = plansOfGoal(goal1.id);
+  const [vpC] = plansOfGoal(goalByName(NAMES.goalNewStream).id);
+  const RES = 'berekend uit je eigen resultaten — geen apart ingevuld getal';
+
   return {
+    // Scenario 3 — success (revenue goal). Already built; unchanged.
     [goal1.id]: {
       understanding: 'Je omzetdoel voor dit jaar ligt voor op schema — winkel en webshop trekken samen goed.',
       reasons: [
@@ -171,7 +179,44 @@ function vanDijckExecutiveSummaries(engine) {
       ],
       metrics: [
         { label: 'Je jaardoel', kind: 'goal-target' },
-        { label: 'Waar je nu staat', kind: 'measurable', unit: 'EUR', reassurance: 'berekend uit je eigen resultaten — geen apart ingevuld getal' },
+        { label: 'Waar je nu staat', kind: 'measurable', unit: 'EUR', reassurance: RES },
+      ],
+    },
+
+    // Scenario 1 — early warning (attention, webshop plan). M&S copy, verbatim.
+    [vpA.id]: {
+      understanding: 'Je bestaande klanten kopen de laatste weken wat minder online dan gewoonlijk. Nog geen groot verschil, maar het is het bekijken waard nu het net begint.',
+      reasons: [
+        { kind: 'opportunity', text: 'Je hebt hier klanten die je al kent en die je al vertrouwen — als zij weer vlotter online kopen, groeit je omzet zonder dat je nieuwe klanten hoeft te zoeken.' },
+        { kind: 'strength', text: 'Je winkelverkoop bij diezelfde klanten blijft gewoon goed — de band met je klanten is er, het gaat enkel om het online kanaal.' },
+      ],
+      metrics: [
+        { label: 'Online conversie nu', kind: 'plan-measurable', unit: '%', reassurance: RES },
+        { label: 'Online omzet nu', kind: 'plan-measurable', unit: 'EUR', reassurance: RES },
+      ],
+    },
+
+    // Scenario 2 — plan awaiting go-ahead (gate, region plan). M&S copy, verbatim.
+    [vpB.id]: {
+      understanding: 'Er ligt een plan voor je klaar om buiten je eigen buurt bekend te worden. Voor er iets start, kijk jij het eerst na — jij beslist of we ermee verdergaan.',
+      reasons: [
+        { kind: 'opportunity', text: 'In je eigen buurt ben je al goed gekend, dus daar valt weinig groei meer te halen. De ruimte om te groeien zit in de regio erbuiten, waar mensen je nog niet kennen.' },
+        { kind: 'strength', text: 'Wat je in je eigen buurt hebt opgebouwd — je naam, je aanpak — werkt daar al. Datzelfde kun je nu breder inzetten.' },
+      ],
+      metrics: [
+        { label: 'Mensen die je nu bereikt', kind: 'plan-measurable', unit: 'klanten', reassurance: RES },
+      ],
+    },
+
+    // Scenario 4 — early initiative (gate, project plan). M&S copy, verbatim.
+    [vpC.id]: {
+      understanding: 'Je nieuwe interieur-projectendienst staat klaar om te beginnen. Er is nog weinig gebeurd — dit is het prille begin, en dat is precies zoals het hoort op dit punt.',
+      reasons: [
+        { kind: 'opportunity', text: 'Je zou hier kunnen starten bij de klanten die je al hebt en die je vertrouwen — dat is de makkelijkste plek om een nieuwe dienst te laten aanslaan.' },
+        { kind: 'strength', text: 'Je hebt al een trouw klantenbestand en een gevestigde naam — een sterke basis om iets nieuws op te bouwen zonder bij nul te beginnen.' },
+      ],
+      metrics: [
+        { label: 'Eerste projectklanten', kind: 'plan-measurable', unit: 'projectklanten', reassurance: RES },
       ],
     },
   };
