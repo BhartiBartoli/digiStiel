@@ -28,7 +28,21 @@
   :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
   @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;}}
 
-  .shell{max-width:660px;margin:0 auto;padding:22px 20px 64px;}
+  .shell{max-width:1180px;margin:0 auto;padding:22px 20px 64px;}
+
+  /* ── Conversation-Centric Workspace shell (skelet-stap A): three regions.
+     LEFT = navigation region (empty placeholder, step B). CENTER = the existing render (#view,
+     unchanged). RIGHT = context region (empty placeholder, step C). Below 980px only CENTER shows,
+     so the interim wallet works identically on mobile. */
+  .workspace{display:grid;grid-template-columns:220px minmax(0,660px) 240px;gap:28px;justify-content:center;align-items:start;}
+  .region{position:sticky;top:24px;padding-top:2px;}
+  .region-cap{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--subtle);
+    padding-bottom:10px;border-bottom:1px solid var(--border);display:block;}
+  #view{min-width:0;}
+  @media (max-width:980px){
+    .workspace{grid-template-columns:minmax(0,660px);}
+    .region-left,.region-right{display:none;}
+  }
 
   /* ── top bar ── */
   .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:30px;}
@@ -37,7 +51,7 @@
   .wordmark .s{color:var(--accent);font-weight:700;}
   .customer{font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .demo-badge{flex-shrink:0;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
-    color:var(--warning);background:var(--warning-dim);border:1px solid rgba(199,125,17,.28);border-radius:100px;padding:4px 10px;}
+    color:var(--warning);background:var(--warning-tint);border:1px solid rgba(192,138,46,.30);border-radius:100px;padding:4px 10px;}
 
   .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--navy);margin:0 0 10px;}
   h1.greeting{font-size:1.5rem;font-weight:600;letter-spacing:-.02em;color:var(--navy);margin:0 0 8px;text-wrap:balance;}
@@ -113,7 +127,14 @@
     </div>
     <span class="demo-badge" id="demoBadge" hidden>demo-omgeving</span>
   </header>
-  <main id="view" aria-live="polite"></main>
+  <div class="workspace">
+    <!-- LEFT: navigation region — reserved structure, filled in skelet-stap B (no nav labels yet). -->
+    <aside class="region region-left" aria-hidden="true"><span class="region-cap">Navigatie</span></aside>
+    <!-- CENTER: the existing interim render, unchanged. -->
+    <main id="view" aria-live="polite"></main>
+    <!-- RIGHT: context region — reserved structure, filled in skelet-stap C (no context cards yet). -->
+    <aside class="region region-right" aria-hidden="true"><span class="region-cap">Context</span></aside>
+  </div>
   <p class="foot">digiStiel · van doel naar meetbare waarde</p>
 </div>
 
