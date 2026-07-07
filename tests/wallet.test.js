@@ -215,5 +215,48 @@ check('12. Four Executive Summaries: literal M&S copy, U→E→M, numbers from t
   }
 });
 
+// ── 13: CENTER conversation (skelet-stap C) — fixed copy, two build rules, no sender label ──
+check('13. Conversation: fixed openers + topic-independent connectors; opener promises nothing; no sender label', () => {
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  for (const opener of [
+    'Dit is een van je doelen. Laten we samen kijken waar je staat en wat er speelt.',
+    'Dit is een van je plannen. Ik loop met je door waar het over gaat en hoe het ervoor staat.',
+    'Dit is een van je resultaten. Laten we bekijken wat het je vertelt.',
+  ]) assert.ok(html.includes(opener), 'exact opener present');
+  assert.ok(!/ik zoek (uit|op)/i.test(html), 'no "ik zoek uit" generation promise');
+  assert.ok(/var CONNECTOR_WHY = 'Zal ik uitleggen waarom\?';/.test(html), 'connector 1 is a fixed literal');
+  assert.ok(/var CONNECTOR_NUMBERS = 'Wil je de cijfers erbij zien\?';/.test(html), 'connector 2 is a fixed literal');
+  assert.ok(!/Zal ik uitleggen waarom[^']*\$\{/.test(html) && !/cijfers erbij zien[^']*\$\{/.test(html), 'connectors are not subject-specific');
+  assert.ok(!html.includes('digiStiel:') && !/>\s*AI\s*:/.test(html), 'no "digiStiel:"/"AI:" sender label');
+  for (const field of ['s.understanding', 's.reasons', 's.metrics', 's.objectType', 's.context']) {
+    assert.ok(html.includes(field), `conversation reads existing field ${field}`);
+  }
+});
+
+// ── 14: RIGHT context = read-only Tree neighbours; objectType from sourceType; reasons strength→kans ──
+check('14. RIGHT context is Tree neighbours; objectType present; all reasons strength→opportunity', () => {
+  const { data: d, tree } = buildWalletBundle();
+  const treeNames = new Set();
+  const { vanDijckPlanTitles } = require('../presentation/seedCustomer');
+  const planTitles = vanDijckPlanTitles(loadSeedCustomer());
+  for (const it of tree.intents) for (const g of it.goals) {
+    treeNames.add(g.name);
+    for (const p of g.plans) for (const og of p.operationalGoals) for (const r of og.results) treeNames.add(r.name);
+  }
+  Object.values(planTitles).forEach((t) => treeNames.add(t));
+
+  const CONTEXT_LABELS = new Set(['Je plannen bij dit doel', 'Wat dit doel meet', 'Dit plan hoort bij je doel', 'De resultaten die het beweegt', 'Dit resultaat telt mee voor']);
+  for (const s of Object.values(d.executiveSummaries)) {
+    assert.ok(['goal', 'plan', 'result'].includes(s.objectType), 'objectType from sourceType');
+    assert.strictEqual(s.reasons[0].kind, 'strength', 'first reason is strength (green)');
+    assert.strictEqual(s.reasons[1].kind, 'opportunity', 'second reason is opportunity (amber)');
+    assert.ok(Array.isArray(s.context) && s.context.length >= 1, 'context present');
+    for (const grp of s.context) {
+      assert.ok(CONTEXT_LABELS.has(grp.label), `fixed M&S context label: ${grp.label}`);
+      for (const item of grp.items) assert.ok(treeNames.has(item), `context item "${item}" is a real Tree neighbour`);
+    }
+  }
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
