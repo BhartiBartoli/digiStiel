@@ -44,6 +44,14 @@
     .region-left,.region-right{display:none;}
   }
 
+  /* ── LEFT nav (skelet-stap B): businesswork topic labels. Visual selection ONLY — no routing. ── */
+  .nav{display:flex;flex-direction:column;gap:2px;}
+  .nav-item{appearance:none;background:none;border:none;border-left:2px solid transparent;border-radius:8px;
+    text-align:left;font-family:var(--sans);font-size:.95rem;color:var(--muted);padding:9px 12px;cursor:pointer;
+    transition:color .15s, background .15s, border-color .15s;}
+  .nav-item:hover{color:var(--ink);background:var(--ice2);}
+  .nav-item.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent);font-weight:500;}
+
   /* ── top bar ── */
   .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:30px;}
   .brand{display:flex;align-items:baseline;gap:10px;min-width:0;}
@@ -128,8 +136,17 @@
     <span class="demo-badge" id="demoBadge" hidden>demo-omgeving</span>
   </header>
   <div class="workspace">
-    <!-- LEFT: navigation region — reserved structure, filled in skelet-stap B (no nav labels yet). -->
-    <aside class="region region-left" aria-hidden="true"><span class="region-cap">Navigatie</span></aside>
+    <!-- LEFT: navigation region — businesswork topic selector (skelet-stap B). Visual selection ONLY;
+         click-routing to topic views is skelet-stap C. -->
+    <aside class="region region-left">
+      <nav class="nav" aria-label="Onderwerpen">
+        <button type="button" class="nav-item active" aria-current="true">Vandaag</button>
+        <button type="button" class="nav-item">Mijn doelen</button>
+        <button type="button" class="nav-item">Mijn plannen</button>
+        <button type="button" class="nav-item">Mijn resultaten</button>
+        <button type="button" class="nav-item">Mijn beslissingen</button>
+      </nav>
+    </aside>
     <!-- CENTER: the existing interim render, unchanged. -->
     <main id="view" aria-live="polite"></main>
     <!-- RIGHT: context region — reserved structure, filled in skelet-stap C (no context cards yet). -->
@@ -297,6 +314,26 @@
         '<p>De wallet-gegevens worden geladen bij het publiceren van deze omgeving.</p></div>';
       var badge = document.getElementById('demoBadge'); if (badge) badge.hidden = false;
     });
+})();
+</script>
+
+<script>
+// LEFT-nav — skelet-stap B: VISUAL SELECTION ONLY. A click highlights the clicked topic and nothing
+// else. It deliberately does NOT touch the URL hash, the router, the render functions, or the centre
+// view — the click-routing that actually opens a topic is skelet-stap C. Kept in a separate script so
+// it cannot interfere with the CENTER render/routing above.
+(function () {
+  'use strict';
+  var nav = document.querySelector('.nav');
+  if (!nav) return;
+  var items = nav.querySelectorAll('.nav-item');
+  nav.addEventListener('click', function (e) {
+    var btn = e.target.closest('.nav-item');
+    if (!btn) return;
+    for (var i = 0; i < items.length; i++) { items[i].classList.remove('active'); items[i].removeAttribute('aria-current'); }
+    btn.classList.add('active');
+    btn.setAttribute('aria-current', 'true');
+  });
 })();
 </script>
 </body>
