@@ -41,13 +41,15 @@ check('2. Order = ViewModel DI order; exactly one gate at the top', () => {
 });
 
 // ── 3: the success scenario has a working Executive Summary (the doorklik target) ──
-check('3. Success scenario (confirmation) has a working Executive Summary; others route to "binnenkort"', () => {
+check('3. Every Home scenario has a working Executive Summary (doorklik works for all)', () => {
   const d = buildWalletData();
   const success = d.home.cards.find((c) => c.signalType === 'confirmation');
-  assert.ok(success.hasSummary, 'confirmation card has a summary (doorklik works)');
+  assert.ok(success && success.hasSummary, 'confirmation (success) card has a summary');
   assert.ok(d.executiveSummaries[success.sourceId], 'executive summary present for the success source');
-  for (const c of d.home.cards.filter((x) => x.signalType !== 'confirmation')) {
-    assert.strictEqual(c.hasSummary, false, 'non-success cards route to binnenkort');
+  // Every shown card now routes to a working summary (this step wired all four scenarios).
+  for (const c of d.home.cards) {
+    assert.strictEqual(c.hasSummary, true, `card "${c.title}" routes to a working Executive Summary`);
+    assert.ok(d.executiveSummaries[c.sourceId], `summary present for "${c.title}"`);
   }
 });
 
@@ -161,6 +163,56 @@ check('11. LEFT-nav: exact M&S labels, "Vandaag" active, visual-selection only (
   assert.ok(/classList\.add\('active'\)/.test(navScript) && /classList\.remove\('active'\)/.test(navScript), 'nav handler only toggles the active class');
   // region-right still the Context placeholder (no step-C content)
   assert.ok(/region region-right[^]*?region-cap">Context/.test(html), 'RIGHT stays the Context placeholder');
+});
+
+// ── 12: all four scenarios have a working Executive Summary; copy literal; measurement from the Tree ──
+check('12. Four Executive Summaries: literal M&S copy, U→E→M, numbers from the Tree (not hardcoded)', () => {
+  const { data: d, tree } = buildWalletBundle();
+  const summaries = d.executiveSummaries;
+  assert.strictEqual(Object.keys(summaries).length, 4, 'four executive summaries (all scenarios)');
+  // every Home card that is shown routes to a working summary
+  for (const c of d.home.cards) assert.strictEqual(c.hasSummary, true, `card "${c.title}" has a summary`);
+
+  // exact M&S sentences present (verbatim, no reformulation)
+  const literal = [
+    'Je bestaande klanten kopen de laatste weken wat minder online dan gewoonlijk. Nog geen groot verschil, maar het is het bekijken waard nu het net begint.',
+    'Er ligt een plan voor je klaar om buiten je eigen buurt bekend te worden. Voor er iets start, kijk jij het eerst na — jij beslist of we ermee verdergaan.',
+    'Je nieuwe interieur-projectendienst staat klaar om te beginnen. Er is nog weinig gebeurd — dit is het prille begin, en dat is precies zoals het hoort op dit punt.',
+    'Wat je in je eigen buurt hebt opgebouwd — je naam, je aanpak — werkt daar al. Datzelfde kun je nu breder inzetten.',
+    'Je hebt al een trouw klantenbestand en een gevestigde naam — een sterke basis om iets nieuws op te bouwen zonder bij nul te beginnen.',
+  ];
+  const blob = JSON.stringify(summaries);
+  for (const s of literal) assert.ok(blob.includes(s), 'verbatim M&S copy present');
+
+  // find a tree node by sourceId
+  const nodeById = (id) => {
+    let hit = null;
+    const visit = (n) => { if (!n || hit) return; if (n.sourceId === id) { hit = n; return; }
+      for (const c of [...(n.goals||[]), ...(n.plans||[]), ...(n.operationalGoals||[]), ...(n.results||[])]) visit(c); };
+    for (const it of tree.intents) visit(it);
+    return hit;
+  };
+
+  for (const [sid, s] of Object.entries(summaries)) {
+    // U → E → M structure
+    assert.ok(typeof s.understanding === 'string' && s.understanding.length > 0, 'understanding present');
+    const kinds = s.reasons.map((r) => r.kind).sort();
+    assert.deepStrictEqual(kinds, ['opportunity', 'strength'], 'two reasons: opportunity(amber) + strength(green)');
+    assert.ok(s.metrics.length >= 1, 'at least one measurement');
+    // predicted-percentage guard: no "%" inside the NARRATIVE text (understanding + reasons)
+    const narrative = s.understanding + ' ' + s.reasons.map((r) => r.text).join(' ');
+    assert.ok(!narrative.includes('%'), 'no percentage sharpened into the narrative copy');
+    // every measurement number traces to the Tree (goal target/plan perUnit) — not hardcoded
+    const node = nodeById(sid);
+    for (const m of s.metrics) {
+      if (m.value === null) continue;
+      let fromTree;
+      if (m.label === 'Je jaardoel') fromTree = node.target.value;                       // goal target
+      else if (node.measurableValue) fromTree = node.measurableValue.perUnit[m.unit];     // plan own perUnit
+      else fromTree = (node.plans || []).map((p) => p.measurableValue.perUnit[m.unit]).find((v) => v !== undefined); // goal via plan
+      assert.strictEqual(m.value, fromTree, `metric "${m.label}" value comes from the Tree`);
+    }
+  }
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);
