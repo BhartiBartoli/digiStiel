@@ -40,12 +40,19 @@ function resolveMetric(metric, node) {
     return { label: metric.label, value: node.target.value, unit: node.target.unit };
   }
   if (metric.kind === 'measurable') {
-    // Read the computed measurableValue for the requested unit from the goal's plans.
+    // Goal node: read the computed measurableValue for the requested unit from the goal's plans.
     for (const plan of node.plans || []) {
       const perUnit = plan.measurableValue && plan.measurableValue.perUnit;
       if (perUnit && perUnit[metric.unit] !== undefined) {
         return { label: metric.label, value: perUnit[metric.unit], unit: metric.unit, reassurance: metric.reassurance };
       }
+    }
+  }
+  if (metric.kind === 'plan-measurable') {
+    // Plan node: read its OWN computed measurableValue for the requested unit (Tree value, not computed here).
+    const perUnit = node.measurableValue && node.measurableValue.perUnit;
+    if (perUnit && perUnit[metric.unit] !== undefined) {
+      return { label: metric.label, value: perUnit[metric.unit], unit: metric.unit, reassurance: metric.reassurance };
     }
   }
   return { label: metric.label, value: null, unit: metric.unit || null };
@@ -68,8 +75,12 @@ function buildWalletBundle() {
   const executiveSummaries = {};
   for (const [sid, content] of Object.entries(execRaw)) {
     const node = findNode(tree, sid);
+    // Title consistent with the Home card: goal → "je doel: <name>"; plan (no Brok A name) →
+    // "je plan: <computed title>" via planTitles; else the bare label.
+    const title = node.name ? `${node.label}: ${node.name}`
+      : (planTitles[sid] ? `${node.label}: ${planTitles[sid]}` : node.label);
     executiveSummaries[sid] = {
-      title: node.name ? `${node.label}: ${node.name}` : node.label,
+      title: title,
       understanding: content.understanding,
       reasons: content.reasons,
       metrics: content.metrics.map((m) => resolveMetric(m, node)),

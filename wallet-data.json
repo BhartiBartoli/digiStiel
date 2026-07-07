@@ -6,15 +6,15 @@
     "intro": "Het meeste loopt zoals het hoort. Dit zijn de dingen die vandaag even je aandacht waard zijn — geen brandjes, gewoon het bekijken waard.",
     "cards": [
       {
-        "sourceId": "vp_mr97zvyn6zvcngb",
+        "sourceId": "vp_mracydle6twd3zh",
         "title": "je plan: Bekend worden in een grotere regio",
         "summary": "Dit plan wacht op jouw akkoord om verder te gaan.",
         "tone": "geruststellend",
         "signalType": "gate-pending",
-        "hasSummary": false
+        "hasSummary": true
       },
       {
-        "sourceId": "sg_mr97zvyn20yc9s0",
+        "sourceId": "sg_mracydle2y5cqjd",
         "title": "je doel: Bestaande business laten groeien",
         "summary": "Dit loopt voor op schema — mooi bezig.",
         "tone": "warm",
@@ -22,17 +22,17 @@
         "hasSummary": true
       },
       {
-        "sourceId": "vp_mr97zvyn31jj9d4",
+        "sourceId": "vp_mracydle3hh5w37",
         "title": "je plan: Meer online omzet uit bestaande klanten",
         "summary": "Een signaal om even in de gaten te houden.",
         "tone": "kalm",
         "signalType": "attention",
-        "hasSummary": false
+        "hasSummary": true
       }
     ]
   },
   "executiveSummaries": {
-    "sg_mr97zvyn20yc9s0": {
+    "sg_mracydle2y5cqjd": {
       "title": "je doel: Bestaande business laten groeien",
       "understanding": "Je omzetdoel voor dit jaar ligt voor op schema — winkel en webshop trekken samen goed.",
       "reasons": [
@@ -55,6 +55,78 @@
           "label": "Waar je nu staat",
           "value": 2170000,
           "unit": "EUR",
+          "reassurance": "berekend uit je eigen resultaten — geen apart ingevuld getal"
+        }
+      ]
+    },
+    "vp_mracydle3hh5w37": {
+      "title": "je plan: Meer online omzet uit bestaande klanten",
+      "understanding": "Je bestaande klanten kopen de laatste weken wat minder online dan gewoonlijk. Nog geen groot verschil, maar het is het bekijken waard nu het net begint.",
+      "reasons": [
+        {
+          "kind": "opportunity",
+          "text": "Je hebt hier klanten die je al kent en die je al vertrouwen — als zij weer vlotter online kopen, groeit je omzet zonder dat je nieuwe klanten hoeft te zoeken."
+        },
+        {
+          "kind": "strength",
+          "text": "Je winkelverkoop bij diezelfde klanten blijft gewoon goed — de band met je klanten is er, het gaat enkel om het online kanaal."
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Online conversie nu",
+          "value": 2.8,
+          "unit": "%",
+          "reassurance": "berekend uit je eigen resultaten — geen apart ingevuld getal"
+        },
+        {
+          "label": "Online omzet nu",
+          "value": 2170000,
+          "unit": "EUR",
+          "reassurance": "berekend uit je eigen resultaten — geen apart ingevuld getal"
+        }
+      ]
+    },
+    "vp_mracydle6twd3zh": {
+      "title": "je plan: Bekend worden in een grotere regio",
+      "understanding": "Er ligt een plan voor je klaar om buiten je eigen buurt bekend te worden. Voor er iets start, kijk jij het eerst na — jij beslist of we ermee verdergaan.",
+      "reasons": [
+        {
+          "kind": "opportunity",
+          "text": "In je eigen buurt ben je al goed gekend, dus daar valt weinig groei meer te halen. De ruimte om te groeien zit in de regio erbuiten, waar mensen je nog niet kennen."
+        },
+        {
+          "kind": "strength",
+          "text": "Wat je in je eigen buurt hebt opgebouwd — je naam, je aanpak — werkt daar al. Datzelfde kun je nu breder inzetten."
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Mensen die je nu bereikt",
+          "value": 48,
+          "unit": "klanten",
+          "reassurance": "berekend uit je eigen resultaten — geen apart ingevuld getal"
+        }
+      ]
+    },
+    "vp_mracydlfexdk5g6": {
+      "title": "je plan: Eerste projectklanten winnen",
+      "understanding": "Je nieuwe interieur-projectendienst staat klaar om te beginnen. Er is nog weinig gebeurd — dit is het prille begin, en dat is precies zoals het hoort op dit punt.",
+      "reasons": [
+        {
+          "kind": "opportunity",
+          "text": "Je zou hier kunnen starten bij de klanten die je al hebt en die je vertrouwen — dat is de makkelijkste plek om een nieuwe dienst te laten aanslaan."
+        },
+        {
+          "kind": "strength",
+          "text": "Je hebt al een trouw klantenbestand en een gevestigde naam — een sterke basis om iets nieuws op te bouwen zonder bij nul te beginnen."
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Eerste projectklanten",
+          "value": 2,
+          "unit": "projectklanten",
           "reassurance": "berekend uit je eigen resultaten — geen apart ingevuld getal"
         }
       ]
