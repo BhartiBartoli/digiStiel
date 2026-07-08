@@ -19,7 +19,7 @@ const P = require('../presentation');
 const VM = require('../presentation/viewmodel');
 const {
   loadSeedCustomer, vanDijckAttentionCandidates, vanDijckPlanTitles,
-  vanDijckHomeCopy, vanDijckExecutiveSummaries,
+  vanDijckHomeCopy, vanDijckExecutiveSummaries, vanDijckValueStory,
 } = require('../presentation/seedCustomer');
 
 // Walk the tree to find a node by its sourceId (read-only dereference).
@@ -100,6 +100,7 @@ function buildWalletBundle() {
   const tree = P.projectWallet(P.makeReader(engine));
   const candidates = vanDijckAttentionCandidates(engine);
   const planTitles = vanDijckPlanTitles(engine);
+  const valueStory = vanDijckValueStory(engine); // temporary Narrative Provider (demo seed)
   const provider = VM.makeStubAttentionProvider(candidates);
 
   // Home cards straight from the ViewModel (Top-N + DI order — not re-ordered here).
@@ -114,13 +115,17 @@ function buildWalletBundle() {
     // "je plan: <computed title>" via planTitles; else the bare label.
     const title = node.name ? `${node.label}: ${node.name}`
       : (planTitles[sid] ? `${node.label}: ${planTitles[sid]}` : node.label);
+    const objectType = objectTypeOf(node);
     executiveSummaries[sid] = {
       title: title,
-      objectType: objectTypeOf(node),                      // 'goal' | 'plan' | 'result' → picks the opener
+      objectType: objectType,                              // 'goal' | 'plan' | 'result' → picks the opener
       understanding: content.understanding,
       reasons: content.reasons,
       metrics: content.metrics.map((m) => resolveMetric(m, node)),
       context: buildContext(node, tree, planTitles),        // RIGHT: direct Tree neighbours (read-only)
+      // Value Story — literal seed narrative (temporary Narrative Provider), surfaced only for plans;
+      // the goal layer stays inert (Reserve, Don't Activate). Presentation renders it, never builds one.
+      valueStory: objectType === 'plan' ? (valueStory[sid] || null) : null,
     };
   }
 

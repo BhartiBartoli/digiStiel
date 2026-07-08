@@ -258,5 +258,48 @@ check('14. RIGHT context is Tree neighbours; objectType present; all reasons str
   }
 });
 
+// ── 15: Value Story layer — literal seed narrative (temporary Narrative Provider), plan-only; goal inert ──
+check('15. Value Story: literal seed narrative surfaced for plans, goal inert; Narrative-Provider rule in code + README', () => {
+  const { data: d, engine } = buildWalletBundle();
+  const { vanDijckValueStory } = require('../presentation/seedCustomer');
+  const story = vanDijckValueStory(engine); // SAME engine as the bundle (ids are minted per load)
+
+  // valueStory present+literal for every plan summary, null for the goal (goal layer inert)
+  for (const [sid, s] of Object.entries(d.executiveSummaries)) {
+    if (s.objectType === 'plan') {
+      assert.ok(typeof s.valueStory === 'string' && s.valueStory.length > 0, `plan "${s.title}" has a Value Story`);
+      // rendered LITERALLY — byte-identical to the seed Narrative Provider (no composition/parafrase)
+      assert.strictEqual(s.valueStory, story[sid], `Value Story for "${s.title}" is the literal seed string`);
+    } else {
+      assert.strictEqual(s.valueStory, null, `non-plan "${s.title}" surfaces no Value Story (inert)`);
+    }
+  }
+
+  // the four delivered strings are present verbatim in the seed
+  const blob = JSON.stringify(story);
+  for (const frag of [
+    'Je bestaande klanten zijn de stevigste basis onder je groei',
+    'In je eigen buurt zit je tegen je plafond',
+    'Alles wat je nu doet — je winkel, je webshop, je klanten die terugkomen',
+    'Dit is nog een klein begin, maar het hoort bij een grotere gedachte',
+  ]) assert.ok(blob.includes(frag), 'delivered Value Story string present verbatim');
+
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  // connector is a plain literal, not subject-specific (no interpolation / +sourceId)
+  assert.ok(/var CONNECTOR_STORY = 'Wil je zien hoe dit past in het grotere geheel\?';/.test(html), 'story connector is a fixed literal');
+  assert.ok(!/grotere geheel[^']*\$\{/.test(html) && !/CONNECTOR_STORY[^;]*\+\s*sourceId/.test(html), 'story connector carries no interpolation/+sourceId');
+  // the layer renders the seed string LITERALLY (dereference, no composition)
+  assert.ok(html.includes("partnerInto(shell.conv, 'bubble--story', s.valueStory)"), 'Value Story rendered from s.valueStory directly');
+  // the duplicate "Bekijk wat er precies loopt" exit is gone — the chain is entered via the prompt
+  assert.ok(!html.includes('Bekijk wat er precies loopt'), 'duplicate story exit removed (single entry via prompt)');
+  assert.ok(html.includes("location.hash = '#soon/story/' + sourceId"), 'story reached via the disclosure prompt');
+  // Narrative-Provider architecture rule present in CODE and README (verbatim key sentence)
+  const rule = 'The seed is a temporary Narrative Provider used to validate the Presentation architecture';
+  const seedSrc = require('fs').readFileSync(require('path').join(__dirname, '..', 'presentation', 'seedCustomer.js'), 'utf8');
+  const readme = require('fs').readFileSync(require('path').join(__dirname, '..', 'presentation', 'README.md'), 'utf8');
+  assert.ok(seedSrc.includes(rule), 'Narrative-Provider rule documented in code');
+  assert.ok(readme.includes(rule), 'Narrative-Provider rule documented in README');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

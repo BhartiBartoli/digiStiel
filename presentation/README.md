@@ -41,6 +41,18 @@ boundary for Decision Intelligence, the **Canonical Presentation Tree** is the c
   default loader builds the graph in-memory through the Engine facade, a real persistence adapter
   plugs into the same signature later without a rebuild. One fixed tenant; cross-tenant inert.
 
+## Narrative Provider (demo phase)
+
+The wallet's disclosure conversation opens a **Value Story** ("how does this contribute?") layer.
+
+> During the demo phase the Value Story is provided by the demo seed. The seed is a temporary Narrative Provider used to validate the Presentation architecture. Presentation renders the supplied narrative and never constructs one itself.
+
+Today: **Seed → Value Story → Presentation.** Later: **Narrative Provider (AI agent / Decision
+Intelligence / combination) → Value Story → Presentation**, without changing the Presentation
+architecture. The Value Story strings live in `seedCustomer.js` (`vanDijckValueStory`); the deeper
+disclosure layers **Operational Detail** and **Evidence** read the Canonical Presentation Tree read-only
+(OG names direct; Value Indicators as customer-language values — never the mechanic or channels).
+
 ## Home ViewModel — `presentation/viewmodel/`
 
 **Home ViewModel is one possible consumer of the Canonical Presentation Tree.** Under the same

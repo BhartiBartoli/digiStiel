@@ -136,6 +136,7 @@
     padding:13px 16px;color:var(--ink);line-height:1.6;}
   .bubble--opener{color:var(--muted);}
   .bubble--understanding{font-size:1.1rem;line-height:1.55;color:var(--ink);}
+  .bubble--story{font-size:1.06rem;line-height:1.62;color:var(--ink);background:var(--ice1);}
   .bubble--reason{border-left:3px solid var(--tone);}
   .bubble--reason.reason--opportunity{--tone:var(--warning);}
   .bubble--reason.reason--strength{--tone:var(--success);}
@@ -226,6 +227,11 @@
   };
   var CONNECTOR_WHY = 'Zal ik uitleggen waarom?';       // after understanding → reveals explanation
   var CONNECTOR_NUMBERS = 'Wil je de cijfers erbij zien?'; // after explanation → reveals measurement
+  var CONNECTOR_STORY = 'Wil je zien hoe dit past in het grotere geheel?'; // after measurement → Value Story
+  var CONNECTOR_DETAIL = 'Zal ik laten zien wat er concreet loopt?';       // after Value Story → Operational Detail
+  var CONNECTOR_EVIDENCE = 'Wil je weten waarop dit steunt?';              // after Operational Detail → Evidence
+  var DETAIL_INTRO = 'Dit is wat er concreet loopt om daar te komen:';     // fixed lead-in, topic-independent
+  var EVIDENCE_INTRO = 'Dit steunt op je eigen resultaten:';               // fixed lead-in (new string; wins over memory-MD)
 
   // RIGHT context region — read-only render of the snapshot's Tree neighbours; null → placeholder.
   function setContext(groups) {
@@ -338,18 +344,21 @@
     }
     var p1 = promptTurn(CONNECTOR_WHY);
     var p2 = promptTurn(CONNECTOR_NUMBERS); p2.turn.setAttribute('hidden', '');
+    // p3 continues the SAME conversation into the deeper layers (Value Story → …). Plan subjects only;
+    // the goal layer stays inert (Reserve, Don't Activate) so it gets no story prompt.
+    var p3 = s.valueStory ? promptTurn(CONNECTOR_STORY) : null; if (p3) p3.turn.setAttribute('hidden', '');
     p1.btn.addEventListener('click', function () {
       exTurns.forEach(function (t) { t.removeAttribute('hidden'); t.classList.add('fade'); });
       p1.turn.setAttribute('hidden', ''); p2.turn.removeAttribute('hidden');
     });
     p2.btn.addEventListener('click', function () {
       meTurn.removeAttribute('hidden'); meTurn.classList.add('fade');
-      p2.turn.setAttribute('hidden', '');
+      p2.turn.setAttribute('hidden', ''); if (p3) p3.turn.removeAttribute('hidden');
     });
+    if (p3) p3.btn.addEventListener('click', function () { location.hash = '#soon/story/' + sourceId; });
 
     var exits = el('div', 'exits');
-    [['Bekijk wat er precies loopt', 'de plannen en wat je nu doet', 'story'],
-     ['Wat kan ik doen?', 'de mogelijke volgende stappen', 'action']].forEach(function (x) {
+    [['Wat kan ik doen?', 'de mogelijke volgende stappen', 'action']].forEach(function (x) {
       var b = el('button', 'exit');
       b.innerHTML = esc(x[0]) + '<span class="ex-sub">' + esc(x[1]) + '</span>';
       b.addEventListener('click', function () { location.hash = '#soon/' + x[2] + '/' + sourceId; });
@@ -359,9 +368,47 @@
     view.appendChild(wrap);
   }
 
-  // ── "binnenkort" — the deeper layers are routed but inert (Reserve, Don't Activate) ──
-  function renderSoon(layer, sourceId) {
-    var names = { story: 'Het verhaal achter dit plan', action: 'Wat je kunt doen', detail: 'Wat er precies loopt', evidence: 'De onderbouwing' };
+  // ── deeper disclosure layers — the SAME conversation continued one step further ──
+  // Shared shell: the layer page reads as a continuation of the subject's conversation (back returns to
+  // its Executive Summary). Each layer only DEREFERENCES existing Tree/seed content and shows it.
+  function layerShell(sourceId, s, eyebrow) {
+    view.innerHTML = '';
+    setContext(s.context); // RIGHT: the subject's direct Tree neighbours (read-only), unchanged
+    var wrap = el('div', 'fade');
+    var back = el('button', 'back'); back.innerHTML = '<span aria-hidden="true">←</span> terug naar je overzicht';
+    back.addEventListener('click', function () { location.hash = '#summary/' + sourceId; });
+    wrap.appendChild(back);
+    wrap.appendChild(el('p', 'eyebrow', eyebrow));
+    wrap.appendChild(el('h2', 'exec-title', s.title));
+    var conv = el('div', 'conv'); wrap.appendChild(conv);
+    return { wrap: wrap, conv: conv };
+  }
+  function partnerInto(conv, cls, text) {
+    var t = el('div', 'turn turn--partner');
+    var b = el('div', 'bubble' + (cls ? ' ' + cls : ''));
+    if (text != null) b.textContent = text;
+    t.appendChild(b); conv.appendChild(t); return t;
+  }
+  function navPrompt(conv, text, hash) {
+    var t = el('div', 'turn turn--me');
+    var b = el('button', 'prompt'); b.innerHTML = esc(text) + ' <span class="chev" aria-hidden="true">▾</span>';
+    b.addEventListener('click', function () { location.hash = hash; });
+    t.appendChild(b); conv.appendChild(t);
+  }
+
+  // Value Story ("how does this contribute?") — renders the seed narrative LITERALLY (temporary Narrative
+  // Provider). Presentation renders the supplied narrative and never constructs one itself.
+  function renderStory(sourceId) {
+    var s = DATA.executiveSummaries[sourceId];
+    if (!s || !s.valueStory) return renderSoonPlaceholder('story', sourceId); // no narrative supplied → inert
+    var shell = layerShell(sourceId, s, 'Het grotere geheel');
+    partnerInto(shell.conv, 'bubble--story', s.valueStory); // literal seed string, no composition
+    view.appendChild(shell.wrap);
+  }
+
+  // ── "binnenkort" — layers routed but not yet activated (Reserve, Don't Activate) ──
+  function renderSoonPlaceholder(layer, sourceId) {
+    var names = { story: 'Het grotere geheel', action: 'Wat je kunt doen', detail: 'Wat er precies loopt', evidence: 'De onderbouwing' };
     view.innerHTML = '';
     setContext(null);
     var wrap = el('div', 'fade');
@@ -373,6 +420,12 @@
     soon.appendChild(el('p', null, (names[layer] || 'Deze laag') + ' komt in een volgende stap.'));
     wrap.appendChild(soon);
     view.appendChild(wrap);
+  }
+
+  // Dispatcher for the inert-routed deeper layers — route() is unchanged; only the render is activated.
+  function renderSoon(layer, sourceId) {
+    if (layer === 'story') return renderStory(sourceId);
+    return renderSoonPlaceholder(layer, sourceId);
   }
 
   // ── routing: Home → Executive Summary → (Value Story → Operational Detail → Evidence, inert) ──
