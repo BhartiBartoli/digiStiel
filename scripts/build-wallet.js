@@ -126,6 +126,9 @@ function buildWalletBundle() {
       // Value Story — literal seed narrative (temporary Narrative Provider), surfaced only for plans;
       // the goal layer stays inert (Reserve, Don't Activate). Presentation renders it, never builds one.
       valueStory: objectType === 'plan' ? (valueStory[sid] || null) : null,
+      // Operational Detail — the Operational-Goal nodes under the plan, read DIRECT from the Tree (already
+      // customer-language-projected). No second mapping, no computation. Plan-only; goal layer inert.
+      operationalDetail: objectType === 'plan' ? (node.operationalGoals || []).map((og) => og.name) : null,
     };
   }
 

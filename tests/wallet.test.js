@@ -301,5 +301,41 @@ check('15. Value Story: literal seed narrative surfaced for plans, goal inert; N
   assert.ok(readme.includes(rule), 'Narrative-Provider rule documented in README');
 });
 
+// ── 16: Operational Detail layer — Operational-Goal nodes DIRECT from the Tree (no second mapping) ──
+check('16. Operational Detail: OG nodes read direct from the Tree, plan-only; fixed intro; connector literal', () => {
+  const { data: d, tree } = buildWalletBundle();
+  const planOGnames = (planId) => {
+    let hit = null;
+    const visit = (n) => { if (!n || hit) return; if (n.sourceId === planId) { hit = n; return; }
+      for (const c of [...(n.goals||[]), ...(n.plans||[]), ...(n.operationalGoals||[]), ...(n.results||[])]) visit(c); };
+    for (const it of tree.intents) visit(it);
+    return (hit.operationalGoals || []).map((og) => og.name);
+  };
+  for (const [sid, s] of Object.entries(d.executiveSummaries)) {
+    if (s.objectType === 'plan') {
+      assert.ok(Array.isArray(s.operationalDetail) && s.operationalDetail.length >= 1, `plan "${s.title}" has Operational Detail`);
+      // items are the Tree OG nodes DIRECT — byte-identical, same order (dereference, no mapping/computation)
+      assert.deepStrictEqual(s.operationalDetail, planOGnames(sid), `Operational Detail for "${s.title}" == Tree OG names`);
+    } else {
+      assert.strictEqual(s.operationalDetail, null, `non-plan "${s.title}" surfaces no Operational Detail (inert)`);
+    }
+  }
+
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  // fixed intro + connector are plain literals (no interpolation)
+  assert.ok(/var DETAIL_INTRO = 'Dit is wat er concreet loopt om daar te komen:';/.test(html), 'detail intro is the exact fixed literal');
+  assert.ok(/var CONNECTOR_DETAIL = 'Zal ik laten zien wat er concreet loopt\?';/.test(html), 'detail connector is a fixed literal');
+  assert.ok(!/concreet loopt[^']*\$\{/.test(html), 'detail copy carries no interpolation');
+  // the render reads the snapshot list DIRECT — no customer-language map/resolveLabel in this layer
+  const detailFn = html.slice(html.indexOf('function renderDetail('), html.indexOf('function renderSoonPlaceholder('));
+  assert.ok(detailFn.includes('s.operationalDetail.forEach'), 'Operational Detail rendered from s.operationalDetail directly');
+  for (const forbidden of ['resolveLabel', 'customerLanguage', 'projectOperationalGoal', 'customerLang']) {
+    assert.ok(!detailFn.includes(forbidden), `no second customer-language mapping in Operational Detail: "${forbidden}"`);
+  }
+  // build-wallet reads og.name directly, not through a mapping layer
+  const bw = require('fs').readFileSync(require('path').join(__dirname, '..', 'scripts', 'build-wallet.js'), 'utf8');
+  assert.ok(/operationalDetail:[^;]*\.map\(\(og\) => og\.name\)/.test(bw), 'build-wallet dereferences og.name directly');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

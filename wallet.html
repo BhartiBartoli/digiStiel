@@ -137,6 +137,10 @@
   .bubble--opener{color:var(--muted);}
   .bubble--understanding{font-size:1.1rem;line-height:1.55;color:var(--ink);}
   .bubble--story{font-size:1.06rem;line-height:1.62;color:var(--ink);background:var(--ice1);}
+  .bubble--detail{width:100%;max-width:100%;}
+  .detail-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;}
+  .detail-item{position:relative;padding-left:20px;color:var(--ink);}
+  .detail-item::before{content:"";position:absolute;left:4px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--accent);}
   .bubble--reason{border-left:3px solid var(--tone);}
   .bubble--reason.reason--opportunity{--tone:var(--warning);}
   .bubble--reason.reason--strength{--tone:var(--success);}
@@ -403,6 +407,23 @@
     if (!s || !s.valueStory) return renderSoonPlaceholder('story', sourceId); // no narrative supplied → inert
     var shell = layerShell(sourceId, s, 'Het grotere geheel');
     partnerInto(shell.conv, 'bubble--story', s.valueStory); // literal seed string, no composition
+    // continue the conversation one step further into Operational Detail (if present)
+    if (s.operationalDetail && s.operationalDetail.length) navPrompt(shell.conv, CONNECTOR_DETAIL, '#soon/detail/' + sourceId);
+    view.appendChild(shell.wrap);
+  }
+
+  // Operational Detail ("what is concretely happening?") — the Operational-Goal nodes under the plan,
+  // shown DIRECT from the Tree (already customer-language). No second mapping, no computation.
+  function renderDetail(sourceId) {
+    var s = DATA.executiveSummaries[sourceId];
+    if (!s || !s.operationalDetail || !s.operationalDetail.length) return renderSoonPlaceholder('detail', sourceId);
+    var shell = layerShell(sourceId, s, 'Wat er concreet loopt');
+    partnerInto(shell.conv, 'bubble--opener', DETAIL_INTRO); // fixed lead-in, topic-independent
+    var t = el('div', 'turn turn--partner');
+    var b = el('div', 'bubble bubble--detail');
+    var list = el('ul', 'detail-list');
+    s.operationalDetail.forEach(function (name) { list.appendChild(el('li', 'detail-item', name)); }); // Tree nodes direct
+    b.appendChild(list); t.appendChild(b); shell.conv.appendChild(t);
     view.appendChild(shell.wrap);
   }
 
@@ -425,6 +446,7 @@
   // Dispatcher for the inert-routed deeper layers — route() is unchanged; only the render is activated.
   function renderSoon(layer, sourceId) {
     if (layer === 'story') return renderStory(sourceId);
+    if (layer === 'detail') return renderDetail(sourceId);
     return renderSoonPlaceholder(layer, sourceId);
   }
 

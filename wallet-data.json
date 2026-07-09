@@ -6,7 +6,7 @@
     "intro": "Het meeste loopt zoals het hoort. Dit zijn de dingen die vandaag even je aandacht waard zijn — geen brandjes, gewoon het bekijken waard.",
     "cards": [
       {
-        "sourceId": "vp_mrc85ba06f2qh41",
+        "sourceId": "vp_mrd7pnhm69fo701",
         "title": "je plan: Bekend worden in een grotere regio",
         "summary": "Dit plan wacht op jouw akkoord om verder te gaan.",
         "tone": "geruststellend",
@@ -14,7 +14,7 @@
         "hasSummary": true
       },
       {
-        "sourceId": "sg_mrc85ba02e8reqo",
+        "sourceId": "sg_mrd7pnhm2vpa7hf",
         "title": "je doel: Bestaande business laten groeien",
         "summary": "Dit loopt voor op schema — mooi bezig.",
         "tone": "warm",
@@ -22,7 +22,7 @@
         "hasSummary": true
       },
       {
-        "sourceId": "vp_mrc85ba0375t8rg",
+        "sourceId": "vp_mrd7pnhm3yyqzfo",
         "title": "je plan: Meer online omzet uit bestaande klanten",
         "summary": "Een signaal om even in de gaten te houden.",
         "tone": "kalm",
@@ -32,7 +32,7 @@
     ]
   },
   "executiveSummaries": {
-    "sg_mrc85ba02e8reqo": {
+    "sg_mrd7pnhm2vpa7hf": {
       "title": "je doel: Bestaande business laten groeien",
       "objectType": "goal",
       "understanding": "Je omzetdoel voor dit jaar ligt voor op schema — winkel en webshop trekken samen goed.",
@@ -77,9 +77,10 @@
           ]
         }
       ],
-      "valueStory": null
+      "valueStory": null,
+      "operationalDetail": null
     },
-    "vp_mrc85ba0375t8rg": {
+    "vp_mrd7pnhm3yyqzfo": {
       "title": "je plan: Meer online omzet uit bestaande klanten",
       "objectType": "plan",
       "understanding": "Je bestaande klanten kopen de laatste weken wat minder online dan gewoonlijk. Nog geen groot verschil, maar het is het bekijken waard nu het net begint.",
@@ -123,9 +124,13 @@
           ]
         }
       ],
-      "valueStory": "Je bestaande klanten zijn de stevigste basis onder je groei — zij kennen je al en kopen makkelijker opnieuw. Als hun online aankopen weer aantrekken, groeit je omzet uit een groep die je al hebt, zonder dat je nieuwe klanten hoeft te winnen. Daarom telt dit stuk mee voor je grotere doel: meer omzet uit je bestaande winkel en webshop."
+      "valueStory": "Je bestaande klanten zijn de stevigste basis onder je groei — zij kennen je al en kopen makkelijker opnieuw. Als hun online aankopen weer aantrekken, groeit je omzet uit een groep die je al hebt, zonder dat je nieuwe klanten hoeft te winnen. Daarom telt dit stuk mee voor je grotere doel: meer omzet uit je bestaande winkel en webshop.",
+      "operationalDetail": [
+        "Bestaande klanten vinden en gebruiken de webshop",
+        "Klanten kopen ook online, niet enkel in de winkel"
+      ]
     },
-    "vp_mrc85ba06f2qh41": {
+    "vp_mrd7pnhm69fo701": {
       "title": "je plan: Bekend worden in een grotere regio",
       "objectType": "plan",
       "understanding": "Er ligt een plan voor je klaar om buiten je eigen buurt bekend te worden. Voor er iets start, kijk jij het eerst na — jij beslist of we ermee verdergaan.",
@@ -163,9 +168,13 @@
           ]
         }
       ],
-      "valueStory": "In je eigen buurt zit je tegen je plafond — je bent er al goed gekend. De ruimte om echt te groeien ligt in de regio erbuiten. Dit plan opent die ruimte, en draagt zo direct bij aan je doel om je omzet te laten groeien voorbij wat je buurt alleen kan opbrengen."
+      "valueStory": "In je eigen buurt zit je tegen je plafond — je bent er al goed gekend. De ruimte om echt te groeien ligt in de regio erbuiten. Dit plan opent die ruimte, en draagt zo direct bij aan je doel om je omzet te laten groeien voorbij wat je buurt alleen kan opbrengen.",
+      "operationalDetail": [
+        "Mensen buiten de buurt vinden de winkel online",
+        "Tevreden klanten in de regio brengen nieuwe klanten aan"
+      ]
     },
-    "vp_mrc85ba1eq07u9z": {
+    "vp_mrd7pnhneb6wqvd": {
       "title": "je plan: Eerste projectklanten winnen",
       "objectType": "plan",
       "understanding": "Je nieuwe interieur-projectendienst staat klaar om te beginnen. Er is nog weinig gebeurd — dit is het prille begin, en dat is precies zoals het hoort op dit punt.",
@@ -201,7 +210,10 @@
           ]
         }
       ],
-      "valueStory": "Dit is nog een klein begin, maar het hoort bij een grotere gedachte: naast groeien in wat je al doet, iets nieuws opbouwen. Als deze dienst aanslaat bij je bestaande klanten, wordt het een tweede manier om te groeien — naast je winkel, niet in plaats ervan. Daarom staat het als een eigen ambitie op zich."
+      "valueStory": "Dit is nog een klein begin, maar het hoort bij een grotere gedachte: naast groeien in wat je al doet, iets nieuws opbouwen. Als deze dienst aanslaat bij je bestaande klanten, wordt het een tweede manier om te groeien — naast je winkel, niet in plaats ervan. Daarom staat het als een eigen ambitie op zich.",
+      "operationalDetail": [
+        "Eerste offertes voor projecten"
+      ]
     }
   },
   "generatedBy": "scripts/build-wallet.js (read-only over the frozen data layer)"
