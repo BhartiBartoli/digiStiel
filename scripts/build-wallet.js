@@ -19,7 +19,7 @@ const P = require('../presentation');
 const VM = require('../presentation/viewmodel');
 const {
   loadSeedCustomer, vanDijckAttentionCandidates, vanDijckPlanTitles,
-  vanDijckHomeCopy, vanDijckExecutiveSummaries,
+  vanDijckHomeCopy, vanDijckExecutiveSummaries, vanDijckValueStory,
 } = require('../presentation/seedCustomer');
 
 // Walk the tree to find a node by its sourceId (read-only dereference).
@@ -56,6 +56,23 @@ function resolveMetric(metric, node) {
     }
   }
   return { label: metric.label, value: null, unit: metric.unit || null };
+}
+
+// Evidence — the Value-Indicator nodes under a plan's Operational Goals, read-only, dedup on sourceId
+// (a shared indicator appears once). Customer-language VALUES ONLY: {label,name,value,unit}, straight from
+// the projected node. projectIndicator strips indicatorType/supportedBy/aggregation, so mechanic and
+// channel cannot leak here (build rule 3). No number is added — the value is dereferenced, not computed.
+function evidenceFor(node) {
+  const seen = new Set();
+  const out = [];
+  for (const og of node.operationalGoals || []) {
+    for (const r of og.results || []) {
+      if (seen.has(r.sourceId)) continue;
+      seen.add(r.sourceId);
+      out.push({ label: r.label, name: r.name, value: r.value, unit: r.unit });
+    }
+  }
+  return out;
 }
 
 // objectType from the canonical sourceType (presentation metadata; no domain meaning invented).
@@ -100,6 +117,7 @@ function buildWalletBundle() {
   const tree = P.projectWallet(P.makeReader(engine));
   const candidates = vanDijckAttentionCandidates(engine);
   const planTitles = vanDijckPlanTitles(engine);
+  const valueStory = vanDijckValueStory(engine); // temporary Narrative Provider (demo seed)
   const provider = VM.makeStubAttentionProvider(candidates);
 
   // Home cards straight from the ViewModel (Top-N + DI order — not re-ordered here).
@@ -114,13 +132,23 @@ function buildWalletBundle() {
     // "je plan: <computed title>" via planTitles; else the bare label.
     const title = node.name ? `${node.label}: ${node.name}`
       : (planTitles[sid] ? `${node.label}: ${planTitles[sid]}` : node.label);
+    const objectType = objectTypeOf(node);
     executiveSummaries[sid] = {
       title: title,
-      objectType: objectTypeOf(node),                      // 'goal' | 'plan' | 'result' → picks the opener
+      objectType: objectType,                              // 'goal' | 'plan' | 'result' → picks the opener
       understanding: content.understanding,
       reasons: content.reasons,
       metrics: content.metrics.map((m) => resolveMetric(m, node)),
       context: buildContext(node, tree, planTitles),        // RIGHT: direct Tree neighbours (read-only)
+      // Value Story — literal seed narrative (temporary Narrative Provider), surfaced only for plans;
+      // the goal layer stays inert (Reserve, Don't Activate). Presentation renders it, never builds one.
+      valueStory: objectType === 'plan' ? (valueStory[sid] || null) : null,
+      // Operational Detail — the Operational-Goal nodes under the plan, read DIRECT from the Tree (already
+      // customer-language-projected). No second mapping, no computation. Plan-only; goal layer inert.
+      operationalDetail: objectType === 'plan' ? (node.operationalGoals || []).map((og) => og.name) : null,
+      // Evidence — the Value-Indicator nodes under the plan, as customer-language values only (no mechanic,
+      // no channel; build rule 3). Plan-only; goal layer inert.
+      evidence: objectType === 'plan' ? evidenceFor(node) : null,
     };
   }
 

@@ -258,5 +258,136 @@ check('14. RIGHT context is Tree neighbours; objectType present; all reasons str
   }
 });
 
+// ── 15: Value Story layer — literal seed narrative (temporary Narrative Provider), plan-only; goal inert ──
+check('15. Value Story: literal seed narrative surfaced for plans, goal inert; Narrative-Provider rule in code + README', () => {
+  const { data: d, engine } = buildWalletBundle();
+  const { vanDijckValueStory } = require('../presentation/seedCustomer');
+  const story = vanDijckValueStory(engine); // SAME engine as the bundle (ids are minted per load)
+
+  // valueStory present+literal for every plan summary, null for the goal (goal layer inert)
+  for (const [sid, s] of Object.entries(d.executiveSummaries)) {
+    if (s.objectType === 'plan') {
+      assert.ok(typeof s.valueStory === 'string' && s.valueStory.length > 0, `plan "${s.title}" has a Value Story`);
+      // rendered LITERALLY — byte-identical to the seed Narrative Provider (no composition/parafrase)
+      assert.strictEqual(s.valueStory, story[sid], `Value Story for "${s.title}" is the literal seed string`);
+    } else {
+      assert.strictEqual(s.valueStory, null, `non-plan "${s.title}" surfaces no Value Story (inert)`);
+    }
+  }
+
+  // the four delivered strings are present verbatim in the seed
+  const blob = JSON.stringify(story);
+  for (const frag of [
+    'Je bestaande klanten zijn de stevigste basis onder je groei',
+    'In je eigen buurt zit je tegen je plafond',
+    'Alles wat je nu doet — je winkel, je webshop, je klanten die terugkomen',
+    'Dit is nog een klein begin, maar het hoort bij een grotere gedachte',
+  ]) assert.ok(blob.includes(frag), 'delivered Value Story string present verbatim');
+
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  // connector is a plain literal, not subject-specific (no interpolation / +sourceId)
+  assert.ok(/var CONNECTOR_STORY = 'Wil je zien hoe dit past in het grotere geheel\?';/.test(html), 'story connector is a fixed literal');
+  assert.ok(!/grotere geheel[^']*\$\{/.test(html) && !/CONNECTOR_STORY[^;]*\+\s*sourceId/.test(html), 'story connector carries no interpolation/+sourceId');
+  // the layer renders the seed string LITERALLY (dereference, no composition)
+  assert.ok(html.includes("partnerInto(shell.conv, 'bubble--story', s.valueStory)"), 'Value Story rendered from s.valueStory directly');
+  // the duplicate "Bekijk wat er precies loopt" exit is gone — the chain is entered via the prompt
+  assert.ok(!html.includes('Bekijk wat er precies loopt'), 'duplicate story exit removed (single entry via prompt)');
+  assert.ok(html.includes("location.hash = '#soon/story/' + sourceId"), 'story reached via the disclosure prompt');
+  // Narrative-Provider architecture rule present in CODE and README (verbatim key sentence)
+  const rule = 'The seed is a temporary Narrative Provider used to validate the Presentation architecture';
+  const seedSrc = require('fs').readFileSync(require('path').join(__dirname, '..', 'presentation', 'seedCustomer.js'), 'utf8');
+  const readme = require('fs').readFileSync(require('path').join(__dirname, '..', 'presentation', 'README.md'), 'utf8');
+  assert.ok(seedSrc.includes(rule), 'Narrative-Provider rule documented in code');
+  assert.ok(readme.includes(rule), 'Narrative-Provider rule documented in README');
+});
+
+// ── 16: Operational Detail layer — Operational-Goal nodes DIRECT from the Tree (no second mapping) ──
+check('16. Operational Detail: OG nodes read direct from the Tree, plan-only; fixed intro; connector literal', () => {
+  const { data: d, tree } = buildWalletBundle();
+  const planOGnames = (planId) => {
+    let hit = null;
+    const visit = (n) => { if (!n || hit) return; if (n.sourceId === planId) { hit = n; return; }
+      for (const c of [...(n.goals||[]), ...(n.plans||[]), ...(n.operationalGoals||[]), ...(n.results||[])]) visit(c); };
+    for (const it of tree.intents) visit(it);
+    return (hit.operationalGoals || []).map((og) => og.name);
+  };
+  for (const [sid, s] of Object.entries(d.executiveSummaries)) {
+    if (s.objectType === 'plan') {
+      assert.ok(Array.isArray(s.operationalDetail) && s.operationalDetail.length >= 1, `plan "${s.title}" has Operational Detail`);
+      // items are the Tree OG nodes DIRECT — byte-identical, same order (dereference, no mapping/computation)
+      assert.deepStrictEqual(s.operationalDetail, planOGnames(sid), `Operational Detail for "${s.title}" == Tree OG names`);
+    } else {
+      assert.strictEqual(s.operationalDetail, null, `non-plan "${s.title}" surfaces no Operational Detail (inert)`);
+    }
+  }
+
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  // fixed intro + connector are plain literals (no interpolation)
+  assert.ok(/var DETAIL_INTRO = 'Dit is wat er concreet loopt om daar te komen:';/.test(html), 'detail intro is the exact fixed literal');
+  assert.ok(/var CONNECTOR_DETAIL = 'Zal ik laten zien wat er concreet loopt\?';/.test(html), 'detail connector is a fixed literal');
+  assert.ok(!/concreet loopt[^']*\$\{/.test(html), 'detail copy carries no interpolation');
+  // the render reads the snapshot list DIRECT — no customer-language map/resolveLabel in this layer
+  const detailFn = html.slice(html.indexOf('function renderDetail('), html.indexOf('function renderSoonPlaceholder('));
+  assert.ok(detailFn.includes('s.operationalDetail.forEach'), 'Operational Detail rendered from s.operationalDetail directly');
+  for (const forbidden of ['resolveLabel', 'customerLanguage', 'projectOperationalGoal', 'customerLang']) {
+    assert.ok(!detailFn.includes(forbidden), `no second customer-language mapping in Operational Detail: "${forbidden}"`);
+  }
+  // build-wallet reads og.name directly, not through a mapping layer
+  const bw = require('fs').readFileSync(require('path').join(__dirname, '..', 'scripts', 'build-wallet.js'), 'utf8');
+  assert.ok(/operationalDetail:[^;]*\.map\(\(og\) => og\.name\)/.test(bw), 'build-wallet dereferences og.name directly');
+});
+
+// ── 17: Evidence layer — customer-language VALUES only; no mechanic/channel leak (build rule 3) ──
+check('17. Evidence: Value-Indicator values from the Tree; no indicatorType/supportedBy/aggregation/channel; new intro', () => {
+  const { data: d, tree } = buildWalletBundle();
+  const nodeById = (id) => { let hit = null;
+    const visit = (n) => { if (!n || hit) return; if (n.sourceId === id) { hit = n; return; }
+      for (const c of [...(n.goals||[]), ...(n.plans||[]), ...(n.operationalGoals||[]), ...(n.results||[])]) visit(c); };
+    for (const it of tree.intents) visit(it); return hit; };
+  // Expected evidence rebuilt straight from the Tree plan node (dedup on sourceId) — dereference, no compute.
+  const expectedEvidence = (planId) => {
+    const seen = new Set(); const out = [];
+    for (const og of nodeById(planId).operationalGoals || []) for (const r of og.results || []) {
+      if (seen.has(r.sourceId)) continue; seen.add(r.sourceId);
+      out.push({ label: r.label, name: r.name, value: r.value, unit: r.unit });
+    }
+    return out;
+  };
+
+  for (const [sid, s] of Object.entries(d.executiveSummaries)) {
+    if (s.objectType === 'plan') {
+      assert.ok(Array.isArray(s.evidence) && s.evidence.length >= 1, `plan "${s.title}" has Evidence`);
+      // value-only shape + label; exact match to the Tree indicators (dedup, order, value, unit)
+      for (const e of s.evidence) {
+        assert.deepStrictEqual(Object.keys(e).sort(), ['label', 'name', 'unit', 'value'], 'evidence item is value-only');
+        assert.strictEqual(e.label, 'je resultaat', 'projected customer-language label');
+      }
+      assert.deepStrictEqual(s.evidence, expectedEvidence(sid), `Evidence for "${s.title}" == Tree indicators (dereferenced, dedup)`);
+    } else {
+      assert.strictEqual(s.evidence, null, `non-plan "${s.title}" surfaces no Evidence (inert)`);
+    }
+  }
+
+  // no mechanic/channel term anywhere in the Evidence output
+  const evBlob = JSON.stringify(Object.values(d.executiveSummaries).map((s) => s.evidence));
+  for (const term of ['indicatorType', 'supportedBy', 'aggregat', 'substrate', 'lagging', 'leading',
+    'ERP', 'SEO', 'TikTok', 'affiliate', 'Meta ads', 'Google ads', ' ads']) {
+    assert.ok(!evBlob.includes(term), `Evidence must not leak mechanic/channel: "${term}"`);
+  }
+
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  assert.ok(/var EVIDENCE_INTRO = 'Dit steunt op je eigen resultaten:';/.test(html), 'evidence intro is the exact NEW literal (not the old memory-MD string)');
+  assert.ok(/var CONNECTOR_EVIDENCE = 'Wil je weten waarop dit steunt\?';/.test(html), 'evidence connector is a fixed literal');
+  const evFn = html.slice(html.indexOf('function renderEvidence('), html.indexOf('function renderSoon('));
+  assert.ok(evFn.includes('s.evidence.forEach'), 'Evidence rendered from s.evidence directly');
+  for (const forbidden of ['indicatorType', 'supportedBy', 'substrate', 'aggregat', 'resolveLabel', 'customerLanguage']) {
+    assert.ok(!evFn.includes(forbidden), `Evidence render must not touch mechanic/mapping: "${forbidden}"`);
+  }
+  // structural guard: the Projection never exposes the mechanic on indicator nodes
+  const proj = require('fs').readFileSync(require('path').join(__dirname, '..', 'presentation', 'projection.js'), 'utf8');
+  const projInd = proj.slice(proj.indexOf('projectIndicator'), proj.indexOf('projectIndicator') + 260);
+  assert.ok(!/indicatorType|supportedBy/.test(projInd), 'projectIndicator does not project indicatorType/supportedBy');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

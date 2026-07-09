@@ -222,7 +222,36 @@ function vanDijckExecutiveSummaries(engine) {
   };
 }
 
+// vanDijckValueStory(engine) — the four M&S-authored Value Story narratives ("how does this contribute?"),
+// keyed by the same sourceIds as the Executive Summaries. VERBATIM M&S copy.
+//
+// NARRATIVE PROVIDER (Platform architecture): During the demo phase the Value Story is provided by the
+// demo seed. The seed is a temporary Narrative Provider used to validate the Presentation architecture.
+// Presentation renders the supplied narrative and never constructs one itself. Later a real Narrative
+// Provider (AI agent / Decision Intelligence / combination) supplies the same string; the Presentation
+// architecture does not change. (goal1's story is present verbatim as delivered but stays DORMANT while
+// the goal layer is inert — Reserve, Don't Activate.)
+function vanDijckValueStory(engine) {
+  const store = engine.store;
+  const goalByName = (name) => all(store, 'strategicGoals').find((g) => g.name === name);
+  const plansOfGoal = (goalId) => all(store, 'valuePlans').filter((p) => p.goalId === goalId); // creation order
+  const goal1 = goalByName(NAMES.goalGrow);
+  const [vpA, vpB] = plansOfGoal(goal1.id);
+  const [vpC] = plansOfGoal(goalByName(NAMES.goalNewStream).id);
+
+  return {
+    // Scenario 1 — early warning (webshop plan).
+    [vpA.id]: 'Je bestaande klanten zijn de stevigste basis onder je groei — zij kennen je al en kopen makkelijker opnieuw. Als hun online aankopen weer aantrekken, groeit je omzet uit een groep die je al hebt, zonder dat je nieuwe klanten hoeft te winnen. Daarom telt dit stuk mee voor je grotere doel: meer omzet uit je bestaande winkel en webshop.',
+    // Scenario 2 — plan awaiting go-ahead (region plan).
+    [vpB.id]: 'In je eigen buurt zit je tegen je plafond — je bent er al goed gekend. De ruimte om echt te groeien ligt in de regio erbuiten. Dit plan opent die ruimte, en draagt zo direct bij aan je doel om je omzet te laten groeien voorbij wat je buurt alleen kan opbrengen.',
+    // Scenario 3 — success on schedule (revenue goal). Delivered verbatim; DORMANT while goal layer is inert.
+    [goal1.id]: 'Alles wat je nu doet — je winkel, je webshop, je klanten die terugkomen — komt samen in dit ene doel: groeien uit je bestaande business. Dat het voorloopt, betekent dat die onderdelen samen sterker werken dan verwacht. Dit is waar je losse inspanningen optellen tot echte vooruitgang.',
+    // Scenario 4 — early initiative (project plan).
+    [vpC.id]: 'Dit is nog een klein begin, maar het hoort bij een grotere gedachte: naast groeien in wat je al doet, iets nieuws opbouwen. Als deze dienst aanslaat bij je bestaande klanten, wordt het een tweede manier om te groeien — naast je winkel, niet in plaats ervan. Daarom staat het als een eigen ambitie op zich.',
+  };
+}
+
 module.exports = {
   loadSeedCustomer, defaultSeedLoader, vanDijckAttentionCandidates, vanDijckPlanTitles,
-  vanDijckHomeCopy, vanDijckExecutiveSummaries, NAMES,
+  vanDijckHomeCopy, vanDijckExecutiveSummaries, vanDijckValueStory, NAMES,
 };
