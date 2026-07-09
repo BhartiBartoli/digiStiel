@@ -58,14 +58,31 @@ function resolveMetric(metric, node) {
   return { label: metric.label, value: null, unit: metric.unit || null };
 }
 
-// Evidence — the Value-Indicator nodes under a plan's Operational Goals, read-only, dedup on sourceId
+// The Operational-Goal nodes under a subject, via existing sourceRef relations, read-only, dedup on
+// sourceId in Tree order. A Value Plan exposes its OGs directly; a Strategic Goal reaches them through its
+// Value Plans (Goals follow the same disclosure chain — canonical). No new mapping, no computation.
+function ogNodesFor(node) {
+  const seen = new Set();
+  const out = [];
+  const ogSource = node.sourceType === 'StrategicGoal'
+    ? (node.plans || []).flatMap((p) => p.operationalGoals || [])
+    : (node.operationalGoals || []);
+  for (const og of ogSource) {
+    if (seen.has(og.sourceId)) continue;
+    seen.add(og.sourceId);
+    out.push(og);
+  }
+  return out;
+}
+
+// Evidence — the Value-Indicator nodes under the subject's Operational Goals, read-only, dedup on sourceId
 // (a shared indicator appears once). Customer-language VALUES ONLY: {label,name,value,unit}, straight from
 // the projected node. projectIndicator strips indicatorType/supportedBy/aggregation, so mechanic and
 // channel cannot leak here (build rule 3). No number is added — the value is dereferenced, not computed.
 function evidenceFor(node) {
   const seen = new Set();
   const out = [];
-  for (const og of node.operationalGoals || []) {
+  for (const og of ogNodesFor(node)) {
     for (const r of og.results || []) {
       if (seen.has(r.sourceId)) continue;
       seen.add(r.sourceId);
@@ -140,15 +157,16 @@ function buildWalletBundle() {
       reasons: content.reasons,
       metrics: content.metrics.map((m) => resolveMetric(m, node)),
       context: buildContext(node, tree, planTitles),        // RIGHT: direct Tree neighbours (read-only)
-      // Value Story — literal seed narrative (temporary Narrative Provider), surfaced only for plans;
-      // the goal layer stays inert (Reserve, Don't Activate). Presentation renders it, never builds one.
-      valueStory: objectType === 'plan' ? (valueStory[sid] || null) : null,
-      // Operational Detail — the Operational-Goal nodes under the plan, read DIRECT from the Tree (already
-      // customer-language-projected). No second mapping, no computation. Plan-only; goal layer inert.
-      operationalDetail: objectType === 'plan' ? (node.operationalGoals || []).map((og) => og.name) : null,
-      // Evidence — the Value-Indicator nodes under the plan, as customer-language values only (no mechanic,
-      // no channel; build rule 3). Plan-only; goal layer inert.
-      evidence: objectType === 'plan' ? evidenceFor(node) : null,
+      // Value Story — literal seed narrative (temporary Narrative Provider); surfaced for any subject the
+      // provider supplies (plans and goals alike). Presentation renders it, never builds one.
+      valueStory: valueStory[sid] || null,
+      // Operational Detail — the Operational-Goal nodes under the subject, read DIRECT from the Tree
+      // (already customer-language-projected); dedup across the subject's plans for a goal. No second
+      // mapping, no computation.
+      operationalDetail: ogNodesFor(node).map((og) => og.name),
+      // Evidence — the Value-Indicator nodes under the subject, as customer-language values only
+      // (no mechanic, no channel; build rule 3), dedup on sourceId.
+      evidence: evidenceFor(node),
     };
   }
 
