@@ -6,7 +6,7 @@
     "intro": "Het meeste loopt zoals het hoort. Dit zijn de dingen die vandaag even je aandacht waard zijn — geen brandjes, gewoon het bekijken waard.",
     "cards": [
       {
-        "sourceId": "vp_mrd7pnhm69fo701",
+        "sourceId": "vp_mrd7v2b56v50ti4",
         "title": "je plan: Bekend worden in een grotere regio",
         "summary": "Dit plan wacht op jouw akkoord om verder te gaan.",
         "tone": "geruststellend",
@@ -14,7 +14,7 @@
         "hasSummary": true
       },
       {
-        "sourceId": "sg_mrd7pnhm2vpa7hf",
+        "sourceId": "sg_mrd7v2b52bysbdx",
         "title": "je doel: Bestaande business laten groeien",
         "summary": "Dit loopt voor op schema — mooi bezig.",
         "tone": "warm",
@@ -22,7 +22,7 @@
         "hasSummary": true
       },
       {
-        "sourceId": "vp_mrd7pnhm3yyqzfo",
+        "sourceId": "vp_mrd7v2b5357l05u",
         "title": "je plan: Meer online omzet uit bestaande klanten",
         "summary": "Een signaal om even in de gaten te houden.",
         "tone": "kalm",
@@ -32,7 +32,7 @@
     ]
   },
   "executiveSummaries": {
-    "sg_mrd7pnhm2vpa7hf": {
+    "sg_mrd7v2b52bysbdx": {
       "title": "je doel: Bestaande business laten groeien",
       "objectType": "goal",
       "understanding": "Je omzetdoel voor dit jaar ligt voor op schema — winkel en webshop trekken samen goed.",
@@ -78,9 +78,10 @@
         }
       ],
       "valueStory": null,
-      "operationalDetail": null
+      "operationalDetail": null,
+      "evidence": null
     },
-    "vp_mrd7pnhm3yyqzfo": {
+    "vp_mrd7v2b5357l05u": {
       "title": "je plan: Meer online omzet uit bestaande klanten",
       "objectType": "plan",
       "understanding": "Je bestaande klanten kopen de laatste weken wat minder online dan gewoonlijk. Nog geen groot verschil, maar het is het bekijken waard nu het net begint.",
@@ -128,9 +129,29 @@
       "operationalDetail": [
         "Bestaande klanten vinden en gebruiken de webshop",
         "Klanten kopen ook online, niet enkel in de winkel"
+      ],
+      "evidence": [
+        {
+          "label": "je resultaat",
+          "name": "Omzet",
+          "value": 2170000,
+          "unit": "EUR"
+        },
+        {
+          "label": "je resultaat",
+          "name": "Conversie",
+          "value": 2.8,
+          "unit": "%"
+        },
+        {
+          "label": "je resultaat",
+          "name": "Klanten",
+          "value": 48,
+          "unit": "klanten"
+        }
       ]
     },
-    "vp_mrd7pnhm69fo701": {
+    "vp_mrd7v2b56v50ti4": {
       "title": "je plan: Bekend worden in een grotere regio",
       "objectType": "plan",
       "understanding": "Er ligt een plan voor je klaar om buiten je eigen buurt bekend te worden. Voor er iets start, kijk jij het eerst na — jij beslist of we ermee verdergaan.",
@@ -172,9 +193,29 @@
       "operationalDetail": [
         "Mensen buiten de buurt vinden de winkel online",
         "Tevreden klanten in de regio brengen nieuwe klanten aan"
+      ],
+      "evidence": [
+        {
+          "label": "je resultaat",
+          "name": "Klanten",
+          "value": 48,
+          "unit": "klanten"
+        },
+        {
+          "label": "je resultaat",
+          "name": "Conversie",
+          "value": 2.8,
+          "unit": "%"
+        },
+        {
+          "label": "je resultaat",
+          "name": "Retentie",
+          "value": 31,
+          "unit": "%"
+        }
       ]
     },
-    "vp_mrd7pnhneb6wqvd": {
+    "vp_mrd7v2b6eg4j678": {
       "title": "je plan: Eerste projectklanten winnen",
       "objectType": "plan",
       "understanding": "Je nieuwe interieur-projectendienst staat klaar om te beginnen. Er is nog weinig gebeurd — dit is het prille begin, en dat is precies zoals het hoort op dit punt.",
@@ -213,6 +254,14 @@
       "valueStory": "Dit is nog een klein begin, maar het hoort bij een grotere gedachte: naast groeien in wat je al doet, iets nieuws opbouwen. Als deze dienst aanslaat bij je bestaande klanten, wordt het een tweede manier om te groeien — naast je winkel, niet in plaats ervan. Daarom staat het als een eigen ambitie op zich.",
       "operationalDetail": [
         "Eerste offertes voor projecten"
+      ],
+      "evidence": [
+        {
+          "label": "je resultaat",
+          "name": "Klanten",
+          "value": 2,
+          "unit": "projectklanten"
+        }
       ]
     }
   },

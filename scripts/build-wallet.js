@@ -58,6 +58,23 @@ function resolveMetric(metric, node) {
   return { label: metric.label, value: null, unit: metric.unit || null };
 }
 
+// Evidence — the Value-Indicator nodes under a plan's Operational Goals, read-only, dedup on sourceId
+// (a shared indicator appears once). Customer-language VALUES ONLY: {label,name,value,unit}, straight from
+// the projected node. projectIndicator strips indicatorType/supportedBy/aggregation, so mechanic and
+// channel cannot leak here (build rule 3). No number is added — the value is dereferenced, not computed.
+function evidenceFor(node) {
+  const seen = new Set();
+  const out = [];
+  for (const og of node.operationalGoals || []) {
+    for (const r of og.results || []) {
+      if (seen.has(r.sourceId)) continue;
+      seen.add(r.sourceId);
+      out.push({ label: r.label, name: r.name, value: r.value, unit: r.unit });
+    }
+  }
+  return out;
+}
+
 // objectType from the canonical sourceType (presentation metadata; no domain meaning invented).
 function objectTypeOf(node) {
   return node.sourceType === 'StrategicGoal' ? 'goal'
@@ -129,6 +146,9 @@ function buildWalletBundle() {
       // Operational Detail — the Operational-Goal nodes under the plan, read DIRECT from the Tree (already
       // customer-language-projected). No second mapping, no computation. Plan-only; goal layer inert.
       operationalDetail: objectType === 'plan' ? (node.operationalGoals || []).map((og) => og.name) : null,
+      // Evidence — the Value-Indicator nodes under the plan, as customer-language values only (no mechanic,
+      // no channel; build rule 3). Plan-only; goal layer inert.
+      evidence: objectType === 'plan' ? evidenceFor(node) : null,
     };
   }
 

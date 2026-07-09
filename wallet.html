@@ -141,6 +141,12 @@
   .detail-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;}
   .detail-item{position:relative;padding-left:20px;color:var(--ink);}
   .detail-item::before{content:"";position:absolute;left:4px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--accent);}
+  .bubble--evidence{width:100%;max-width:100%;}
+  .ev-list{display:flex;flex-direction:column;gap:8px;}
+  .ev-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .ev-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:0 0 auto;}
+  .ev-name{color:var(--ink);}
+  .ev-val{margin-left:auto;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;}
   .bubble--reason{border-left:3px solid var(--tone);}
   .bubble--reason.reason--opportunity{--tone:var(--warning);}
   .bubble--reason.reason--strength{--tone:var(--success);}
@@ -424,6 +430,30 @@
     var list = el('ul', 'detail-list');
     s.operationalDetail.forEach(function (name) { list.appendChild(el('li', 'detail-item', name)); }); // Tree nodes direct
     b.appendChild(list); t.appendChild(b); shell.conv.appendChild(t);
+    // continue into Evidence (if present)
+    if (s.evidence && s.evidence.length) navPrompt(shell.conv, CONNECTOR_EVIDENCE, '#soon/evidence/' + sourceId);
+    view.appendChild(shell.wrap);
+  }
+
+  // Evidence ("what does this rest on?") — the Value-Indicator nodes as customer-language VALUES only
+  // ("je resultaat: <name> — <value>"). Build rule 3: never the mechanic (indicatorType/supportedBy/
+  // aggregation) or any channel — those are not in the snapshot (projectIndicator strips them). Terminus.
+  function renderEvidence(sourceId) {
+    var s = DATA.executiveSummaries[sourceId];
+    if (!s || !s.evidence || !s.evidence.length) return renderSoonPlaceholder('evidence', sourceId);
+    var shell = layerShell(sourceId, s, 'De onderbouwing');
+    partnerInto(shell.conv, 'bubble--opener', EVIDENCE_INTRO); // fixed lead-in
+    var t = el('div', 'turn turn--partner');
+    var b = el('div', 'bubble bubble--evidence');
+    var listw = el('div', 'ev-list');
+    s.evidence.forEach(function (r) {
+      var row = el('div', 'ev-row');
+      row.appendChild(el('span', 'ev-label', r.label));          // "je resultaat" (projected label)
+      row.appendChild(el('span', 'ev-name', r.name));            // e.g. Omzet
+      row.appendChild(el('span', 'ev-val', fmt(r.value, r.unit))); // dereferenced value, not computed
+      listw.appendChild(row);
+    });
+    b.appendChild(listw); t.appendChild(b); shell.conv.appendChild(t);
     view.appendChild(shell.wrap);
   }
 
@@ -447,6 +477,7 @@
   function renderSoon(layer, sourceId) {
     if (layer === 'story') return renderStory(sourceId);
     if (layer === 'detail') return renderDetail(sourceId);
+    if (layer === 'evidence') return renderEvidence(sourceId);
     return renderSoonPlaceholder(layer, sourceId);
   }
 

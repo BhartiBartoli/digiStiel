@@ -337,5 +337,57 @@ check('16. Operational Detail: OG nodes read direct from the Tree, plan-only; fi
   assert.ok(/operationalDetail:[^;]*\.map\(\(og\) => og\.name\)/.test(bw), 'build-wallet dereferences og.name directly');
 });
 
+// ── 17: Evidence layer — customer-language VALUES only; no mechanic/channel leak (build rule 3) ──
+check('17. Evidence: Value-Indicator values from the Tree; no indicatorType/supportedBy/aggregation/channel; new intro', () => {
+  const { data: d, tree } = buildWalletBundle();
+  const nodeById = (id) => { let hit = null;
+    const visit = (n) => { if (!n || hit) return; if (n.sourceId === id) { hit = n; return; }
+      for (const c of [...(n.goals||[]), ...(n.plans||[]), ...(n.operationalGoals||[]), ...(n.results||[])]) visit(c); };
+    for (const it of tree.intents) visit(it); return hit; };
+  // Expected evidence rebuilt straight from the Tree plan node (dedup on sourceId) — dereference, no compute.
+  const expectedEvidence = (planId) => {
+    const seen = new Set(); const out = [];
+    for (const og of nodeById(planId).operationalGoals || []) for (const r of og.results || []) {
+      if (seen.has(r.sourceId)) continue; seen.add(r.sourceId);
+      out.push({ label: r.label, name: r.name, value: r.value, unit: r.unit });
+    }
+    return out;
+  };
+
+  for (const [sid, s] of Object.entries(d.executiveSummaries)) {
+    if (s.objectType === 'plan') {
+      assert.ok(Array.isArray(s.evidence) && s.evidence.length >= 1, `plan "${s.title}" has Evidence`);
+      // value-only shape + label; exact match to the Tree indicators (dedup, order, value, unit)
+      for (const e of s.evidence) {
+        assert.deepStrictEqual(Object.keys(e).sort(), ['label', 'name', 'unit', 'value'], 'evidence item is value-only');
+        assert.strictEqual(e.label, 'je resultaat', 'projected customer-language label');
+      }
+      assert.deepStrictEqual(s.evidence, expectedEvidence(sid), `Evidence for "${s.title}" == Tree indicators (dereferenced, dedup)`);
+    } else {
+      assert.strictEqual(s.evidence, null, `non-plan "${s.title}" surfaces no Evidence (inert)`);
+    }
+  }
+
+  // no mechanic/channel term anywhere in the Evidence output
+  const evBlob = JSON.stringify(Object.values(d.executiveSummaries).map((s) => s.evidence));
+  for (const term of ['indicatorType', 'supportedBy', 'aggregat', 'substrate', 'lagging', 'leading',
+    'ERP', 'SEO', 'TikTok', 'affiliate', 'Meta ads', 'Google ads', ' ads']) {
+    assert.ok(!evBlob.includes(term), `Evidence must not leak mechanic/channel: "${term}"`);
+  }
+
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  assert.ok(/var EVIDENCE_INTRO = 'Dit steunt op je eigen resultaten:';/.test(html), 'evidence intro is the exact NEW literal (not the old memory-MD string)');
+  assert.ok(/var CONNECTOR_EVIDENCE = 'Wil je weten waarop dit steunt\?';/.test(html), 'evidence connector is a fixed literal');
+  const evFn = html.slice(html.indexOf('function renderEvidence('), html.indexOf('function renderSoon('));
+  assert.ok(evFn.includes('s.evidence.forEach'), 'Evidence rendered from s.evidence directly');
+  for (const forbidden of ['indicatorType', 'supportedBy', 'substrate', 'aggregat', 'resolveLabel', 'customerLanguage']) {
+    assert.ok(!evFn.includes(forbidden), `Evidence render must not touch mechanic/mapping: "${forbidden}"`);
+  }
+  // structural guard: the Projection never exposes the mechanic on indicator nodes
+  const proj = require('fs').readFileSync(require('path').join(__dirname, '..', 'presentation', 'projection.js'), 'utf8');
+  const projInd = proj.slice(proj.indexOf('projectIndicator'), proj.indexOf('projectIndicator') + 260);
+  assert.ok(!/indicatorType|supportedBy/.test(projInd), 'projectIndicator does not project indicatorType/supportedBy');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
