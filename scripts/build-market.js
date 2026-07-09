@@ -35,11 +35,41 @@ function resolve() {
   return { key, market, base };
 }
 
-function replacements({ market, base }) {
+// Per-market OPEN-LAYER copy — build-time injection, exact same mechanism as the SEO tokens above.
+// be/nl = the delivered NL copy (identical; no Flemish/NL split yet). com (EN) is delivered later by
+// M&S — do NOT invent EN here; a com open-build fails loudly until that copy is added below.
+const NL_OPEN = {
+  '__OPEN_TAGLINE__':     'Probeer me. Misschien levert het je iets op.',
+  '__OPEN_PLACEHOLDER__': 'Waar wil je met je bedrijf naartoe?',
+  '__OPEN_DISCLOSURE__':  'Je praat met de AI-assistent van digiStiel (EU AI Act art. 50).',
+  '__OPEN_RESET__':       'Opnieuw beginnen',
+  '__OPEN_CHIP_1__':      'Er komen te weinig nieuwe klanten binnen',
+  '__OPEN_CHIP_2__':      'Aanvragen en mailtjes blijven te lang liggen',
+  '__OPEN_CHIP_3__':      'Geïnteresseerden haken af voor ze kopen',
+  '__OPEN_CHIP_4__':      'De verkoop hangt te veel van jou af',
+  '__OPEN_CHIP_5__':      'Klanten komen één keer en dan niet meer terug',
+  '__OPEN_CHIP_6__':      'De cijfers bewegen, maar je weet niet waaróm',
+  '__OPEN_FOOTER__':      'powered by Atlas',
+};
+const OPEN_COPY = {
+  be: NL_OPEN,
+  nl: NL_OPEN,
+  // com: { ...EN... }  ← TODO (M&S): Engelse open-laag-copy voor .com. Geen com-open-build tot dit bestaat.
+};
+
+function replacements({ key, market, base }) {
+  const open = OPEN_COPY[key];
+  if (!open) {
+    throw new Error(
+      `[build-market] geen OPEN_COPY voor MARKET='${key}'. De open-laag-copy voor deze markt bestaat ` +
+      `nog niet (bv. .com EN volgt later via M&S). Injectie van lege copy geweigerd.`
+    );
+  }
   return {
     '__SITE_BASE__': base,
     '__HTML_LANG__': market.lang,
     '__OG_LOCALE__': market.locale,
+    ...open,
   };
 }
 
