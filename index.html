@@ -51,17 +51,18 @@
   --sans:Aptos,Arial,sans-serif;
 }
 
-/* ── Theme toggle ── */
-.theme-toggle{
-  background:none;border:1px solid var(--border);border-radius:6px;
-  color:var(--muted);cursor:pointer;
-  width:32px;height:32px;
-  display:flex;align-items:center;justify-content:center;
-  transition:border-color .18s,color .18s;
-  flex-shrink:0;
-}
-.theme-toggle:hover{border-color:var(--border-h);color:var(--ink);}
-.theme-toggle svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+/* ══ OPEN (pre-login) DISCOVERY LAYER ═══════════════════════════════ */
+/* Canon: not a website — a calm invitation into the discovery conversation.
+   Light palette only, no navy block. Stops after the six chips + the Atlas footer. */
+.open{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:48px 20px;}
+.open-inner{width:100%;max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:26px;}
+.open-brand{text-align:center;}
+.wordmark{font-size:1.9rem;font-weight:400;letter-spacing:-.02em;color:var(--ink);user-select:none;}
+.wordmark .s{color:var(--accent);font-weight:700;} /* wordmark "S" accent (canonical) */
+.tagline{margin-top:10px;font-size:1.05rem;line-height:1.6;color:var(--muted);font-weight:300;}
+.ai-disclosure{font-family:var(--mono);font-size:9.5px;color:var(--subtle);letter-spacing:.04em;line-height:1.5;}
+.ret-disclosure{font-family:var(--mono);font-size:9.5px;color:var(--subtle);margin:2px 20px 0;}
+.open-footer{text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);}
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -188,7 +189,7 @@ nav.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);backdro
   font-family:var(--sans);
 }
 .sparring-chip:hover{
-  border-color:var(--accent);
+  border-color:#B5D4F4; /* spec hover-border */
   color:var(--ink);
   background:var(--ice1);
 }
@@ -373,135 +374,43 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
 </head>
 <body>
 
-<!-- NAV -->
-<nav id="nav" role="navigation" aria-label="Hoofdnavigatie">
-  <div class="nav-inner">
-    <a href="#" class="nav-logo" aria-label="digiStiel — naar boven">digi<span class="s">S</span>tiel</a>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <a href="#" class="nav-cta" style="font-size:.85rem;padding:7px 16px;background:transparent!important;color:var(--ink)!important;border:1px solid var(--border);border-radius:7px;font-weight:500;text-decoration:none;transition:border-color .18s,color .18s;" onclick="return false;">Login</a>
-    </div>
-    <button class="theme-toggle" id="themeToggle" aria-label="Wissel thema" title="Licht / donker">
-      <svg id="iconSun" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
-      </svg>
-      <svg id="iconMoon" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
-        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-      </svg>
-    </button>
-  </div>
-</nav>
+<!-- OPEN (pre-login) DISCOVERY LAYER — canon: leidt alleen het gesprek in; geen website.
+     Stopt na de zes chips + de "powered by Atlas"-footer. Geen nav/hero/contact/over-ons/navy. -->
+<main class="open" role="main">
+  <div class="open-inner">
 
-<!-- HERO -->
-<section class="hero" aria-labelledby="hero-title">
-  <div class="hero-grid" aria-hidden="true"></div>
-  <div class="hero-orb" aria-hidden="true"></div>
-  <div class="container">
-    <div class="hero-content">
-      <h1 class="display hero-title" id="hero-title">
-        Het loopt stroef.<br>
-        <strong>Maar waarom precies?</strong>
-      </h1>
-      <p class="hero-sub">
-        Te weinig nieuwe klanten, verkoop die blijft liggen, of klanten die niet terugkomen. Vaak weet je dat het beter kan, maar niet waar het knelt. digi<span class="s">S</span>tiel kijkt met je mee en zoekt uit wat er echt achter zit, en wat eraan te doen valt.
-      </p>
-      <div class="hero-actions">
-        <a href="#sparring" class="btn btn-blue">Herken jij dit? →</a>
-      </div>
-    </div>
-  </div>
-</section>
+    <header class="open-brand">
+      <div class="wordmark">digi<span class="s">S</span>tiel</div>
+      <p class="tagline">__OPEN_TAGLINE__</p>
+    </header>
 
-<div class="divider"></div>
+    <div class="sparring-workspace" id="sparringWorkspace">
 
-<!-- KETEN-KAARTEN -->
-<section class="section" id="where" aria-labelledby="where-title">
-  <div class="container">
-    <div class="section-label reveal"><span class="label label-accent">Waar het misloopt</span></div>
-    <h2 class="section-title reveal" id="where-title">
-      Niet één groot probleem.<br>
-      <strong>Maar ergens loopt de keten stroef.</strong>
-    </h2>
-    <div class="pattern-grid">
-      <div class="pattern-card reveal">
-        <div class="pattern-title">Er komen te weinig nieuwe klanten binnen</div>
-        <div class="pattern-obs">Je doet je best om zichtbaar te zijn, maar de instroom van nieuwe klanten stelt teleur. Je weet niet goed waar het knelt: het bereik, de boodschap, of iets anders.</div>
-      </div>
-      <div class="pattern-card reveal">
-        <div class="pattern-title">Aanvragen en mailtjes blijven te lang liggen</div>
-        <div class="pattern-obs">Er komen wel interessante contacten binnen, maar de opvolging loopt stroef. Te druk, te laat, of gewoon geen goed systeem. En ondertussen haakt een deel af.</div>
-      </div>
-      <div class="pattern-card reveal">
-        <div class="pattern-title">Geïnteresseerden haken af voor ze kopen</div>
-        <div class="pattern-obs">Mensen tonen interesse, vragen info op, komen eens kijken. Maar dan stopt het. De stap naar een echte aankoop of samenwerking wordt niet gezet.</div>
-      </div>
-      <div class="pattern-card reveal">
-        <div class="pattern-title">De verkoop hangt te veel van jou af</div>
-        <div class="pattern-obs">Alles loopt via jou: de gesprekken, de offertes, de opvolging. Als jij er niet bent, ligt de verkoop stil. Dat schaalt niet en het put je uit.</div>
-      </div>
-      <div class="pattern-card reveal">
-        <div class="pattern-title">Klanten komen één keer en dan niet meer terug</div>
-        <div class="pattern-obs">De eerste aankoop lukt, maar daarna hoor je weinig meer van ze. Er is geen systeem dat hen terug laat komen of dat van tevreden klanten ambassadeurs maakt.</div>
-      </div>
-      <div class="pattern-card reveal">
-        <div class="pattern-title">De cijfers bewegen, maar je weet niet waaróm</div>
-        <div class="pattern-obs">Soms loopt het goed, soms minder. Wat het verschil maakt, is onduidelijk. Je beslissingen steunen op gevoel, niet op inzicht. En dat maakt bijsturen moeilijk.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- SPARRING -->
-<section class="section sparring-section" id="sparring" aria-labelledby="sparring-title">
-  <div class="container">
-    <div class="section-label reveal"><span class="label label-accent">Herken jij dit?</span></div>
-    <h2 class="section-title reveal" id="sparring-title">
-      Ergens klopt het niet.<br>
-      <strong>Maar wat precies?</strong>
-    </h2>
-    <p class="body-lg reveal" style="max-width:520px">
-      Soms voel je dat het beter kan: meer klanten, vlottere verkoop, een zaak die minder op jou alleen leunt. Maar je weet niet waar te beginnen. Beschrijf gewoon wat je voelt. We kijken samen wat er achter zit.
-    </p>
-
-    <div class="sparring-workspace reveal" id="sparringWorkspace">
-
-      <!-- Header -->
       <div class="sparring-header">
         <div class="sparring-header-left">
           <div class="sparring-ai-dot" aria-hidden="true"></div>
-          <div>
-            <div class="sparring-ai-label"><strong>digi<span class="s">S</span>tiel</strong> · Hoe kan ik je helpen meer omzet te draaien</div>
-            <div style="font-family:var(--mono);font-size:9.5px;color:var(--subtle);margin-top:2px;">Dit gesprek wordt gevoerd door een AI-assistent (EU AI Act art.&nbsp;50).</div>
-            <!-- Category B: retention disclosure, populated at runtime from data.marketConfig (be=10 / nl=7). -->
-            <div id="retentionDisclosure" style="font-family:var(--mono);font-size:9.5px;color:var(--subtle);margin-top:2px;display:none;"></div>
-          </div>
+          <div class="ai-disclosure">__OPEN_DISCLOSURE__</div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <button class="sparring-reset" id="sparringReset" aria-label="Gesprek herstarten">↺ Opnieuw</button>
-        </div>
+        <!-- Reset (pre-login scope): wist ALLEEN het lopende gesprek. Zie de reset-handler-comment. -->
+        <button class="sparring-reset" id="sparringReset" aria-label="Opnieuw beginnen">&#8635;&nbsp;__OPEN_RESET__</button>
       </div>
+      <!-- Category B: retention disclosure, runtime uit data.marketConfig (be=10 / nl=7). -->
+      <div id="retentionDisclosure" class="ret-disclosure" style="display:none;"></div>
 
-      <!-- Prompt chips -->
       <div class="sparring-prompts" id="sparringPrompts" role="region" aria-label="Herkenbare situaties">
-        <div class="sparring-prompts-label label-accent" aria-hidden="true">Herken je één van deze situaties?</div>
         <div class="sparring-chips" role="list">
-          <button class="sparring-chip" role="listitem">Er komen te weinig nieuwe klanten binnen</button>
-          <button class="sparring-chip" role="listitem">Aanvragen en mailtjes blijven te lang liggen</button>
-          <button class="sparring-chip" role="listitem">Geïnteresseerden haken af vóór ze kopen</button>
-          <button class="sparring-chip" role="listitem">De verkoop hangt te veel van mij af</button>
-          <button class="sparring-chip" role="listitem">Klanten komen één keer en dan niet meer terug</button>
-          <button class="sparring-chip" role="listitem">Ik weet niet welke klanten écht het verschil maken</button>
-          <button class="sparring-chip" role="listitem">De cijfers bewegen, maar ik weet niet waaróm</button>
-          <button class="sparring-chip" role="listitem">Meer verkoop voelt als méér werk, niet als winst</button>
+          <button class="sparring-chip" role="listitem">__OPEN_CHIP_1__</button>
+          <button class="sparring-chip" role="listitem">__OPEN_CHIP_2__</button>
+          <button class="sparring-chip" role="listitem">__OPEN_CHIP_3__</button>
+          <button class="sparring-chip" role="listitem">__OPEN_CHIP_4__</button>
+          <button class="sparring-chip" role="listitem">__OPEN_CHIP_5__</button>
+          <button class="sparring-chip" role="listitem">__OPEN_CHIP_6__</button>
         </div>
       </div>
 
-      <!-- Conversation thread -->
       <div class="sparring-thread" id="sparringThread" role="log" aria-live="polite" aria-label="Gesprek">
         <div class="sparring-empty" id="sparringEmpty">
-          <div class="sparring-empty-icon" aria-hidden="true">○</div>
-          <div class="sparring-empty-text">Kies iets hierboven dat herkenbaar klinkt, of beschrijf gewoon wat er speelt in jouw eigen woorden. Er is geen verkeerd antwoord.</div>
+          <div class="sparring-empty-text">Kies iets hierboven dat herkenbaar klinkt, of typ gewoon wat er speelt. Er is geen verkeerd antwoord.</div>
         </div>
         <div class="typing-indicator" id="typingIndicator" aria-hidden="true">
           <div class="typing-dot"></div>
@@ -510,23 +419,11 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
         </div>
       </div>
 
-      <!-- Qualification nudge (hidden until triggered) -->
-      <div class="sparring-nudge" id="sparringNudge" role="region" aria-label="Volgende stap">
-        <div class="sparring-nudge-text" id="nudgeText">
-          <strong>Dit klinkt als iets waar we concreet iets mee kunnen doen.</strong> Wil je dat we even verder praten?
-        </div>
-        <div class="sparring-nudge-actions">
-          <a href="https://wa.me/32487537574?text=Hallo%2C%20ik%20wil%20graag%20verder%20praten%20na%20de%20sparring%20op%20jullie%20website." target="_blank" rel="noopener" class="nudge-btn nudge-btn-primary" id="nudgeWhatsApp">💬 Ja, via WhatsApp</a>
-          <a href="mailto:hallo@digistiel.be" class="nudge-btn nudge-btn-ghost" id="nudgeEmail">✉️ Per mail</a>
-        </div>
-      </div>
-
-      <!-- Input -->
       <div class="sparring-input-area">
         <textarea
           class="sparring-textarea"
           id="sparringInput"
-          placeholder="Vertel gewoon wat er speelt: klanten, verkoop, opvolging..."
+          placeholder="__OPEN_PLACEHOLDER__"
           rows="1"
           aria-label="Jouw bericht"
           autocomplete="off"
@@ -538,113 +435,19 @@ footer{border-top:1px solid var(--border);padding:28px 0;position:relative;z-ind
           </svg>
         </button>
       </div>
+
     </div>
 
-  </div>
-</section>
+    <footer class="open-footer" role="contentinfo">__OPEN_FOOTER__</footer>
 
-<div class="divider"></div>
-
-<!-- CTA -->
-<section class="cta-section" id="contact" aria-labelledby="cta-title">
-  <div class="cta-orb" aria-hidden="true"></div>
-  <div class="container">
-    <div class="cta-content">
-      <div class="section-label reveal" style="justify-content:center"><span class="label">Verdere stap</span></div>
-      <h2 class="cta-title reveal" id="cta-title">Iets herkend?<br><strong>Dan praten we verder.</strong></h2>
-      <p class="cta-sub reveal">Geen verkoopgesprek. Geen voorbereiding nodig. Vertel gewoon wat er speelt in je zaak: van te weinig klanten tot verkoop die blijft liggen. Dan kijken we samen wat eraan te doen valt.</p>
-      <div class="reveal">
-        <a href="mailto:hallo@digistiel.be" class="btn btn-blue" style="font-size:.95rem;padding:13px 26px">Stuur een bericht →</a>
-      </div>
-      <div class="cta-contact-row reveal">
-        <a href="mailto:hallo@digistiel.be" class="cta-link">hallo@digistiel.be</a>
-        <a href="https://wa.me/32487537574?text=Hallo%20digiStiel%2C%20ik%20wil%20graag%20even%20praten%20over%20mijn%20zaak." target="_blank" rel="noopener noreferrer" class="cta-link">💬 WhatsApp</a>
-      </div>
-      <p class="reveal" style="margin-top:18px;font-size:.75rem;color:var(--subtle)">Voor lokale ondernemers</p>
-    </div>
   </div>
-</section>
-
-<!-- FOOTER -->
-<footer role="contentinfo">
-  <div class="footer-inner">
-    <div class="footer-logo">digi<span class="s">S</span>tiel</div>
-    <div class="footer-copy">© 2026 digi<span class="s">S</span>tiel · Meer klanten, vlottere verkoop, minder gedoe</div>
-  </div>
-</footer>
+</main>
 
 <script>
 'use strict';
 
-// ══ THEME TOGGLE ════════════════════════════════════════════════
-const themeToggle = document.getElementById('themeToggle');
-const iconSun     = document.getElementById('iconSun');
-const iconMoon    = document.getElementById('iconMoon');
-
-function applyTheme(light) {
-  document.body.classList.toggle('light', light);
-  iconSun.style.display  = light ? 'none'  : '';
-  iconMoon.style.display = light ? ''      : 'none';
-  try { localStorage.setItem('ds-theme', light ? 'light' : 'dark'); } catch {}
-}
-
-// Restore saved preference, fall back to dark
-const savedTheme = (() => { try { return localStorage.getItem('ds-theme'); } catch { return null; } })();
-applyTheme(savedTheme !== 'dark');
-
-themeToggle.addEventListener('click', () => {
-  applyTheme(!document.body.classList.contains('light'));
-});
-
-// ══ NAV ══════════════════════════════════════════════════════════
-const nav = document.getElementById('nav');
-let ticking = false;
-window.addEventListener('scroll', () => {
-  if (!ticking) {
-    requestAnimationFrame(() => { nav.classList.toggle('scrolled', window.scrollY > 24); ticking = false; });
-    ticking = true;
-  }
-}, { passive: true });
-if (window.scrollY > 24) nav.classList.add('scrolled');
-
-// ══ SCROLL REVEAL ════════════════════════════════════════════════
-const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-if (prefersReduced) {
-  document.querySelectorAll('.reveal').forEach(el => { el.style.opacity='1'; el.style.transform='none'; });
-} else {
-  const ro = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const siblings = Array.from(entry.target.parentElement.querySelectorAll(':scope > .reveal, .reveal'));
-      const idx = siblings.indexOf(entry.target);
-      entry.target.style.transitionDelay = Math.min(idx * 55, 280) + 'ms';
-      entry.target.classList.add('visible');
-      ro.unobserve(entry.target);
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -32px 0px' });
-  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
-}
-
-// ══ SIM TIMER ════════════════════════════════════════════════════
-const kickoff = new Date('2026-06-15T19:00:00Z').getTime();
-function updateSim() {
-  const el = document.getElementById('simTimer'); if (!el) return;
-  const d = kickoff - Date.now();
-  if (d <= 0) { el.textContent = 'LIVE 🔴'; return; }
-  const dd=Math.floor(d/86400000), hh=Math.floor((d%86400000)/3600000), mm=Math.floor((d%3600000)/60000), ss=Math.floor((d%60000)/1000);
-  el.textContent = dd > 0 ? `${dd}d ${hh}u ${mm}m` : `${hh}u ${mm}m ${ss}s`;
-}
-updateSim(); setInterval(updateSim, 1000);
-
-// ══ SMOOTH SCROLL ════════════════════════════════════════════════
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    const id = a.getAttribute('href').slice(1); if (!id) return;
-    const t = document.getElementById(id); if (!t) return;
-    e.preventDefault();
-    window.scrollTo({ top: Math.max(0, t.getBoundingClientRect().top + window.scrollY - 68), behavior: 'smooth' });
-  });
-});
+// Open layer is a minimal discovery page: no theme toggle, no nav, no scroll-reveal,
+// no sim-timer and no smooth-scroll — those belonged to the removed marketing sections.
 
 // ══ AI SPARRING ENGINE ═══════════════════════════════════════════
 // Architecture: conversation history kept in JS array → sent to /api/analyse
@@ -654,7 +457,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 
 let conversationHistory = [];
 let messageCount = 0;
-let nudgeShown = false;
 let isLoading = false;
 let sessionId = null; // Held across turns; set by the server on the first reply.
 // Market surface the Function reports (Category B, runtime). marketLocale is the
@@ -665,7 +467,6 @@ let marketConfig = null;
 const thread      = document.getElementById('sparringThread');
 const emptyState  = document.getElementById('sparringEmpty');
 const typingInd   = document.getElementById('typingIndicator');
-const nudge       = document.getElementById('sparringNudge');
 const input       = document.getElementById('sparringInput');
 const sendBtn     = document.getElementById('sparringSend');
 const workspace   = document.getElementById('sparringWorkspace');
@@ -699,11 +500,13 @@ document.querySelectorAll('.sparring-chip').forEach(chip => {
   });
 });
 
-// Reset
+// Reset (pre-login scope). HARD RULE: this button wipes ONLY the running conversation —
+// it starts a fresh session (new session_id → new Conversations row in Airtable). It is NOT
+// the wallet reset. Post-login the wallet reset means "conversation gone, knowledge persistent";
+// that semantic must NOT be copied here, and this pre-login reset must NOT be copied into the wallet.
 resetBtn.addEventListener('click', () => {
   conversationHistory = [];
   messageCount = 0;
-  nudgeShown = false;
   sessionId = null; // New conversation → new Conversations row.
   // Clear thread, keep empty state + typing indicator
   Array.from(thread.children).forEach(el => {
@@ -711,7 +514,6 @@ resetBtn.addEventListener('click', () => {
   });
   emptyState.style.display = '';
   if (prompts) prompts.style.display = ''; // reset = fresh cold start → chips back
-  nudge.classList.remove('visible');
   workspace.classList.remove('active');
   input.value = '';
   input.style.height = 'auto';
@@ -806,34 +608,12 @@ async function sendMessage() {
       }
     }
     let reply = (data.reply || data.text || 'Er ging iets mis. Probeer opnieuw.').trim();
-
-    // Check for nudge trigger — only AI-initiated, never automatic
-    let showNudge = false;
-    if (reply.includes('[NUDGE]')) {
-      reply = reply.replace('[NUDGE]', '').trim();
-      showNudge = true;
-    }
+    // Strip the server nudge token if present — the open layer shows NO contact CTA (canon: geen
+    // contactgegevens). This is display-only; it does not touch the logging payload/history.
+    reply = reply.replace('[NUDGE]', '').trim();
 
     conversationHistory.push({ role: 'assistant', content: reply });
     appendMessage(reply, 'ai');
-
-    if (showNudge && !nudgeShown) {
-      nudgeShown = true;
-      setTimeout(() => {
-        nudge.classList.add('visible');
-        thread.scrollTop = thread.scrollHeight;
-        // Pass conversation summary to WhatsApp URL
-        const summary = conversationHistory
-          .filter(m => m.role === 'user')
-          .map(m => m.content)
-          .slice(-3)
-          .join(' / ');
-        const waMsg = encodeURIComponent(`Hallo digiStiel, ik heb de sparring geprobeerd op jullie website. Ik wil graag verder praten. Mijn situatie: ${summary.slice(0,200)}`);
-        document.getElementById('nudgeWhatsApp').href = `https://wa.me/32487537574?text=${waMsg}`;
-        const mailBody = encodeURIComponent(`Hallo,\n\nIk heb de sparring op jullie website gebruikt en wil graag verder praten.\n\nMijn situatie:\n${summary}\n\nMet vriendelijke groeten`);
-        document.getElementById('nudgeEmail').href = `mailto:hallo@digistiel.be?subject=Gesprek%20na%20sparring&body=${mailBody}`;
-      }, 600);
-    }
 
   } catch(err) {
     setTyping(false);
