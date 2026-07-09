@@ -259,20 +259,17 @@ check('14. RIGHT context is Tree neighbours; objectType present; all reasons str
 });
 
 // ── 15: Value Story layer — literal seed narrative (temporary Narrative Provider), plan-only; goal inert ──
-check('15. Value Story: literal seed narrative surfaced for plans, goal inert; Narrative-Provider rule in code + README', () => {
+check('15. Value Story: literal seed narrative surfaced for every subject (goals + plans); Narrative-Provider rule in code + README', () => {
   const { data: d, engine } = buildWalletBundle();
   const { vanDijckValueStory } = require('../presentation/seedCustomer');
   const story = vanDijckValueStory(engine); // SAME engine as the bundle (ids are minted per load)
 
-  // valueStory present+literal for every plan summary, null for the goal (goal layer inert)
+  // valueStory present+literal for EVERY subject the Narrative Provider supplies — goals AND plans alike
+  // (canonical: goals follow the same disclosure chain).
   for (const [sid, s] of Object.entries(d.executiveSummaries)) {
-    if (s.objectType === 'plan') {
-      assert.ok(typeof s.valueStory === 'string' && s.valueStory.length > 0, `plan "${s.title}" has a Value Story`);
-      // rendered LITERALLY — byte-identical to the seed Narrative Provider (no composition/parafrase)
-      assert.strictEqual(s.valueStory, story[sid], `Value Story for "${s.title}" is the literal seed string`);
-    } else {
-      assert.strictEqual(s.valueStory, null, `non-plan "${s.title}" surfaces no Value Story (inert)`);
-    }
+    assert.ok(typeof s.valueStory === 'string' && s.valueStory.length > 0, `"${s.title}" has a Value Story`);
+    // rendered LITERALLY — byte-identical to the seed Narrative Provider (no composition/parafrase)
+    assert.strictEqual(s.valueStory, story[sid], `Value Story for "${s.title}" is the literal seed string`);
   }
 
   // the four delivered strings are present verbatim in the seed
@@ -302,23 +299,24 @@ check('15. Value Story: literal seed narrative surfaced for plans, goal inert; N
 });
 
 // ── 16: Operational Detail layer — Operational-Goal nodes DIRECT from the Tree (no second mapping) ──
-check('16. Operational Detail: OG nodes read direct from the Tree, plan-only; fixed intro; connector literal', () => {
+check('16. Operational Detail: OG nodes direct from the Tree for every subject (goal = dedup across plans); no second mapping', () => {
   const { data: d, tree } = buildWalletBundle();
-  const planOGnames = (planId) => {
-    let hit = null;
-    const visit = (n) => { if (!n || hit) return; if (n.sourceId === planId) { hit = n; return; }
+  const nodeById = (id) => { let hit = null;
+    const visit = (n) => { if (!n || hit) return; if (n.sourceId === id) { hit = n; return; }
       for (const c of [...(n.goals||[]), ...(n.plans||[]), ...(n.operationalGoals||[]), ...(n.results||[])]) visit(c); };
-    for (const it of tree.intents) visit(it);
-    return (hit.operationalGoals || []).map((og) => og.name);
+    for (const it of tree.intents) visit(it); return hit; };
+  // Expected OG names via existing relations: plan → own OGs; goal → OGs across its plans, dedup, Tree order.
+  const expectedOGnames = (sid) => {
+    const node = nodeById(sid); const seen = new Set(); const out = [];
+    const src = node.sourceType === 'StrategicGoal'
+      ? (node.plans || []).flatMap((p) => p.operationalGoals || []) : (node.operationalGoals || []);
+    for (const og of src) { if (seen.has(og.sourceId)) continue; seen.add(og.sourceId); out.push(og.name); }
+    return out;
   };
   for (const [sid, s] of Object.entries(d.executiveSummaries)) {
-    if (s.objectType === 'plan') {
-      assert.ok(Array.isArray(s.operationalDetail) && s.operationalDetail.length >= 1, `plan "${s.title}" has Operational Detail`);
-      // items are the Tree OG nodes DIRECT — byte-identical, same order (dereference, no mapping/computation)
-      assert.deepStrictEqual(s.operationalDetail, planOGnames(sid), `Operational Detail for "${s.title}" == Tree OG names`);
-    } else {
-      assert.strictEqual(s.operationalDetail, null, `non-plan "${s.title}" surfaces no Operational Detail (inert)`);
-    }
+    assert.ok(Array.isArray(s.operationalDetail) && s.operationalDetail.length >= 1, `"${s.title}" has Operational Detail`);
+    // items are the Tree OG nodes DIRECT — byte-identical, same order (dereference, no mapping/computation)
+    assert.deepStrictEqual(s.operationalDetail, expectedOGnames(sid), `Operational Detail for "${s.title}" == Tree OG names (dedup for goals)`);
   }
 
   const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
@@ -344,28 +342,30 @@ check('17. Evidence: Value-Indicator values from the Tree; no indicatorType/supp
     const visit = (n) => { if (!n || hit) return; if (n.sourceId === id) { hit = n; return; }
       for (const c of [...(n.goals||[]), ...(n.plans||[]), ...(n.operationalGoals||[]), ...(n.results||[])]) visit(c); };
     for (const it of tree.intents) visit(it); return hit; };
-  // Expected evidence rebuilt straight from the Tree plan node (dedup on sourceId) — dereference, no compute.
-  const expectedEvidence = (planId) => {
-    const seen = new Set(); const out = [];
-    for (const og of nodeById(planId).operationalGoals || []) for (const r of og.results || []) {
-      if (seen.has(r.sourceId)) continue; seen.add(r.sourceId);
-      out.push({ label: r.label, name: r.name, value: r.value, unit: r.unit });
+  // Expected evidence via existing relations: plan → own OGs' VIs; goal → VIs across its plans' OGs. Dedup.
+  const expectedEvidence = (sid) => {
+    const node = nodeById(sid); const seenV = new Set(); const out = [];
+    const ogs = node.sourceType === 'StrategicGoal'
+      ? (node.plans || []).flatMap((p) => p.operationalGoals || []) : (node.operationalGoals || []);
+    const seenOG = new Set();
+    for (const og of ogs) {
+      if (seenOG.has(og.sourceId)) continue; seenOG.add(og.sourceId);
+      for (const r of og.results || []) {
+        if (seenV.has(r.sourceId)) continue; seenV.add(r.sourceId);
+        out.push({ label: r.label, name: r.name, value: r.value, unit: r.unit });
+      }
     }
     return out;
   };
 
   for (const [sid, s] of Object.entries(d.executiveSummaries)) {
-    if (s.objectType === 'plan') {
-      assert.ok(Array.isArray(s.evidence) && s.evidence.length >= 1, `plan "${s.title}" has Evidence`);
-      // value-only shape + label; exact match to the Tree indicators (dedup, order, value, unit)
-      for (const e of s.evidence) {
-        assert.deepStrictEqual(Object.keys(e).sort(), ['label', 'name', 'unit', 'value'], 'evidence item is value-only');
-        assert.strictEqual(e.label, 'je resultaat', 'projected customer-language label');
-      }
-      assert.deepStrictEqual(s.evidence, expectedEvidence(sid), `Evidence for "${s.title}" == Tree indicators (dereferenced, dedup)`);
-    } else {
-      assert.strictEqual(s.evidence, null, `non-plan "${s.title}" surfaces no Evidence (inert)`);
+    assert.ok(Array.isArray(s.evidence) && s.evidence.length >= 1, `"${s.title}" has Evidence`);
+    // value-only shape + label; exact match to the Tree indicators (dedup, order, value, unit)
+    for (const e of s.evidence) {
+      assert.deepStrictEqual(Object.keys(e).sort(), ['label', 'name', 'unit', 'value'], 'evidence item is value-only');
+      assert.strictEqual(e.label, 'je resultaat', 'projected customer-language label');
     }
+    assert.deepStrictEqual(s.evidence, expectedEvidence(sid), `Evidence for "${s.title}" == Tree indicators (dereferenced, dedup)`);
   }
 
   // no mechanic/channel term anywhere in the Evidence output
@@ -387,6 +387,61 @@ check('17. Evidence: Value-Indicator values from the Tree; no indicatorType/supp
   const proj = require('fs').readFileSync(require('path').join(__dirname, '..', 'presentation', 'projection.js'), 'utf8');
   const projInd = proj.slice(proj.indexOf('projectIndicator'), proj.indexOf('projectIndicator') + 260);
   assert.ok(!/indicatorType|supportedBy/.test(projInd), 'projectIndicator does not project indicatorType/supportedBy');
+});
+
+// ── 18: GOAL DISCLOSURE CHAIN PROOF — a Goal runs the full canonical chain (Platform points 5 + 12) ──
+check('18. Goal disclosure chain: goal1 runs Value Story → Operational Detail → Evidence (dedup); no gate; read-only', () => {
+  const { data: d, tree, engine } = buildWalletBundle();
+  const { vanDijckValueStory } = require('../presentation/seedCustomer');
+  const story = vanDijckValueStory(engine);
+  const nodeById = (id) => { let hit = null;
+    const visit = (n) => { if (!n || hit) return; if (n.sourceId === id) { hit = n; return; }
+      for (const c of [...(n.goals||[]), ...(n.plans||[]), ...(n.operationalGoals||[]), ...(n.results||[])]) visit(c); };
+    for (const it of tree.intents) visit(it); return hit; };
+
+  // locate the single goal subject
+  const goalEntry = Object.entries(d.executiveSummaries).find(([, s]) => s.objectType === 'goal');
+  assert.ok(goalEntry, 'a goal subject exists in the wallet');
+  const [gid, g] = goalEntry;
+  const node = nodeById(gid);
+  assert.strictEqual(node.sourceType, 'StrategicGoal', 'subject is a Strategic Goal');
+
+  // 1) Value Story active + literal (scenario3, previously dormant)
+  assert.ok(g.valueStory && g.valueStory === story[gid], 'goal Value Story is the literal seed string');
+  assert.ok(g.valueStory.includes('Alles wat je nu doet — je winkel, je webshop, je klanten die terugkomen'), 'goal Value Story == delivered scenario3 string');
+
+  // 2) Operational Detail = the OGs across the goal's plans, dedup, Tree order
+  const seenOG = new Set(); const ogNames = []; const ogNodes = [];
+  for (const p of node.plans || []) for (const og of p.operationalGoals || []) {
+    if (seenOG.has(og.sourceId)) continue; seenOG.add(og.sourceId); ogNames.push(og.name); ogNodes.push(og);
+  }
+  assert.ok(ogNames.length >= 2, 'goal aggregates OGs from more than one plan');
+  assert.deepStrictEqual(g.operationalDetail, ogNames, 'goal Operational Detail == dedup OGs across its plans');
+
+  // 3) Evidence = the VIs under those OGs, dedup, value-only, no mechanic/channel
+  const seenV = new Set(); const vis = [];
+  for (const og of ogNodes) for (const r of og.results || []) {
+    if (seenV.has(r.sourceId)) continue; seenV.add(r.sourceId); vis.push({ label: r.label, name: r.name, value: r.value, unit: r.unit });
+  }
+  assert.deepStrictEqual(g.evidence, vis, 'goal Evidence == dedup VIs under its OGs');
+  for (const e of g.evidence) assert.deepStrictEqual(Object.keys(e).sort(), ['label', 'name', 'unit', 'value'], 'goal Evidence item is value-only');
+  const gEvBlob = JSON.stringify(g.evidence);
+  for (const term of ['indicatorType', 'supportedBy', 'aggregat', 'lagging', 'leading', 'ERP', 'CRM', 'SEO', 'TikTok', 'Google ads']) {
+    assert.ok(!gEvBlob.includes(term), `goal Evidence must not leak mechanic/channel: "${term}"`);
+  }
+
+  // 4) no objectType gate suppresses the disclosure — the story prompt is content-gated (s.valueStory), not typed
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'wallet.html'), 'utf8');
+  const bw = require('fs').readFileSync(require('path').join(__dirname, '..', 'scripts', 'build-wallet.js'), 'utf8');
+  assert.ok(!/objectType === '(plan|goal)'/.test(html), 'no objectType gate in wallet.html');
+  assert.ok(!/objectType === '(plan|goal)'\s*\?/.test(bw), 'no objectType gate on the disclosure fields in build-wallet.js');
+  assert.ok(/var p3 = s\.valueStory \? promptTurn\(CONNECTOR_STORY\)/.test(html), 'story prompt is content-gated (Reserve, Don\'t Activate), not typed — appears for a goal with a narrative');
+
+  // 5) read-only — the presentation read path does not mutate the store
+  const eng2 = loadSeedCustomer();
+  const before = JSON.stringify(eng2.store);
+  JSON.stringify(P.projectWallet(P.makeReader(eng2))); // the read the build performs
+  assert.strictEqual(JSON.stringify(eng2.store), before, 'projection/read is read-only — store snapshot identical before/after');
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

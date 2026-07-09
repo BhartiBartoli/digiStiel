@@ -6,7 +6,7 @@
     "intro": "Het meeste loopt zoals het hoort. Dit zijn de dingen die vandaag even je aandacht waard zijn — geen brandjes, gewoon het bekijken waard.",
     "cards": [
       {
-        "sourceId": "vp_mrd7v2b56v50ti4",
+        "sourceId": "vp_mrdg6i5j6ivbxvn",
         "title": "je plan: Bekend worden in een grotere regio",
         "summary": "Dit plan wacht op jouw akkoord om verder te gaan.",
         "tone": "geruststellend",
@@ -14,7 +14,7 @@
         "hasSummary": true
       },
       {
-        "sourceId": "sg_mrd7v2b52bysbdx",
+        "sourceId": "sg_mrdg6i5j2neojqd",
         "title": "je doel: Bestaande business laten groeien",
         "summary": "Dit loopt voor op schema — mooi bezig.",
         "tone": "warm",
@@ -22,7 +22,7 @@
         "hasSummary": true
       },
       {
-        "sourceId": "vp_mrd7v2b5357l05u",
+        "sourceId": "vp_mrdg6i5j3jzcu4t",
         "title": "je plan: Meer online omzet uit bestaande klanten",
         "summary": "Een signaal om even in de gaten te houden.",
         "tone": "kalm",
@@ -32,7 +32,7 @@
     ]
   },
   "executiveSummaries": {
-    "sg_mrd7v2b52bysbdx": {
+    "sg_mrdg6i5j2neojqd": {
       "title": "je doel: Bestaande business laten groeien",
       "objectType": "goal",
       "understanding": "Je omzetdoel voor dit jaar ligt voor op schema — winkel en webshop trekken samen goed.",
@@ -77,11 +77,41 @@
           ]
         }
       ],
-      "valueStory": null,
-      "operationalDetail": null,
-      "evidence": null
+      "valueStory": "Alles wat je nu doet — je winkel, je webshop, je klanten die terugkomen — komt samen in dit ene doel: groeien uit je bestaande business. Dat het voorloopt, betekent dat die onderdelen samen sterker werken dan verwacht. Dit is waar je losse inspanningen optellen tot echte vooruitgang.",
+      "operationalDetail": [
+        "Bestaande klanten vinden en gebruiken de webshop",
+        "Klanten kopen ook online, niet enkel in de winkel",
+        "Mensen buiten de buurt vinden de winkel online",
+        "Tevreden klanten in de regio brengen nieuwe klanten aan"
+      ],
+      "evidence": [
+        {
+          "label": "je resultaat",
+          "name": "Omzet",
+          "value": 2170000,
+          "unit": "EUR"
+        },
+        {
+          "label": "je resultaat",
+          "name": "Conversie",
+          "value": 2.8,
+          "unit": "%"
+        },
+        {
+          "label": "je resultaat",
+          "name": "Klanten",
+          "value": 48,
+          "unit": "klanten"
+        },
+        {
+          "label": "je resultaat",
+          "name": "Retentie",
+          "value": 31,
+          "unit": "%"
+        }
+      ]
     },
-    "vp_mrd7v2b5357l05u": {
+    "vp_mrdg6i5j3jzcu4t": {
       "title": "je plan: Meer online omzet uit bestaande klanten",
       "objectType": "plan",
       "understanding": "Je bestaande klanten kopen de laatste weken wat minder online dan gewoonlijk. Nog geen groot verschil, maar het is het bekijken waard nu het net begint.",
@@ -151,7 +181,7 @@
         }
       ]
     },
-    "vp_mrd7v2b56v50ti4": {
+    "vp_mrdg6i5j6ivbxvn": {
       "title": "je plan: Bekend worden in een grotere regio",
       "objectType": "plan",
       "understanding": "Er ligt een plan voor je klaar om buiten je eigen buurt bekend te worden. Voor er iets start, kijk jij het eerst na — jij beslist of we ermee verdergaan.",
@@ -215,7 +245,7 @@
         }
       ]
     },
-    "vp_mrd7v2b6eg4j678": {
+    "vp_mrdg6i5keuiot2x": {
       "title": "je plan: Eerste projectklanten winnen",
       "objectType": "plan",
       "understanding": "Je nieuwe interieur-projectendienst staat klaar om te beginnen. Er is nog weinig gebeurd — dit is het prille begin, en dat is precies zoals het hoort op dit punt.",
