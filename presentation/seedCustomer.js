@@ -229,8 +229,8 @@ function vanDijckExecutiveSummaries(engine) {
 // demo seed. The seed is a temporary Narrative Provider used to validate the Presentation architecture.
 // Presentation renders the supplied narrative and never constructs one itself. Later a real Narrative
 // Provider (AI agent / Decision Intelligence / combination) supplies the same string; the Presentation
-// architecture does not change. (goal1's story is present verbatim as delivered but stays DORMANT while
-// the goal layer is inert — Reserve, Don't Activate.)
+// architecture does not change. (goal1 loopt de volledige disclosure-keten: Operational Detail + Evidence
+// via de dedup-leesrichting over de onderliggende plannen — PR #27 Canon Alignment.)
 function vanDijckValueStory(engine) {
   const store = engine.store;
   const goalByName = (name) => all(store, 'strategicGoals').find((g) => g.name === name);
