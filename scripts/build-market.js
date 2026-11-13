@@ -49,12 +49,14 @@ const NL_OPEN = {
   '__OPEN_CHIP_4__':      'De verkoop hangt te veel van jou af',
   '__OPEN_CHIP_5__':      'Klanten komen één keer en dan niet meer terug',
   '__OPEN_CHIP_6__':      'De cijfers bewegen, maar je weet niet waaróm',
-  '__OPEN_FOOTER__':      'powered by Atlas',
 };
+// Geen footer-token: de "powered by Atlas"-endorsement is verwijderd (beslissing DEC-S02-02, 13 nov 2026 —
+// Atlas is intern en mag nooit aan klanten getoond worden). Later geen footer-copy terug toevoegen.
 const OPEN_COPY = {
   be: NL_OPEN,
   nl: NL_OPEN,
   // com: { ...EN... }  ← TODO (M&S): Engelse open-laag-copy voor .com. Geen com-open-build tot dit bestaat.
+  //      Geen footer-token toevoegen (DEC-S02-02: geen Atlas-endorsement aan klanten).
 };
 
 function replacements({ key, market, base }) {
